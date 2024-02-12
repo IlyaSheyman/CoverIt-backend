@@ -1,12 +1,13 @@
-package ru.practicum.springbootapp;
+package coverItApp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringBootApp {
+public class CoverItApp {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringBootApp.class, args);
+        SpringApplication.run(CoverItApp.class, args);
     }
+
 }
