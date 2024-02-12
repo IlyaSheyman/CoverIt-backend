@@ -1,0 +1,32 @@
+version: '3.1'
+
+services:
+  image-server:
+    build: image-service/image-server
+    image: image-server
+    container_name: image-server
+    ports:
+      - "9090:9090"
+
+  ewm-service:
+    build: main-service
+    image: main-service
+    container_name: main-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - coverit-db
+      - image-server
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://coverit-db:5432/coverit
+
+
+  coverit-db:
+    image: postgres:14-alpine
+    container_name: postgres-coverit
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=coverit
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root

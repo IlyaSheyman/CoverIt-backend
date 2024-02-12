@@ -1,0 +1,11 @@
+package coverit;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ImageServerApp {
+    public static void main(String[] args) {
+        SpringApplication.run(ImageServerApp.class, args);
+    }
+}
