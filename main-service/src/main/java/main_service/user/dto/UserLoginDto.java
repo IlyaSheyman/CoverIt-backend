@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import static main_service.constants.Constants.*;
+import static main_service.constants.Constants.MAX_USER_EMAIL_LENGTH;
 
 @Getter
 @Setter
@@ -21,13 +22,7 @@ import static main_service.constants.Constants.*;
 @AllArgsConstructor
 @Builder
 @ToString
-public class UserCreateDto {
-
-    @Size(
-            min = MIN_USERNAME_LENGTH,
-            max = MAX_USERNAME_LENGTH
-    )
-    private @NotNull @NotBlank String username;
+public class UserLoginDto {
 
     @Size(
             min = MIN_USER_EMAIL_LENGTH,
@@ -38,6 +33,4 @@ public class UserCreateDto {
     @ValidPassword
     private @NotNull @NotBlank String password;
 
-    @ValidPassword
-    private @NotNull @NotBlank String confirmPassword;
 }

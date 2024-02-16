@@ -13,7 +13,7 @@ public class ImageServerService {
 
     private final ImageClientService client;
     
-    public void getPlayListByUrl() {
+    public void getPlayListByUrl(String url, int userId) {
         client.getPlayListByUrl();
     }
 

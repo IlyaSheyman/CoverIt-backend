@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,10 +19,11 @@ public class ImageServerController {
     private final ImageServerService service;
 
     @GetMapping("/playlist")
-    public void getPlaylistByUrl(@RequestParam(required = true) String url) {
+    public void getPlaylistByUrl(@RequestHeader(value = "X-User-Id") int userId,
+                                 @RequestParam(required = true) String url) {
         log.info("[IMAGE_SERVER] get playlist by URL {}", url);
 
-        service.getPlayListByUrl();
+        service.getPlayListByUrl(url, userId);
     }
 
     @GetMapping("/prompt")
