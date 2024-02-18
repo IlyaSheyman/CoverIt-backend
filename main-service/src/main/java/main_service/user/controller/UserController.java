@@ -22,14 +22,14 @@ import javax.validation.Valid;
 @RestController
 @Slf4j
 @Validated
-@RequestMapping(name = "/user")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
 
     @Qualifier("UserServiceImpl")
     private final UserService service;
 
-    @PostMapping(name = "/register")
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public UserCreateDto create(@RequestBody @Valid UserCreateDto dto) {
         log.info("[USER_CONTROLLER] create user {}", dto.toString());
@@ -37,7 +37,7 @@ public class UserController {
         return service.create(dto);
     }
 
-    @PostMapping(name = "/login")
+    @PostMapping("/login")
     public UserLoginDto login(@RequestBody @Valid UserLoginDto dto) {
         log.info("[USER_CONTROLLER] login user {}", dto.toString());
 

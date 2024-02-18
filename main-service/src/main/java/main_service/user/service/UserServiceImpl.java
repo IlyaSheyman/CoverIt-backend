@@ -1,22 +1,23 @@
 package main_service.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.user.dto.UserCreateDto;
 import main_service.user.dto.UserLoginDto;
 import main_service.user.dto.UserMapper;
-import main_service.user.dto.UserUpdateDto;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
-    private final UserMapper mapper;
+    private UserMapper mapper;
 
     @Override
     public UserCreateDto create(UserCreateDto dto) {
@@ -60,7 +61,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private String isExistsUsername(String username) {
-        if (repository.existsByNameIgnoreCase(username)) {
+        if (repository.existsByUsernameIgnoreCase(username)) {
             throw new ConflictRequestException(String.format("User with username %s already exists", username));
         } else {
             return username;

@@ -9,8 +9,8 @@ import lombok.Setter;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-@Entity
-@Table(name = "playlist")
+//@Entity
+//@Table(name = "playlist")
 @Getter
 @Setter
 @AllArgsConstructor

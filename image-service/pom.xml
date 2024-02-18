@@ -6,15 +6,15 @@
     <parent>
         <groupId>coverit</groupId>
         <artifactId>app</artifactId>
-        <version>0.0.10-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
 
     <artifactId>image-service</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>image-client</module>
         <module>image-server</module>
+        <module>image-client</module>
     </modules>
 
     <properties>
