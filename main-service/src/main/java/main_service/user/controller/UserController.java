@@ -43,14 +43,14 @@ public class UserController {
 
         return service.login(dto);
     }
-
-    @PatchMapping
-    public void update() {
-
-    }
-
-    @DeleteMapping
-    public void delete() {
-
-    }
+//
+//    @PatchMapping
+//    public void update() {
+//
+//    }
+//
+//    @DeleteMapping
+//    public void delete() {
+//
+//    }
 }
