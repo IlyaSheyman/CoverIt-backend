@@ -1,4 +1,4 @@
-//package main_service.card.cover.client;
-//
-//public class BaseClient {
-//}
+package main_service.card.cover.client;
+
+public class BaseClient {
+}
