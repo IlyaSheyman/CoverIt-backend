@@ -32,4 +32,13 @@ public interface Constants {
         }
         return PageRequest.of(from / size, size);
     }
+
+    enum Vibe {
+        DANCING_FLOOR,
+        NATURE_DOES_NOT_CARE,
+        SOUND_OF_NOTHING,
+        CAMPFIRE_CALMNESS,
+        TOUGH_AND_STRAIGHT,
+        GARDEN_OF_NOSTALGIA
+    }
 }
