@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
+import main_service.exception.model.NotFoundException;
 import main_service.user.dto.UserCreateDto;
 import main_service.user.dto.UserLoginDto;
-import main_service.user.dto.UserMapper;
+import main_service.user.dto.UserUpdateDto;
+import main_service.user.mapper.UserMapper;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
-    private UserMapper mapper;
+    private final UserMapper mapper;
 
     @Override
     public UserCreateDto create(UserCreateDto dto) {
@@ -74,5 +76,28 @@ public class UserServiceImpl implements UserService {
         } else {
             return email;
         }
+    }
+
+    private void isExistsById(int userId) {
+        if (!repository.existsById(userId)) {
+            throw new NotFoundException(String.format("User with id %d not found", userId));
+        }
+    }
+
+    @Override
+    public void delete(int userId) {
+        isExistsById(userId);
+        repository.deleteById(userId);
+        log.info("[USER_SERVICE] user with id {} is deleted successfully", userId);
+    }
+
+    @Override
+    public UserUpdateDto update(int userId, UserUpdateDto dto) {
+        isExistsById(userId);
+        User user = repository.getById(userId);
+        user.setUsername(dto.getUsername());
+        repository.save(user);
+
+        return dto;
     }
 }

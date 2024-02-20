@@ -5,12 +5,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.user.dto.UserCreateDto;
 import main_service.user.dto.UserLoginDto;
+import main_service.user.dto.UserUpdateDto;
 import main_service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,14 +43,20 @@ public class UserController {
 
         return service.login(dto);
     }
-//
-//    @PatchMapping
-//    public void update() {
-//
-//    }
-//
-//    @DeleteMapping
-//    public void delete() {
-//
-//    }
+
+    @PatchMapping("/update")
+    public UserUpdateDto update(@RequestHeader(name = "X-User-Id") int userId,
+                       @RequestBody @Valid UserUpdateDto dto) {
+        log.info("[USER_CONTROLLER] update user with id {}", userId);
+
+        return service.update(userId, dto);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/delete")
+    public void delete(@RequestHeader(name = "X-User-Id") int userId) {
+        log.info("[USER_CONTROLLER] delete user with id {}", userId);
+
+        service.delete(userId);
+    }
 }

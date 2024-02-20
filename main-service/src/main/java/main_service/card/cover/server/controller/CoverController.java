@@ -3,9 +3,7 @@ package main_service.card.cover.server.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.card.cover.server.service.CoverService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,7 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/cover")
 public class CoverController {
+
+    @Qualifier("CoverServiceImpl")
     private final CoverService service;
+
 
 //    @GetMapping
 //    public void getCoverByPlaylistURL(@RequestBody String url,
@@ -22,5 +23,4 @@ public class CoverController {
 //        log.info("[MAIN_SERVER] get cover by playlist URL {}", url);
 //        service.getCover(url, userId);
 //    }
-
 }

@@ -40,10 +40,10 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
 
         PasswordValidator validator = new PasswordValidator(resolver, Arrays.asList(
                 new LengthRule(MIN_USER_PASSWORD_LENGTH, MAX_USER_PASSWORD_LENGTH),
-                // at least two upper-case character
-                new CharacterRule(EnglishCharacterData.UpperCase, 2),
-                // at least two lower-case character
-                new CharacterRule(EnglishCharacterData.LowerCase, 2),
+                // at least one upper-case character
+                new CharacterRule(EnglishCharacterData.UpperCase, 1),
+                // at least one lower-case character
+                new CharacterRule(EnglishCharacterData.LowerCase, 1),
                 // at least one digit character
                 new CharacterRule(EnglishCharacterData.Digit, 1),
                 // at least one special character

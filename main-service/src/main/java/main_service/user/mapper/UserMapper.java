@@ -1,5 +1,7 @@
-package main_service.user.dto;
+package main_service.user.mapper;
 
+import main_service.user.dto.UserCreateDto;
+import main_service.user.dto.UserLoginDto;
 import main_service.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -9,9 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface UserMapper {
 
-    @Mapping(target = "confirmPassword", source = "user.password")
     UserCreateDto toUserCreateDto(User user);
 
     UserLoginDto toUserLoginDto(User user);
-
 }
