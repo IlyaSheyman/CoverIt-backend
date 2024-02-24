@@ -8,6 +8,7 @@ import main_service.exception.model.NotFoundException;
 import main_service.user.dto.UserCreateDto;
 import main_service.user.dto.UserLoginDto;
 import main_service.user.dto.UserUpdateDto;
+import main_service.user.dto.UserUpdatePasswordDto;
 import main_service.user.mapper.UserMapper;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
@@ -78,10 +79,10 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void isExistsById(int userId) {
-        if (!repository.existsById(userId)) {
-            throw new NotFoundException(String.format("User with id %d not found", userId));
-        }
+    private User isExistsById(int userId) {
+        return repository
+                .findById(userId)
+                .orElseThrow(()-> new NotFoundException(String.format("User with id %d not found", userId)));
     }
 
     @Override
@@ -92,12 +93,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserUpdateDto update(int userId, UserUpdateDto dto) {
-        isExistsById(userId);
-        User user = repository.getById(userId);
+    public UserUpdateDto updateUsername(int userId, UserUpdateDto dto) {
+
+        User user = isExistsById(userId);
         user.setUsername(dto.getUsername());
         repository.save(user);
 
         return dto;
+    }
+
+    @Override
+    public UserLoginDto updatePassword(int userId, UserUpdatePasswordDto dto) {
+        User user = isExistsById(userId);
+
+        if (!dto.getPassword().equals(dto.getConfirmPassword())) {
+            throw new BadRequestException("Password confirmation exception");
+        } else {
+            user.setPassword(dto.getPassword());
+        }
+
+        repository.save(user);
+
+        return mapper.toUserLoginDto(user);
     }
 }

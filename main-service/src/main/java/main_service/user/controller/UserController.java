@@ -1,11 +1,16 @@
 package main_service.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.user.dto.UserCreateDto;
 import main_service.user.dto.UserLoginDto;
 import main_service.user.dto.UserUpdateDto;
+import main_service.user.dto.UserUpdatePasswordDto;
 import main_service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -29,6 +34,17 @@ public class UserController {
     @Qualifier("UserServiceImpl")
     private final UserService service;
 
+    @Operation(
+            description = "Register user with email and password + password confirmation",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            content = @Content(
+                                    schema = @Schema(implementation = UserCreateDto.class)
+                            )
+                    )
+            }
+    )
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public UserCreateDto create(@RequestBody @Valid UserCreateDto dto) {
@@ -37,6 +53,17 @@ public class UserController {
         return service.create(dto);
     }
 
+    @Operation(
+            description = "Login user with email and password",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(implementation = UserLoginDto.class)
+                            )
+                    )
+            }
+    )
     @PostMapping("/login")
     public UserLoginDto login(@RequestBody @Valid UserLoginDto dto) {
         log.info("[USER_CONTROLLER] login user {}", dto.toString());
@@ -44,14 +71,52 @@ public class UserController {
         return service.login(dto);
     }
 
-    @PatchMapping("/update")
-    public UserUpdateDto update(@RequestHeader(name = "X-User-Id") int userId,
+    @Operation(
+            description = "Update username by userId",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(implementation = UserUpdateDto.class)
+                            )
+                    )
+            }
+    )
+    @PatchMapping("/update/username")
+    public UserUpdateDto updateUsername(@RequestHeader(name = "X-User-Id") int userId,
                        @RequestBody @Valid UserUpdateDto dto) {
-        log.info("[USER_CONTROLLER] update user with id {}", userId);
+        log.info("[USER_CONTROLLER] update user's with id {} username", userId);
 
-        return service.update(userId, dto);
+        return service.updateUsername(userId, dto);
     }
 
+    @Operation(
+            description = "Update password by userId",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(implementation = UserLoginDto.class)
+                            )
+                    )
+            }
+    )
+    @PatchMapping("/update/password")
+    public UserLoginDto updateUsername(@RequestHeader(name = "X-User-Id") int userId,
+                                                @RequestBody @Valid UserUpdatePasswordDto dto) {
+        log.info("[USER_CONTROLLER] update user's with id {} password", userId);
+
+        return service.updatePassword(userId, dto);
+    }
+
+    @Operation(
+            description = "Delete username by userId",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204"
+                    )
+            }
+    )
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/delete")
     public void delete(@RequestHeader(name = "X-User-Id") int userId) {
