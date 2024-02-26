@@ -21,6 +21,17 @@ public interface Constants {
     String FROM = "0";
     String SIZE = "10";
 
+    int MIN_PLAYLIST_TITLE_LENGTH = 1;
+    int MAX_PLAYLIST_TITLE_LENGTH = 200;
+
+    int MIN_TRACK_TITLE_LENGTH = 1;
+    int MAX_TRACK_TITLE_LENGTH = 200;
+    int MIN_AUTHOR_NAME_LENGTH = 1;
+    int MAX_AUTHOR_NAME_LENGTH = 200;
+
+    int MIN_LINK_LENGTH = 5;
+    int MAX_LINK_LENGTH = 400;
+
     static Pageable checkPageable(Integer from, Integer size, Sort sort) {
         if (from == null) from = Integer.parseInt(FROM);
         if (size == null) size = Integer.parseInt(SIZE);
