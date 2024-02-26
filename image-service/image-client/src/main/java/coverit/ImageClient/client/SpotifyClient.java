@@ -3,35 +3,52 @@ package coverit.ImageClient.client;
 import com.neovisionaries.i18n.CountryCode;
 import coverit.ImageClient.dto.PlaylistDto;
 import coverit.ImageClient.dto.TrackDto;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.stereotype.Component;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
+import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 
 @Slf4j
-@NoArgsConstructor
 @Component
 public class SpotifyClient {
+    private static final String clientId = "9c5799d5294b4a2fb2b42d699177ab95";
+    private static final String clientSecret = "db6d6aa567d84edf8327b27919d0258b";
     private static final SpotifyApi spotifyApi = new SpotifyApi.Builder()
-            .setClientId("9c5799d5294b4a2fb2b42d699177ab95")
-            .setClientSecret("db6d6aa567d84edf8327b27919d0258b")
+            .setClientId(clientId)
+            .setClientSecret(clientSecret)
             .build();
+    private static final ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
+            .build();
+
+    public static void clientCredentials_Sync() {
+        try {
+            final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
+            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+
+            log.info("Expires in: " + clientCredentials.getExpiresIn());
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            log.warn("Error: " + e.getMessage());
+        }
+    }
 
     public PlaylistDto getPlaylistByUrl(String url) {
         try {
+            clientCredentials_Sync();
+
             String playlistId = extractPlaylistIdFromUrl(url);
 
             GetPlaylistRequest getPlaylistRequest = spotifyApi
                     .getPlaylist(playlistId)
-                    .market(CountryCode.US)
                     .build();
 
             Playlist playlist = getPlaylistRequest.execute();
@@ -44,11 +61,12 @@ public class SpotifyClient {
             return playlistDto;
         } catch (ParseException | IOException | SpotifyWebApiException e) {
             log.warn("Error: " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
-        return null;
     }
 
     private ArrayList<TrackDto> getTracksFromPlaylist(Playlist playlist) {
+
         ArrayList<TrackDto> tracksDto = new ArrayList<>();
 
         for (PlaylistTrack playlistTrack : playlist.getTracks().getItems()) {

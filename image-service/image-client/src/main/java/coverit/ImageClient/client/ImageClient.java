@@ -21,8 +21,6 @@ public class ImageClient {
 
     public PlaylistDto getPlayListByUrl(String url) {
         //на долгий срок: TODO добавить получение плейлиста из Яндекс Музыки, отдельный клиент
-
-
         if (url.matches(SPOTIFY_REGEX)) {
             return spotifyClient.getPlaylistByUrl(url);
         } else if (url.matches(YANDEX_MUSIC_REGEX)) {
@@ -30,8 +28,6 @@ public class ImageClient {
         } else {
             throw new BadRequestException("incorrect url");
         }
-
-
     }
 
     public void getPromptByPlaylist() {
