@@ -1,6 +1,5 @@
 package coverit.ImageClient.client;
 
-import com.neovisionaries.i18n.CountryCode;
 import coverit.ImageClient.dto.PlaylistDto;
 import coverit.ImageClient.dto.TrackDto;
 import lombok.extern.slf4j.Slf4j;
@@ -9,14 +8,14 @@ import org.springframework.stereotype.Component;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
-import se.michaelthelin.spotify.model_objects.specification.Playlist;
-import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
+import se.michaelthelin.spotify.model_objects.specification.*;
 import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -68,14 +67,24 @@ public class SpotifyClient {
     private ArrayList<TrackDto> getTracksFromPlaylist(Playlist playlist) {
 
         ArrayList<TrackDto> tracksDto = new ArrayList<>();
+        Paging<PlaylistTrack> playlistTrackPaging = playlist.getTracks();
 
-        for (PlaylistTrack playlistTrack : playlist.getTracks().getItems()) {
-            String trackTitle = playlistTrack.getTrack().getName();
+        for (PlaylistTrack playlistTrack : playlistTrackPaging.getItems()) {
+            Track track = (Track) playlistTrack.getTrack();
+            String trackTitle = track.getName();
+
+            ArtistSimplified[] trackAuthors = track.getArtists();
+            List<String> authors = new ArrayList<>();
+
+            for (ArtistSimplified author: trackAuthors) {
+                authors.add(author.getName());
+            };
+
             TrackDto trackDto = TrackDto.builder()
                     .title(trackTitle)
-                    .author(trackTitle) //TODO возможно имя автора и название трека хранятся в одном String,
-                    // поэтому пока делаем такую реализацию, чтобы потом понять, как их разделить
+                    .authors(authors)
                     .build();
+
             tracksDto.add(trackDto);
         }
 
@@ -83,7 +92,7 @@ public class SpotifyClient {
     }
 
     private String extractPlaylistIdFromUrl(String playlistUrl) {
-        String[] urlParts = playlistUrl.split("/");
+        String[] urlParts = playlistUrl.split("\\?")[0].split("/");
         return urlParts[urlParts.length - 1];
     }
 }
