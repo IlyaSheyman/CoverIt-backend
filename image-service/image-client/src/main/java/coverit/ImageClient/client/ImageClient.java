@@ -16,8 +16,8 @@ import static coverit.ImageClient.constants.Constants.YANDEX_MUSIC_REGEX;
 @Service
 public class ImageClient {
 
-    @Autowired
     private final SpotifyClient spotifyClient;
+    private final ChatGptClient chatGptClient;
 
     public PlaylistDto getPlayListByUrl(String url) {
         //на долгий срок: TODO добавить получение плейлиста из Яндекс Музыки, отдельный клиент
@@ -30,7 +30,8 @@ public class ImageClient {
         }
     }
 
-    public void getPromptByPlaylist() {
+    public String getPromptByPlaylist(String text) {
+        return chatGptClient.chatGPT(text);
     }
 
     public void getCoverByPrompt() {

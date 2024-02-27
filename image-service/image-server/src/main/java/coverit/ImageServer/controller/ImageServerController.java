@@ -32,4 +32,12 @@ public class ImageServerController {
         log.info("[IMAGE_SERVER] get playlist by URL {}", url);
         return service.getPlayListByUrl(url);
     }
+
+    @ResponseBody
+    @GetMapping("/chatgpt")
+    public String chatGPT(@RequestBody String text) {
+        log.info("[IMAGE_SERVER] chatGPT request with text {}", text);
+
+        return service.getPromptByPlayList(text);
+    }
 }

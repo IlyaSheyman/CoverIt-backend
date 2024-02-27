@@ -23,12 +23,11 @@ public class ImageServerService {
         return client.getPlayListByUrl(url);
     }
 
-    public void getPromptByPlayList(PlaylistDto playlistDto) {
-        client.getPromptByPlaylist();
+    public String getPromptByPlayList(String text) {
+        return client.getPromptByPlaylist(text);
     }
 
     public void getCoverByPrompt(String prompt) {
         client.getCoverByPrompt();
     }
-
 }
