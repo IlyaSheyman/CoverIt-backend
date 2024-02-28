@@ -5,6 +5,7 @@ import coverit.ImageClient.exception.BadRequestException;
 import coverit.ImageClient.exception.UnsupportedRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.client.AiClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ import static coverit.ImageClient.constants.Constants.YANDEX_MUSIC_REGEX;
 public class ImageClient {
 
     private final SpotifyClient spotifyClient;
-    private final ChatGptClient chatGptClient;
+    private final AiClient aiClient;
 
     public PlaylistDto getPlayListByUrl(String url) {
         //на долгий срок: TODO добавить получение плейлиста из Яндекс Музыки, отдельный клиент
@@ -31,7 +32,7 @@ public class ImageClient {
     }
 
     public String getPromptByPlaylist(String text) {
-        return chatGptClient.chatGPT(text);
+        return aiClient.generate(text);
     }
 
     public void getCoverByPrompt() {
