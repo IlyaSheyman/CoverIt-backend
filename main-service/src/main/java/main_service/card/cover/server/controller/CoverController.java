@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/cover")
 public class CoverController {
 
-    @Qualifier("CoverServiceImpl")
     private final CoverService service;
 
 
@@ -29,6 +28,7 @@ public class CoverController {
                                       @RequestParam(name = "is_private", required = true) @NotNull Boolean isPrivate,
                                       @RequestHeader(value = "X-User-Id") int userId) {
         log.info("[MAIN_SERVER] get cover by playlist URL {}", url);
-        service.getCover(userId,url, vibe, isPrivate);
+
+        service.getCover(userId, url, vibe, isPrivate);
     }
 }

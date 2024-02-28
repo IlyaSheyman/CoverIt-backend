@@ -6,7 +6,6 @@ import coverit.ImageClient.exception.UnsupportedRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.client.AiClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static coverit.ImageClient.constants.Constants.SPOTIFY_REGEX;
@@ -31,7 +30,7 @@ public class ImageClient {
         }
     }
 
-    public String getPromptByPlaylist(String text) {
+    public String chatGpt(String text) {
         return aiClient.generate(text);
     }
 

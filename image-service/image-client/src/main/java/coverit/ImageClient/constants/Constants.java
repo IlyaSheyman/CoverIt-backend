@@ -6,4 +6,13 @@ public interface Constants {
 
     int MIN_LINK_LENGTH = 5;
     int MAX_LINK_LENGTH = 115;
+
+    enum Vibe {
+        DANCING_FLOOR,
+        NATURE_DOES_NOT_CARE,
+        SOUND_OF_NOTHING,
+        CAMPFIRE_CALMNESS,
+        TOUGH_AND_STRAIGHT,
+        GARDEN_OF_NOSTALGIA
+    }
 }
