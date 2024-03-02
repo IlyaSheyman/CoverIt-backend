@@ -22,7 +22,7 @@ public interface Constants {
     String SIZE = "10";
 
     int MIN_PLAYLIST_TITLE_LENGTH = 1;
-    int MAX_PLAYLIST_TITLE_LENGTH = 200;
+    int MAX_PLAYLIST_TITLE_LENGTH = 50;
 
     int MIN_TRACK_TITLE_LENGTH = 1;
     int MAX_TRACK_TITLE_LENGTH = 200;
@@ -50,6 +50,8 @@ public interface Constants {
         SOUND_OF_NOTHING,
         CAMPFIRE_CALMNESS,
         TOUGH_AND_STRAIGHT,
-        GARDEN_OF_NOSTALGIA
+        GARDEN_OF_NOSTALGIA,
+        FUTURE_IS_NOW,
+        ROUTINE_SOUNDS
     }
 }

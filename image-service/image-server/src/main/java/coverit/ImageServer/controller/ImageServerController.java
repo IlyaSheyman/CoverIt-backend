@@ -16,9 +16,10 @@ public class ImageServerController {
 
     private final ImageServerService service;
 
-    @GetMapping("/cover")
-    public String getCoverUrl(@RequestParam(required = true) String url,
-                              @RequestParam(required = true)Constants.Vibe vibe) {
+    @PostMapping("/cover")
+    public String getCoverUrl(@RequestBody @Valid UrlDto urlDto,
+                              @RequestParam(required = false) Constants.Vibe vibe) {
+        String url = urlDto.getLink();
         log.info("[IMAGE_SERVER] generate cover by playlist url {}", url);
 
         return service.getCoverUrl(url, vibe);
@@ -42,5 +43,14 @@ public class ImageServerController {
         log.info("[IMAGE_SERVER] chatGPT request with text {}", text);
 
         return service.chatGpt(text);
+    }
+
+    //Эндпоинт для проверки взаимодействия с DALL-E
+    @ResponseBody
+    @GetMapping("/generate_image")
+    public String generateImage(@RequestBody String prompt) {
+        log.info("[IMAGE_SERVER] generate image request with prompt {}", prompt);
+
+        return service.generateImage(prompt);
     }
 }

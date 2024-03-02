@@ -33,8 +33,6 @@ public class SpotifyClient {
         try {
             final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
             spotifyApi.setAccessToken(clientCredentials.getAccessToken());
-
-            log.info("Expires in: " + clientCredentials.getExpiresIn());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             log.warn("Error: " + e.getMessage());
         }

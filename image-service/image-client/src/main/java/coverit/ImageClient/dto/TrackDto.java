@@ -13,4 +13,12 @@ import java.util.List;
 public class TrackDto {
     private List<String> authors;
     private String title;
+
+    @Override
+    public String toString() {
+        return "Track{" +
+                "authors=" + authors +
+                ", title='" + title + '\'' +
+                '}';
+    }
 }

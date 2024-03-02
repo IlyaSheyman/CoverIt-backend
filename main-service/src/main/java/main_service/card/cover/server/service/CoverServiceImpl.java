@@ -43,6 +43,10 @@ public class CoverServiceImpl implements CoverService {
                 break;
             case GARDEN_OF_NOSTALGIA:
                 break;
+            case FUTURE_IS_NOW:
+                break;
+            case ROUTINE_SOUNDS:
+                break;
             default:
 
         }
