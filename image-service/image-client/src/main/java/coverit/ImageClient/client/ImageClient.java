@@ -8,12 +8,7 @@ import coverit.ImageClient.exception.UnsupportedRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.client.AiClient;
-import org.springframework.ai.client.AiResponse;
-import org.springframework.ai.prompt.Prompt;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static coverit.ImageClient.constants.Constants.*;
 
@@ -41,35 +36,34 @@ public class ImageClient {
 
         if (vibe == null) {
             request.append(NONE_VIBE_PROMPT);
-            request.append("\n");
+        } else {
+            switch (vibe) {
+                case DANCING_FLOOR:
+                    request.append(DANCING_FLOOR_PROMPT);
+                    break;
+                case NATURE_DOES_NOT_CARE:
+                    request.append(NATURE_PROMPT);
+                    break;
+                case EMPTY_SOUNDS:
+                    request.append(EMPTY_SOUNDS_PROMPT);
+                    break;
+                case CAMPFIRE_CALMNESS:
+                    request.append(CAMPFIRE_CALMNESS_PROMPT);
+                    break;
+                case TOUGH_AND_STRAIGHT:
+                    request.append(TOUGH_AND_STRAIGHT_PROMPT);
+                    break;
+                default:
+                    throw new BadRequestException("this vibe is not present");
+            }
 
             for (TrackDto track: playlistDto.getTracks()) {
                 request.append(track.getTitle() + ", ");
             }
-
-            return aiClient.generate(request.toString());
-        } else {
-            switch (vibe) {
-                case DANCING_FLOOR:
-                    return null;
-                case NATURE_DOES_NOT_CARE:
-                    return null;
-                case SOUND_OF_NOTHING:
-                    return null;
-                case CAMPFIRE_CALMNESS:
-                    return null;
-                case TOUGH_AND_STRAIGHT:
-                    return null;
-                case GARDEN_OF_NOSTALGIA:
-                    return null;
-                case FUTURE_IS_NOW:
-                    return null;
-                case ROUTINE_SOUNDS:
-                    return null;
-                default:
-                    throw new BadRequestException("this vibe is not present");
-            }
         }
+
+        request.append("\n");
+        return aiClient.generate(request.toString());
     }
 
     public String getCoverByPrompt(String prompt) {

@@ -3,6 +3,7 @@ package main_service.card.cover.server.service;
 import lombok.RequiredArgsConstructor;
 import main_service.card.cover.client.CoverClient;
 import main_service.constants.Constants;
+import main_service.user.storage.UserRepository;
 import org.springframework.stereotype.Service;
 
 import static main_service.constants.Constants.Vibe.DANCING_FLOOR;
@@ -11,9 +12,15 @@ import static main_service.constants.Constants.Vibe.DANCING_FLOOR;
 @RequiredArgsConstructor
 public class CoverServiceImpl implements CoverService {
     private final CoverClient client;
+    private final UserRepository userRepository;
 
     @Override
     public void getCover(int userId, String url, Constants.Vibe vibe, Boolean isPrivate) {
+        if (isAuthenticated(userId)) {
+
+        } else {
+
+        }
 
         //сценарий 1: авторизованный пользователь
             // 1) если private
