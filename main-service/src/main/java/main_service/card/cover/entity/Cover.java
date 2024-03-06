@@ -26,4 +26,7 @@ public class Cover {
 
     @Size(min = MIN_LINK_LENGTH, max = MAX_LINK_LENGTH)
     private String link;
+
+    @Column(name = "is_abstract")
+    private Boolean isAbstract;
 }

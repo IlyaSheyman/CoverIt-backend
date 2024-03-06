@@ -2,11 +2,10 @@ package main_service.card.cover.server.service;
 
 import lombok.RequiredArgsConstructor;
 import main_service.card.cover.client.CoverClient;
+import main_service.card.playlist.dto.PlaylistNewDto;
 import main_service.constants.Constants;
 import main_service.user.storage.UserRepository;
 import org.springframework.stereotype.Service;
-
-import static main_service.constants.Constants.Vibe.DANCING_FLOOR;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +14,7 @@ public class CoverServiceImpl implements CoverService {
     private final UserRepository userRepository;
 
     @Override
-    public void getCover(int userId, String url, Constants.Vibe vibe, Boolean isPrivate) {
+    public PlaylistNewDto getCover(int userId, String url, Constants.Vibe vibe, Boolean isAbstract) {
         if (isAuthenticated(userId)) {
 
         } else {
@@ -34,6 +33,7 @@ public class CoverServiceImpl implements CoverService {
             // создается карточка плейлиста, не добавляется в бд, информация не сохраняется
             // нажатие кнопки "save" -> транзакционный метод регистрация + сохранение 2 в одном - придумать как реализовать
 
+        return null;
     }
 
     public void getCoverByVibeAndUrl(Constants.Vibe vibe, String url) {
@@ -61,5 +61,10 @@ public class CoverServiceImpl implements CoverService {
 
     private boolean isAuthenticated(int userId) {
         return false;
+    }
+
+    @Override
+    public void savePlaylist(int playlistId, UrlDto imageUrl, Boolean isPrivate) {
+
     }
 }

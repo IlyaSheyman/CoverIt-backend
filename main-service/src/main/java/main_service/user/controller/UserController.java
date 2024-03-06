@@ -12,6 +12,7 @@ import main_service.user.dto.UserLoginDto;
 import main_service.user.dto.UserUpdateDto;
 import main_service.user.dto.UserUpdatePasswordDto;
 import main_service.user.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;

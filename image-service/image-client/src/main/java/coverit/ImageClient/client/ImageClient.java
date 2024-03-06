@@ -31,11 +31,17 @@ public class ImageClient {
             throw new BadRequestException("incorrect url");
         }
     }
-    public String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe) {
+    public String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe, Boolean isAbstract) {
         StringBuilder request = new StringBuilder();
 
         if (vibe == null) {
-            request.append(NONE_VIBE_PROMPT);
+            request.append(GPT_REQUEST_MAIN);
+
+            if (isAbstract) {
+                request.append(ABSTRACT_GPT_CONSTRAINT);
+            }
+
+            request.append(GPT_REQUEST_SETTINGS);
         } else {
             switch (vibe) {
                 case DANCING_FLOOR:
@@ -56,13 +62,16 @@ public class ImageClient {
                 default:
                     throw new BadRequestException("this vibe is not present");
             }
+        }
+        request.append("\n");
 
-            for (TrackDto track: playlistDto.getTracks()) {
-                request.append(track.getTitle() + ", ");
-            }
+        for (TrackDto track: playlistDto.getTracks()) {
+            request.append(track.getTitle() + "; ");
         }
 
-        request.append("\n");
+        request.append("\n" + CHATGPT_SCHEME);
+        log.info("request to ChatGPT: " + request);
+
         return aiClient.generate(request.toString());
     }
 

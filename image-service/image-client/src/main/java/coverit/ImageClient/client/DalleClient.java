@@ -4,13 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
-import retrofit2.http.POST;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -24,9 +21,8 @@ public class DalleClient {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Authorization", "Bearer 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");
 
+//            String data = String.format("{\"model\":\"dall-e-3\",\"prompt\":\"%s\",\"n\":1,\"size\":\"1024x1024\"}", prompt);
             String data = String.format("{\"prompt\":\"%s\",\"n\":1,\"size\":\"1024x1024\"}", prompt);
-
-            log.info("request's json: {}", data);
 
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
@@ -49,6 +45,7 @@ public class DalleClient {
                 JSONObject jsonResponse = new JSONObject(response.toString());
                 JSONArray dataArray = jsonResponse.getJSONArray("data");
                 String imageUrl = dataArray.getJSONObject(0).getString("url");
+
                 return imageUrl;
             } else {
                 throw new RuntimeException("Failed to retrieve image. HTTP error code: " + con.getResponseCode());

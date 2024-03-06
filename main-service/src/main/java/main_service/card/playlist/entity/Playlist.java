@@ -39,6 +39,9 @@ public class Playlist {
     @Column(name = "is_private")
     private Boolean isPrivate;
 
+    @Column(name = "is_saved")
+    private Boolean isSaved;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User author;

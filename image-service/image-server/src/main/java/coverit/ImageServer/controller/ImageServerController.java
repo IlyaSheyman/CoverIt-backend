@@ -7,6 +7,7 @@ import coverit.ImageServer.service.ImageServerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -16,15 +17,26 @@ public class ImageServerController {
 
     private final ImageServerService service;
 
+    /**
+     * Endpoint for generating playlist cover
+     *
+     * @param urlDto playlist's url
+     * @param vibe vibe of playlist (style)
+     * @param isAbstract should an image be abstract or no
+     * @return cover url
+     */
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/cover")
     public String getCoverUrl(@RequestBody @Valid UrlDto urlDto,
-                              @RequestParam(required = false) Constants.Vibe vibe) {
+                              @RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
+                              @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract) {
         String url = urlDto.getLink();
         log.info("[IMAGE_SERVER] generate cover by playlist url {}", url);
 
-        return service.getCoverUrl(url, vibe);
+        return service.getCoverUrl(url, vibe, isAbstract);
     }
 
+    //TODO проверить isAbstract
 
     /**
      * Endpoint for getting playlist by spotify url
