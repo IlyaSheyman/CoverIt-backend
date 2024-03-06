@@ -33,7 +33,7 @@ public class CoverController {
                                                   @RequestHeader(value = "X-User-Id") int userId) {
         log.info("[MAIN_SERVER] get cover by playlist URL {}", url.getLink());
 
-        return service.getCover(userId, url.getLink(), vibe, isAbstract);
+        return service.getCover(userId, url, vibe, isAbstract);
     }
 
     @Operation(

@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS playlist (
     user_id BIGINT NOT NULL,
     track_id BIGINT NOT NULL,
     cover_id BIGINT NOT NULL,
+    generations BIGINT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (track_id) REFERENCES track (id),
     FOREIGN KEY (cover_id) REFERENCES cover (id)

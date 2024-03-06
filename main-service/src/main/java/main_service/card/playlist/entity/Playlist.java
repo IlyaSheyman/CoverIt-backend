@@ -53,4 +53,6 @@ public class Playlist {
     @OneToOne
     @JoinColumn(name = "cover_id")
     private Cover cover;
+
+    private int generations;
 }

@@ -1,6 +1,7 @@
 package main_service.card.cover.client;
 
 import main_service.card.cover.server.service.UrlDto;
+import main_service.card.playlist.dto.PlaylistSmallDto;
 import main_service.constants.Constants;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -21,7 +22,7 @@ public class HttpClient {
         this.rest = rest;
     }
 
-    protected ResponseEntity cover(UrlDto body, Constants.Vibe vibe, Boolean isAbstract, String response) {
+    protected ResponseEntity cover(UrlDto body, Constants.Vibe vibe, Boolean isAbstract) {
         Map<String, Object> params = Map.of("vibe", vibe,
                 "is_abstract", isAbstract);
 
@@ -29,35 +30,33 @@ public class HttpClient {
                 POST,
                 "/cover",
                 params,
-                body,
-                response);
+                body);
     }
 
     private <T, K> ResponseEntity<K> makeAndSendRequest(
             HttpMethod method,
             String path,
             @Nullable Map<String, Object> parameters,
-            @Nullable T body,
-            K response) {
+            @Nullable T body) {
 
         assert body != null;
         HttpEntity<T> requestEntity = new HttpEntity<>(body);
-        Class kClass = response.getClass();
-        ResponseEntity<K> serverResponse;
+
+        ResponseEntity<Object> serverResponse;
         try {
             if (parameters != null) {
                 serverResponse = rest.exchange(
                         path,
                         method,
                         requestEntity,
-                        kClass,
+                        Object.class,
                         parameters);
             } else {
                 serverResponse = rest.exchange(
                         path,
                         method,
                         requestEntity,
-                        kClass);
+                        Object.class);
             }
         } catch (HttpStatusCodeException e) {
             return (ResponseEntity<K>) ResponseEntity
@@ -79,5 +78,9 @@ public class HttpClient {
         }
 
         return responseBuilder.build();
+    }
+
+    public PlaylistSmallDto getPlaylistDto() {
+        return null;
     }
 }
