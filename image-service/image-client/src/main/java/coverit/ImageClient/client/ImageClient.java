@@ -34,18 +34,26 @@ public class ImageClient {
     public String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe, Boolean isAbstract) {
         StringBuilder request = new StringBuilder();
 
+        request.append(GPT_REQUEST_MAIN);
+
+        if (isAbstract) {
+            request.append(ABSTRACT_GPT_CONSTRAINT);
+        }
+
+        request.append("\n");
+
+        for (TrackDto track: playlistDto.getTracks()) {
+            request.append(extractTitle(track.getTitle()) + "; ");
+        }
+
+        request.append("\n");
+
         if (vibe == null) {
-            request.append(GPT_REQUEST_MAIN);
-
-            if (isAbstract) {
-                request.append(ABSTRACT_GPT_CONSTRAINT);
-            }
-
-            request.append(GPT_REQUEST_SETTINGS);
+            request.append("\n" + GPT_NONE_VIBE);
         } else {
             switch (vibe) {
                 case DANCING_FLOOR:
-                    request.append(DANCING_FLOOR_PROMPT);
+                    request.append(GPT_DANCING_FLOOR);
                     break;
                 case NATURE_DOES_NOT_CARE:
                     request.append(NATURE_PROMPT);
@@ -63,17 +71,35 @@ public class ImageClient {
                     throw new BadRequestException("this vibe is not present");
             }
         }
-        request.append("\n");
 
-        for (TrackDto track: playlistDto.getTracks()) {
-            request.append(track.getTitle() + "; ");
-        }
-
-        request.append("\n" + CHATGPT_SCHEME);
+        request.append(GPT_REQUEST_SETTINGS);
         log.info("request to ChatGPT: " + request);
 
         return aiClient.generate(request.toString());
     }
+
+    private String extractTitle(String title) {
+        if (title.contains("(") && title.contains(")")) {
+            int startIndex = title.indexOf("(");
+            int endIndex = title.indexOf(")");
+
+            if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+                title = title.substring(0, startIndex) + title.substring(endIndex + 1);
+            }
+        }
+
+        if (title.contains("[") && title.contains("]")) {
+            int startIndex = title.indexOf("[");
+            int endIndex = title.indexOf("]");
+
+            if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+                title = title.substring(0, startIndex) + title.substring(endIndex + 1);
+            }
+        }
+
+        return title;
+    }
+
 
     public String getCoverByPrompt(String prompt) {
         return dalleClient.generateImage(prompt);

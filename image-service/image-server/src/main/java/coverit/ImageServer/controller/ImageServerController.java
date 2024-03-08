@@ -28,9 +28,12 @@ public class ImageServerController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/cover")
     public String getCoverUrl(@RequestBody @Valid UrlDto urlDto,
-                              @RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
+                              @RequestParam(name = "vibe", required = false) String vibeString,
                               @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract) {
         String url = urlDto.getLink();
+
+        Constants.Vibe vibe = Constants.Vibe.valueOf(vibeString.toUpperCase());
+
         log.info("[IMAGE_SERVER] generate cover by playlist url {}", url);
 
         return service.getCoverUrl(url, vibe, isAbstract);

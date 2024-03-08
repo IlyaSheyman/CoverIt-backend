@@ -66,6 +66,10 @@ public class HttpClient {
         return prepareGatewayResponse(serverResponse);
     }
 
+    public PlaylistSmallDto getPlaylistDto(String url) {
+        return null;
+    }
+
     private static <T> ResponseEntity<T> prepareGatewayResponse(ResponseEntity<T> response) {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response;
@@ -78,9 +82,5 @@ public class HttpClient {
         }
 
         return responseBuilder.build();
-    }
-
-    public PlaylistSmallDto getPlaylistDto() {
-        return null;
     }
 }

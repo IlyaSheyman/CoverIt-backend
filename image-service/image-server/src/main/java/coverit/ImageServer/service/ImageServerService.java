@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static coverit.ImageClient.constants.Constants.MAX_PLAYLIST_SIZE;
-import static coverit.ImageClient.constants.Constants.NONE_VIBE_DALLE_INSTRUCTION;
+import static coverit.ImageClient.constants.Constants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +45,25 @@ public class ImageServerService {
         if (vibe == null) {
             prompt.append(NONE_VIBE_DALLE_INSTRUCTION);
         } else {
-            return null; //TODO добавить инструкции для других вайбов
+            switch (vibe) {
+                case DANCING_FLOOR:
+                    prompt.append(DANCING_FLOOR_INSTRUCTION);
+                    break;
+                case NATURE_DOES_NOT_CARE:
+                    prompt.append(NATURE_PROMPT);
+                    break;
+                case EMPTY_SOUNDS:
+                    prompt.append(EMPTY_SOUNDS_PROMPT);
+                    break;
+                case CAMPFIRE_CALMNESS:
+                    prompt.append(CAMPFIRE_CALMNESS_PROMPT);
+                    break;
+                case TOUGH_AND_STRAIGHT:
+                    prompt.append(TOUGH_AND_STRAIGHT_PROMPT);
+                    break;
+                default:
+                    throw new BadRequestException("this vibe is not present");
+            }
         }
 
         log.info("prompt for DALLE: " + prompt);
