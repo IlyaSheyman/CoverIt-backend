@@ -28,7 +28,7 @@ public class AuthenticationService {
     public JwtAuthenticationResponse signUp(SignUpRequest request) {
 
         var user = User.builder()
-                .username(request.getUsername())
+                .username(request.getUsername().toLowerCase())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
@@ -53,7 +53,7 @@ public class AuthenticationService {
 
         var user = userService
                 .userDetailsService()
-                .loadUserByUsername(request.getEmail());
+                .loadUserByUsername(request.getEmail()); // загрузка по email
 
         var jwt = jwtService.generateToken(user);
         return new JwtAuthenticationResponse(jwt);

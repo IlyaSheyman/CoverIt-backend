@@ -2,6 +2,7 @@ package main_service.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main_service.config.security.JwtService;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
@@ -13,6 +14,7 @@ import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
@@ -24,45 +26,7 @@ public class UserService {
     private final UserRepository repository;
     @Qualifier("userMapperImpl")
     private final UserMapper mapper;
-
-    // Старая реализация логин
-//    @Override
-//    public UserLoginDto login(UserLoginDto dto) {
-//        String email = dto.getEmail();
-//        if (!repository.existsByEmailIgnoreCase(email)) {
-//            throw new BadRequestException(String.format("User with email %s doesn't exist", email));
-//        }
-//
-//        User user = repository.findByEmail(email);
-//
-//        if (!user.getPassword().equals(dto.getPassword())) {
-//            throw new BadRequestException("Incorrect password");
-//        }
-//
-//        if (user.getIsAuthenticated() == true) {
-//            throw new ConflictRequestException(String.format("User %s is already authenticated", user.getUsername()));
-//        } else {
-//            user.setIsAuthenticated(true);
-//        }
-//
-//        return mapper.toUserLoginDto(repository.save(user));
-//    }
-
-    private String isExistsUsername(String username) {
-        if (repository.existsByUsernameIgnoreCase(username)) {
-            throw new ConflictRequestException(String.format("User with username %s already exists", username));
-        } else {
-            return username;
-        }
-    }
-
-    private String isExistsEmail(String email) {
-        if (repository.existsByEmailIgnoreCase(email)) {
-            throw new ConflictRequestException(String.format("User with email %s already exists", email));
-        } else {
-            return email;
-        }
-    }
+    private final JwtService jwtService;
 
     private User isExistsById(int userId) {
         return repository
@@ -70,33 +34,18 @@ public class UserService {
                 .orElseThrow(()-> new NotFoundException(String.format("User with id %d not found", userId)));
     }
 
-    public void delete(int userId) {
-        isExistsById(userId);
-        repository.deleteById(userId);
-        log.info("[USER_SERVICE] user with id {} is deleted successfully", userId);
-    }
+    public UserUpdateDto updateUsername(String userToken, UserUpdateDto dto) {
+        User user = getByUsername(jwtService.extractUserName(userToken));
 
-    public UserUpdateDto updateUsername(int userId, UserUpdateDto dto) {
-
-        User user = isExistsById(userId);
-        user.setUsername(dto.getUsername());
-        repository.save(user);
-
-        return dto;
-    }
-
-    public UserLoginDto updatePassword(int userId, UserUpdatePasswordDto dto) {
-        User user = isExistsById(userId);
-
-        if (!dto.getPassword().equals(dto.getConfirmPassword())) {
-            throw new BadRequestException("Password confirmation exception");
+        String newUsername = dto.getUsername();
+        
+        if (repository.getByUsername(newUsername) == null) {
+            user.setUsername(newUsername);
+            repository.save(user);
+            return dto;
         } else {
-            user.setPassword(dto.getPassword());
+            throw new ConflictRequestException(String.format("User with username %s already exists", newUsername));
         }
-
-        repository.save(user);
-
-        return mapper.toUserLoginDto(user);
     }
 
     /**
@@ -129,7 +78,7 @@ public class UserService {
      * @return пользователь
      */
     public User getByUsername(String username) {
-        User user = repository.findByUsername(username);
+        User user = repository.getByUsername(username);
         if (user != null) {
             return user;
         } else {
@@ -145,7 +94,20 @@ public class UserService {
      * @return пользователь
      */
     public UserDetailsService userDetailsService() {
+        return this::getByEmail;
+    }
+
+    public UserDetailsService userDetailsServiceByUsername() {
         return this::getByUsername;
+    }
+
+    private UserDetails getByEmail(String email) {
+        User user = repository.getByEmail(email);
+        if (user != null) {
+            return user;
+        } else {
+            throw new NotFoundException("User with email " + email + " not found");
+        }
     }
 
     /**

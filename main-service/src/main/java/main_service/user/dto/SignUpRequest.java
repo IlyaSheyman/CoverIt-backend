@@ -3,6 +3,7 @@ package main_service.user.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import main_service.config.passay.ValidPassword;
@@ -12,10 +13,12 @@ import static main_service.constants.Constants.*;
 @Data
 @Schema(description = "Запрос на регистрацию")
 public class SignUpRequest {
+    private static final String USERNAME_PATTERN = "^(?=\\S+$).*$";
 
     @Schema(description = "Username", example = "Jon")
     @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
     @NotBlank(message = "Username shouldn't be blank")
+    @Pattern(regexp = USERNAME_PATTERN, message = "Username should not contain spaces")
     private String username;
 
     @Schema(description = "User's email address", example = "jondoe@gmail.com")

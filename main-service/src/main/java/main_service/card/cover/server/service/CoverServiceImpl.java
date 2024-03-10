@@ -9,6 +9,7 @@ import main_service.card.playlist.dto.PlaylistSmallDto;
 import main_service.card.playlist.entity.Playlist;
 import main_service.card.playlist.storage.PlaylistRepository;
 import main_service.card.track.entity.Track;
+import main_service.config.security.JwtService;
 import main_service.constants.Constants;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
@@ -26,10 +27,11 @@ public class CoverServiceImpl implements CoverService {
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
     private final CoverRepository coverRepository;
+    private final JwtService jwtService;
 
     @Override
-    public PlaylistNewDto getCover(int userId, UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract) {
-        User user = getUserById(userId);
+    public PlaylistNewDto getCover(String userToken, UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract) {
+        User user = getUserByUsername(jwtService.extractUserName(userToken));
         String url = urlDto.getLink();
 
         Playlist playlist = playlistRepository.getByUrl(url);
@@ -104,8 +106,14 @@ public class CoverServiceImpl implements CoverService {
         }
     }
 
-    private User getUserById(int userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("user with id %d not found", userId)));
+    private User getUserByUsername(String username) {
+        User user = userRepository.getByUsername(username);
+
+        if (user != null) {
+            return user;
+        } else {
+            throw new NotFoundException(String.format("User with username %s not found", username));
+        }
     }
 
     @Override
