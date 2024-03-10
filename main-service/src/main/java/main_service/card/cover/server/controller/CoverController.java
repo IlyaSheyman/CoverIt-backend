@@ -1,8 +1,6 @@
 package main_service.card.cover.server.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -12,9 +10,6 @@ import main_service.card.cover.server.service.CoverService;
 import main_service.card.cover.server.service.UrlDto;
 import main_service.card.playlist.dto.PlaylistNewDto;
 import main_service.constants.Constants;
-import main_service.user.dto.UserCreateDto;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

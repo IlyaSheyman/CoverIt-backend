@@ -1,7 +1,10 @@
 package main_service.card.cover.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import main_service.card.cover.server.service.UrlDto;
+import main_service.card.playlist.dto.PlaylistSmallDto;
 import main_service.constants.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,13 +17,12 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 @Service
 @Slf4j
 public class CoverClient extends HttpClient {
-    private static final String API_PREFIX = "/";
 
     @Autowired
     public CoverClient(@Value("${image-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(builder.uriTemplateHandler(
-                        new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                .requestFactory(HttpComponentsClientHttpRequestFactory::new) //тут возникает ошибка
+                        new DefaultUriBuilderFactory(serverUrl))
+                .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
                 .build());
     }
 
@@ -37,5 +39,22 @@ public class CoverClient extends HttpClient {
                     + res.getStatusCode() + "\n. body: \n" + res.getBody());
             //TODO проконсультироваться и понять, как назвать кастомную ошибку
         }
+    }
+
+    public PlaylistSmallDto getPlaylist(String url) {
+
+        ResponseEntity<Object> response = this.getPlaylistDto(url);
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                return mapper.readValue(
+                        mapper.writeValueAsString(response.getBody()),
+                        PlaylistSmallDto.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+        return null;
     }
 }

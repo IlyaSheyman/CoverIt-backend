@@ -14,8 +14,7 @@ import main_service.user.entity.User;
 
 import java.util.ArrayList;
 
-import static main_service.constants.Constants.MAX_PLAYLIST_TITLE_LENGTH;
-import static main_service.constants.Constants.MIN_PLAYLIST_TITLE_LENGTH;
+import static main_service.constants.Constants.*;
 
 @Entity
 @Getter
@@ -31,6 +30,10 @@ public class Playlist {
     @Size(min = MIN_PLAYLIST_TITLE_LENGTH,
         max = MAX_PLAYLIST_TITLE_LENGTH)
     private String title;
+
+    @Size(min = MIN_LINK_LENGTH,
+        max = MAX_LINK_LENGTH)
+    private String url;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "vibe")
