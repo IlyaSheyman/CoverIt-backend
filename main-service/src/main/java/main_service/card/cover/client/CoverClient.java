@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import main_service.card.cover.server.service.UrlDto;
+import main_service.card.playlist.dto.PlaylistNewDto;
 import main_service.card.playlist.dto.PlaylistSmallDto;
 import main_service.constants.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +31,20 @@ public class CoverClient extends HttpClient {
         log.debug("[COVER CLIENT] sending request to generate cover for playlist {} to Image-Service",
                 urlDto.getLink());
 
-        ResponseEntity res = this.cover(urlDto, vibe, isAbstract);
+        ResponseEntity<String> res = this.cover(urlDto, vibe, isAbstract, new String());
 
         if (res.getStatusCode().is2xxSuccessful() && res.getBody() != null) {
             return res.getBody().toString();
         } else {
             throw new RuntimeException("incorrect response from image-server. http status: "
-                    + res.getStatusCode() + "\n. body: \n" + res.getBody());
+                    + res.getStatusCode());
             //TODO проконсультироваться и понять, как назвать кастомную ошибку
         }
     }
 
     public PlaylistSmallDto getPlaylist(String url) {
 
-        ResponseEntity<Object> response = this.getPlaylistDto(url);
+        ResponseEntity<PlaylistSmallDto> response = this.getPlaylistDto(url, new PlaylistSmallDto());
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             ObjectMapper mapper = new ObjectMapper();

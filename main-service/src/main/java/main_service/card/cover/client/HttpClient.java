@@ -3,6 +3,8 @@ package main_service.card.cover.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import main_service.card.cover.server.service.UrlDto;
+import main_service.card.playlist.dto.PlaylistNewDto;
+import main_service.card.playlist.dto.PlaylistSmallDto;
 import main_service.constants.Constants;
 import org.springframework.http.*;
 import org.springframework.lang.Nullable;
@@ -22,18 +24,23 @@ public class HttpClient {
         this.rest = rest;
     }
 
-    protected ResponseEntity cover(UrlDto body, Constants.Vibe vibe, Boolean isAbstract) {
-        Map<String, Object> params = Map.of("vibe", vibe,
-                "is_abstract", isAbstract);
+    protected ResponseEntity<String> cover(UrlDto body, Constants.Vibe vibe, Boolean isAbstract, String response) {
+        Map<String, Object> params = Map.of("is_abstract", isAbstract);
+
+        if (vibe != null) {
+            params.put("vibe", vibe);
+        }
 
         return makeAndSendRequest(
                 POST,
                 "/cover",
                 params,
-                body);
+                body,
+                response
+        );
     }
 
-    public ResponseEntity<Object> getPlaylistDto(String url) {
+    public ResponseEntity<PlaylistSmallDto> getPlaylistDto(String url, PlaylistSmallDto response) {
         UrlDto urlDto = UrlDto.builder()
                 .link(url)
                 .build();
@@ -51,49 +58,45 @@ public class HttpClient {
                 GET,
                 "/playlist",
                 null,
-                urlDtoJson
+                urlDtoJson,
+                response
         );
     }
-
-    private <T> ResponseEntity<Object> makeAndSendRequest(
+    private <T, K> ResponseEntity<K> makeAndSendRequest(
             HttpMethod method,
             String path,
             @Nullable Map<String, Object> parameters,
-            @Nullable T body) {
+            @Nullable T body,
+            K response) {
 
         assert body != null;
-        HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
-        ResponseEntity<Object> serverResponse;
-
+        HttpEntity<T> requestEntity = new HttpEntity<>(body);
+        Class kClass = response.getClass();
+        ResponseEntity<K> serverResponse;
         try {
             if (parameters != null) {
                 serverResponse = rest.exchange(
                         path,
                         method,
                         requestEntity,
-                        Object.class,
+                        kClass,
                         parameters);
             } else {
                 serverResponse = rest.exchange(
                         path,
                         method,
                         requestEntity,
-                        Object.class);
+                        kClass);
             }
         } catch (HttpStatusCodeException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
+            return (ResponseEntity<K>) ResponseEntity
+                    .status(e.getStatusCode())
+                    .body(e.getResponseBodyAsByteArray());
         }
         return prepareGatewayResponse(serverResponse);
     }
 
-    private HttpHeaders defaultHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-        return headers;
-    }
-
-    private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
+    private static <T> ResponseEntity<T> prepareGatewayResponse(ResponseEntity<T> response) {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response;
         }
@@ -105,5 +108,12 @@ public class HttpClient {
         }
 
         return responseBuilder.build();
+    }
+
+    private HttpHeaders defaultHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        return headers;
     }
 }

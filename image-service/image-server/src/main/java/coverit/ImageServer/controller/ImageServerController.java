@@ -21,7 +21,7 @@ public class ImageServerController {
      * Endpoint for generating playlist cover
      *
      * @param urlDto playlist's url
-     * @param vibe vibe of playlist (style)
+     * @param vibeString vibe of playlist (style)
      * @param isAbstract should an image be abstract or no
      * @return cover url
      */
@@ -31,8 +31,11 @@ public class ImageServerController {
                               @RequestParam(name = "vibe", required = false) String vibeString,
                               @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract) {
         String url = urlDto.getLink();
+        Constants.Vibe vibe = null;
 
-        Constants.Vibe vibe = Constants.Vibe.valueOf(vibeString.toUpperCase());
+        if (vibeString != null) {
+            vibe = Constants.Vibe.valueOf(vibeString.toUpperCase());
+        }
 
         log.info("[IMAGE_SERVER] generate cover by playlist url {}", url);
 

@@ -27,8 +27,8 @@ public class JwtService {
      * @param token token
      * @return username
      */
-    public String extractUserName(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public int extractUserId(String token) {
+        return Integer.parseInt(extractClaim(token, Claims::getSubject));
     }
 
     /**
@@ -37,12 +37,9 @@ public class JwtService {
      * @param userDetails user's data
      * @return token
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof User customUserDetails) {
-            claims.put("id", customUserDetails.getId());
-            claims.put("email", customUserDetails.getEmail());
-        }
+        claims.put("email", userDetails.getEmail());
         return generateToken(claims, userDetails);
     }
 
@@ -53,9 +50,9 @@ public class JwtService {
      * @param userDetails user's data
      * @return true, if token is valid
      */
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String userName = extractUserName(token);
-        return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    public boolean isTokenValid(String token, User userDetails) {
+        final int userId = extractUserId(token);
+        return (userId == userDetails.getId()) && !isTokenExpired(token);
     }
 
     /**
@@ -78,8 +75,8 @@ public class JwtService {
      * @param userDetails user details
      * @return токен
      */
-    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
+    private String generateToken(Map<String, Object> extraClaims, User userDetails) {
+        return Jwts.builder().setClaims(extraClaims).setSubject(String.valueOf(userDetails.getId()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 100000 * 60 * 24))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
@@ -98,8 +95,8 @@ public class JwtService {
     /**
      * extract token expiration date
      *
-     * @param token токен
-     * @return дата истечения
+     * @param token jwt token
+     * @return expiration date
      */
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);

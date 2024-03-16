@@ -11,7 +11,7 @@ import main_service.config.passay.ValidPassword;
 import static main_service.constants.Constants.*;
 
 @Data
-@Schema(description = "Запрос на регистрацию")
+@Schema(description = "Sign up request")
 public class SignUpRequest {
     private static final String USERNAME_PATTERN = "^(?=\\S+$).*$";
 
@@ -24,10 +24,10 @@ public class SignUpRequest {
     @Schema(description = "User's email address", example = "jondoe@gmail.com")
     @Size(min = MIN_USER_EMAIL_LENGTH, max = MAX_USER_EMAIL_LENGTH)
     @NotBlank(message = "User's email address shouldn't blank")
-    @Email(message = "Email адрес должен быть в формате user@example.com")
+    @Email(message = "Email address should be formatted as user@example.com")
     private String email;
 
-    @Schema(description = "Пароль", example = "my_1secret1_password")
+    @Schema(description = "Пароль", example = "kozyasolov12!")
     @Size(min = MIN_USER_PASSWORD_LENGTH, max = MAX_USER_PASSWORD_LENGTH)
     @ValidPassword
     private String password;

@@ -2,6 +2,7 @@ package main_service.card.cover.server.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping
+@Tag(name = "Private cover controller", description = "For saving covers by authenticated users")
 public class CoverPrivateController {
     private final CoverService service;
 
@@ -26,11 +28,10 @@ public class CoverPrivateController {
     )
     @PatchMapping("/cover/save")
     public void savePlaylist(@RequestHeader(value = "X-Playlist-Id") int playlistId,
-                             @RequestBody UrlDto imageUrl,
                              @RequestParam(name = "is_private", required = true) @NotNull Boolean isPrivate,
                              @RequestParam(name = "user", required = true) String userToken) {
         log.info("[MAIN_SERVER] save playlist with id {}", playlistId);
-
-        service.savePlaylist(playlistId, imageUrl, isPrivate);
+        userToken = userToken.substring(7);
+        service.savePlaylist(playlistId, isPrivate, userToken);
     }
 }

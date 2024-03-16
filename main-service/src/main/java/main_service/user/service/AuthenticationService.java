@@ -52,8 +52,7 @@ public class AuthenticationService {
         ));
 
         var user = userService
-                .userDetailsService()
-                .loadUserByUsername(request.getEmail()); // загрузка по email
+                .getByEmail(request.getEmail());
 
         var jwt = jwtService.generateToken(user);
         return new JwtAuthenticationResponse(jwt);

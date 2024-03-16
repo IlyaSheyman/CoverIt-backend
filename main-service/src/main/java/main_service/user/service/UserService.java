@@ -6,16 +6,11 @@ import main_service.config.security.JwtService;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
-import main_service.user.dto.UserLoginDto;
 import main_service.user.dto.UserUpdateDto;
-import main_service.user.dto.UserUpdatePasswordDto;
 import main_service.user.mapper.UserMapper;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -28,14 +23,8 @@ public class UserService {
     private final UserMapper mapper;
     private final JwtService jwtService;
 
-    private User isExistsById(int userId) {
-        return repository
-                .findById(userId)
-                .orElseThrow(()-> new NotFoundException(String.format("User with id %d not found", userId)));
-    }
-
     public UserUpdateDto updateUsername(String userToken, UserUpdateDto dto) {
-        User user = getByUsername(jwtService.extractUserName(userToken));
+        User user = getUserById(jwtService.extractUserId(userToken));
 
         String newUsername = dto.getUsername();
         
@@ -73,9 +62,9 @@ public class UserService {
     }
 
     /**
-     * Получение пользователя по имени пользователя
+     * Getting user by username
      *
-     * @return пользователь
+     * @return user
      */
     public User getByUsername(String username) {
         User user = repository.getByUsername(username);
@@ -87,21 +76,11 @@ public class UserService {
     }
 
     /**
-     * Получение пользователя по имени пользователя
-     * <p>
-     * Нужен для Spring Security
+     * Getting user by email
      *
-     * @return пользователь
+     * @return user
      */
-    public UserDetailsService userDetailsService() {
-        return this::getByEmail;
-    }
-
-    public UserDetailsService userDetailsServiceByUsername() {
-        return this::getByUsername;
-    }
-
-    private UserDetails getByEmail(String email) {
+    public User getByEmail(String email) {
         User user = repository.getByEmail(email);
         if (user != null) {
             return user;
@@ -111,13 +90,24 @@ public class UserService {
     }
 
     /**
-     * Получение текущего пользователя
+     * Getting user by id
      *
-     * @return текущий пользователь
+     * @return user
      */
-    public User getCurrentUser() {
-        // Получение имени пользователя из контекста Spring Security
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return getByUsername(username);
+    public User getUserById(int userId) {
+        return repository
+                .findById(userId)
+                .orElseThrow(()-> new NotFoundException(String.format("User with id %d not found", userId)));
     }
+
+//    /**
+//     * Получение текущего пользователя
+//     *
+//     * @return текущий пользователь
+//     */
+//    public User getCurrentUser() {
+//        // Получение имени пользователя из контекста Spring Security
+//        var username = SecurityContextHolder.getContext().getAuthentication().getName();
+//        return getByUsername(username);
+//    }
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import main_service.user.entity.User;
 import main_service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,12 +43,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Trim the prefix and get the username from the token
         var jwt = authHeader.substring(BEARER_PREFIX.length());
-        var username = jwtService.extractUserName(jwt);
+        var userId = jwtService.extractUserId(jwt);
 
-        if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService
-                    .userDetailsServiceByUsername()
-                    .loadUserByUsername(username);
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            User userDetails = userService
+                    .getUserById(userId);
 
             // If the token is valid, then we authenticate the user
             if (jwtService.isTokenValid(jwt, userDetails)) {
@@ -55,8 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
-                        null,
-                        userDetails.getAuthorities()
+                        null
                 );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
