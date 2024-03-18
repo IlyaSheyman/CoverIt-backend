@@ -1,16 +1,19 @@
 package main_service.card.cover.server.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import main_service.card.cover.client.CoverClient;
 import main_service.card.cover.entity.Cover;
 import main_service.card.cover.storage.CoverRepository;
+import main_service.card.playlist.dto.PlaylistDto;
 import main_service.card.playlist.dto.PlaylistNewDto;
-import main_service.card.playlist.dto.PlaylistSmallDto;
 import main_service.card.playlist.dto.PlaylistUpdateDto;
 import main_service.card.playlist.entity.Playlist;
 import main_service.card.playlist.mapper.PlaylistMapper;
 import main_service.card.playlist.storage.PlaylistRepository;
+import main_service.card.track.dto.TrackDto;
 import main_service.card.track.entity.Track;
+import main_service.card.track.storage.TrackRepository;
 import main_service.config.security.JwtService;
 import main_service.constants.Constants;
 import main_service.exception.model.BadRequestException;
@@ -24,11 +27,15 @@ import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CoverServiceImpl implements CoverService {
     private final CoverClient client;
+
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
     private final CoverRepository coverRepository;
+    private final TrackRepository trackRepository;
+
     private final JwtService jwtService;
 
     private final PlaylistMapper playlistMapper;
@@ -38,11 +45,13 @@ public class CoverServiceImpl implements CoverService {
         String url = urlDto.getLink();
         validateAlreadySaved(url);
 
-        PlaylistSmallDto dto = client.getPlaylist(url);
+        PlaylistDto dto = client.getPlaylist(url);
 
         Playlist newPlaylist = Playlist.builder()
                 .generations(1)
+                .url(url)
                 .title(dto.getTitle())
+                .vibe(vibe)
                 .isSaved(false)
                 .tracks(getTracksFromDto(dto))
                 .build();
@@ -80,6 +89,8 @@ public class CoverServiceImpl implements CoverService {
                 .isAbstract(isAbstract)
                 .link(coverUrl)
                 .build();
+        log.info(cover.toString());
+
         coverRepository.save(cover);
 
         int generations = playlist.getGenerations() + 1;
@@ -88,7 +99,6 @@ public class CoverServiceImpl implements CoverService {
         playlist.setGenerations(generations);
 
         return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
-        //TODO добавить во фронте всплывающее окно с возможностью выбора вайба и абстрактности при регенереции
     }
 
     private Playlist getPlaylistById(int playlistId) {
@@ -106,8 +116,21 @@ public class CoverServiceImpl implements CoverService {
         }
     }
 
-    private ArrayList<Track> getTracksFromDto(PlaylistSmallDto dto) {
-        return null;
+    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) {
+        ArrayList<Track> tracks = new ArrayList<>();
+
+        for (TrackDto dto : playlistDto.getTracks()) {
+            String authorsString  = String.join(", ", dto.getAuthors());
+
+            Track track = Track.builder()
+                    .authors(authorsString)
+                    .title(dto.getTitle())
+                    .build();
+
+            trackRepository.save(track);
+            tracks.add(track);
+        }
+        return tracks;
     }
 
     private User getUserById(int id) {

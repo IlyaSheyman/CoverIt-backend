@@ -28,7 +28,7 @@ public class CoverController {
                                                   @RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
                                                   @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
                                                   @RequestHeader(name = "Authorization", required = false) String userToken) {
-        log.info("[MAIN_SERVER] get cover by playlist URL {}", url.getLink());
+        log.info("[COVERCONTROLLER] get cover by playlist URL {}", url.getLink());
 
         return service.getCover(userToken, url, vibe, isAbstract);
     }
@@ -39,7 +39,7 @@ public class CoverController {
                                                   @RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
                                                   @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
                                                   @RequestHeader(name = "Playlist_Id", required = true) int playlistId) {
-        log.info("[MAIN_SERVER] update cover by playlist URL {}", url.getLink());
+        log.info("[COVERCONTROLLER] update cover by playlist URL {}", url.getLink());
 
         return service.updateCover(vibe, isAbstract, playlistId);
     }

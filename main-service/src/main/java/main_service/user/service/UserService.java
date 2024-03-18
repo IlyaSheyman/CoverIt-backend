@@ -11,6 +11,9 @@ import main_service.user.mapper.UserMapper;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,7 +26,7 @@ public class UserService {
     private final UserMapper mapper;
     private final JwtService jwtService;
 
-    public UserUpdateDto updateUsername(String userToken, UserUpdateDto dto) {
+    public void updateUsername(String userToken, UserUpdateDto dto) {
         User user = getUserById(jwtService.extractUserId(userToken));
 
         String newUsername = dto.getUsername();
@@ -31,7 +34,7 @@ public class UserService {
         if (repository.getByUsername(newUsername) == null) {
             user.setUsername(newUsername);
             repository.save(user);
-            return dto;
+            log.info("[USERSERVICE] Username of user with id " + user.getId() + " updated successfully. New username: " + user.getUsername());
         } else {
             throw new ConflictRequestException(String.format("User with username %s already exists", newUsername));
         }
@@ -100,14 +103,21 @@ public class UserService {
                 .orElseThrow(()-> new NotFoundException(String.format("User with id %d not found", userId)));
     }
 
-//    /**
-//     * Получение текущего пользователя
-//     *
-//     * @return текущий пользователь
-//     */
-//    public User getCurrentUser() {
-//        // Получение имени пользователя из контекста Spring Security
-//        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-//        return getByUsername(username);
-//    }
+    /**
+     * Получение пользователя по имени пользователя
+     * <p>
+     * Нужен для Spring Security
+     *
+     * @return пользователь
+     */
+    public UserDetailsService userDetailsService() {
+        UserDetailsService userDetailsService = new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                return getByEmail(username);
+            }
+        };
+
+        return userDetailsService;
+    }
 }

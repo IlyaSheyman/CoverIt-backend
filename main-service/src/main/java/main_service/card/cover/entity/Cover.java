@@ -15,6 +15,7 @@ import static main_service.constants.Constants.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class Cover {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

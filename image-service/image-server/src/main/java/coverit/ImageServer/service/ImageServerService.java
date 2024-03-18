@@ -25,7 +25,10 @@ public class ImageServerService {
         PlaylistDto playlistDto = getPlayListByUrl(url);
         log.info("playlist name: " + playlistDto.getTitle());
         String prompt = getPromptByPlaylist(playlistDto, vibe, isAbstract);
-        return getCoverByPrompt(prompt);
+        String imageUrl = getCoverByPrompt(prompt);
+        log.info("image url: " + imageUrl);
+
+        return imageUrl;
     }
 
     private String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe, Boolean isAbstract) {

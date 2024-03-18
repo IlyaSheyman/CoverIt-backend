@@ -3,8 +3,7 @@ package main_service.card.cover.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import main_service.card.cover.server.service.UrlDto;
-import main_service.card.playlist.dto.PlaylistNewDto;
-import main_service.card.playlist.dto.PlaylistSmallDto;
+import main_service.card.playlist.dto.PlaylistDto;
 import main_service.constants.Constants;
 import org.springframework.http.*;
 import org.springframework.lang.Nullable;
@@ -40,25 +39,25 @@ public class HttpClient {
         );
     }
 
-    public ResponseEntity<PlaylistSmallDto> getPlaylistDto(String url, PlaylistSmallDto response) {
+    public ResponseEntity<PlaylistDto> getPlaylistDto(String url, PlaylistDto response) {
         UrlDto urlDto = UrlDto.builder()
                 .link(url)
                 .build();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String urlDtoJson;
-
-        try {
-            urlDtoJson = objectMapper.writeValueAsString(urlDto);
-        } catch (JsonProcessingException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        String urlDtoJson;
+//
+//        try {
+//            urlDtoJson = objectMapper.writeValueAsString(urlDto);
+//        } catch (JsonProcessingException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//        }
 
         return makeAndSendRequest(
                 GET,
                 "/playlist",
                 null,
-                urlDtoJson,
+                urlDto,
                 response
         );
     }

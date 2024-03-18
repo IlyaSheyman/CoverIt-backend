@@ -54,6 +54,7 @@ public class ImageServerController {
     @GetMapping("/playlist")
     public PlaylistDto getPlaylistByUrl(@RequestBody UrlDto urlDto) {
         String url = urlDto.getLink();
+        System.out.println(urlDto);
 
         log.info("[IMAGE_SERVER] get playlist by URL {}", url);
         return service.getPlayListByUrl(url);

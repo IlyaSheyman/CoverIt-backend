@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import main_service.card.cover.server.service.UrlDto;
-import main_service.card.playlist.dto.PlaylistNewDto;
-import main_service.card.playlist.dto.PlaylistSmallDto;
+import main_service.card.playlist.dto.PlaylistDto;
 import main_service.constants.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,16 +41,16 @@ public class CoverClient extends HttpClient {
         }
     }
 
-    public PlaylistSmallDto getPlaylist(String url) {
+    public PlaylistDto getPlaylist(String url) {
 
-        ResponseEntity<PlaylistSmallDto> response = this.getPlaylistDto(url, new PlaylistSmallDto());
+        ResponseEntity<PlaylistDto> response = this.getPlaylistDto(url, new PlaylistDto());
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 return mapper.readValue(
                         mapper.writeValueAsString(response.getBody()),
-                        PlaylistSmallDto.class);
+                        PlaylistDto.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e.getMessage());
             }

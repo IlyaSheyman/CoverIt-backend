@@ -2,17 +2,13 @@ package main_service.card.playlist.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import main_service.card.cover.entity.Cover;
 import main_service.card.track.entity.Track;
 import main_service.constants.Constants;
 import main_service.user.entity.User;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static main_service.constants.Constants.*;
 
@@ -50,8 +46,12 @@ public class Playlist {
     private User author;
 
     @OneToMany
-    @JoinColumn(name = "track_id")
-    private ArrayList<Track> tracks;
+    @JoinTable(
+            name = "playlist_track",
+            joinColumns = @JoinColumn(name = "playlist_id"),
+            inverseJoinColumns = @JoinColumn(name = "track_id")
+    )
+    private List<Track> tracks;
 
     @OneToOne
     @JoinColumn(name = "cover_id")

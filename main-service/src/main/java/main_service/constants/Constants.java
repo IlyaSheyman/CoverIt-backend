@@ -10,7 +10,7 @@ public interface Constants {
     String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     int MIN_USERNAME_LENGTH = 2;
-    int MAX_USERNAME_LENGTH = 250;
+    int MAX_USERNAME_LENGTH = 30;
 
     int MIN_USER_PASSWORD_LENGTH = 8;
     int MAX_USER_PASSWORD_LENGTH = 27;
@@ -30,7 +30,7 @@ public interface Constants {
     int MAX_AUTHOR_NAME_LENGTH = 200;
 
     int MIN_LINK_LENGTH = 5;
-    int MAX_LINK_LENGTH = 400;
+    int MAX_LINK_LENGTH = 1000;
 
     static Pageable checkPageable(Integer from, Integer size, Sort sort) {
         if (from == null) from = Integer.parseInt(FROM);

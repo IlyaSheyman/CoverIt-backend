@@ -10,7 +10,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlaylistSmallDto {
+public class PlaylistDto {
     private String title;
     private ArrayList<TrackDto> tracks;
 }

@@ -12,6 +12,7 @@ import main_service.user.dto.UserLoginDto;
 import main_service.user.dto.UserUpdateDto;
 import main_service.user.dto.UserUpdatePasswordDto;
 import main_service.user.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +28,12 @@ public class UserPrivateController {
 
     @Operation(summary = "Update username")
     @PatchMapping("/update/username")
-    public UserUpdateDto updateUsername(@RequestHeader(name = "Authorization") String userToken,
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUsername(@RequestHeader(name = "Authorization") String userToken,
                        @RequestBody @Valid UserUpdateDto dto) {
         log.info("[USER_CONTROLLER] update username for user");
         userToken = userToken.substring(7);
-        return service.updateUsername(userToken, dto);
+        service.updateUsername(userToken, dto);
     }
 
 }
