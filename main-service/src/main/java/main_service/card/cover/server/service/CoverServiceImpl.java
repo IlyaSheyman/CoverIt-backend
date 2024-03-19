@@ -56,12 +56,13 @@ public class CoverServiceImpl implements CoverService {
                 .tracks(getTracksFromDto(dto))
                 .build();
 
-        if (userToken != null) {
+        if (userToken != null) { //TODO проверить, работает ли установление автора
             User user = getUserById(jwtService.extractUserId(userToken));
             newPlaylist.setAuthor(user);
         }
 
         String coverUrl = client.createCover(urlDto, vibe, isAbstract);
+
         Cover cover = Cover.builder()
                 .created(LocalDateTime.now())
                 .isAbstract(isAbstract)
@@ -106,7 +107,7 @@ public class CoverServiceImpl implements CoverService {
                 .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
     }
 
-    private void validateAlreadySaved(String url) {
+    private void validateAlreadySaved(String url) { // TODO проверить этот метод
         Playlist playlist = playlistRepository.getByUrl(url);
 
         if (playlist != null) {
@@ -116,7 +117,7 @@ public class CoverServiceImpl implements CoverService {
         }
     }
 
-    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) {
+    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) { //TODO сделать так, чтобы не создавались дубликаты с одной парой НАЗВАНИЕ-АВТОР
         ArrayList<Track> tracks = new ArrayList<>();
 
         for (TrackDto dto : playlistDto.getTracks()) {
