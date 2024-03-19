@@ -1,14 +1,13 @@
 package main_service.card.cover.server.service;
 
-import lombok.RequiredArgsConstructor;
-import main_service.card.cover.client.CoverClient;
-import org.springframework.stereotype.Service;
+import main_service.card.playlist.dto.PlaylistNewDto;
+import main_service.card.playlist.dto.PlaylistUpdateDto;
+import main_service.constants.Constants;
 
-@Service
-@RequiredArgsConstructor
-public class CoverService {
-    private final CoverClient client;
+public interface CoverService {
+    PlaylistNewDto getCover(String userId, UrlDto url, Constants.Vibe vibe, Boolean isAbstract);
 
-    public void getCover(String url, int userId) {
-    }
+    void savePlaylist(int playlistId, Boolean isPrivate, String userToken);
+
+    PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId);
 }
