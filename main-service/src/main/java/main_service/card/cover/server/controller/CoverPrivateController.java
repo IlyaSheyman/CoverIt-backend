@@ -34,4 +34,20 @@ public class CoverPrivateController {
         userToken = userToken.substring(7);
         service.savePlaylist(playlistId, isPrivate, userToken);
     }
+
+    @Operation(
+            description = "save generated playlist using playlistId, imageURL, and boolean isPrivate",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            }
+    )
+    @PatchMapping("/cover/")
+    public void getMyPlaylists(@RequestHeader(name = "X-User", required = true) String userToken) {
+        log.info("[MAIN_SERVER] get my playlist for user");
+        userToken = userToken.substring(7);
+
+        service.getMyPlaylists(userToken);
+    }
 }

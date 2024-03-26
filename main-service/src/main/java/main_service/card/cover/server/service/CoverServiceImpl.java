@@ -102,42 +102,9 @@ public class CoverServiceImpl implements CoverService {
         return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
     }
 
-    private Playlist getPlaylistById(int playlistId) {
-        return playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
-    }
-
-    private void validateAlreadySaved(String url) { // TODO проверить этот метод
-        Playlist playlist = playlistRepository.getByUrl(url);
-
-        if (playlist != null) {
-            if (playlist.getIsSaved()) {
-                throw new BadRequestException(String.format("playlist with url %s is already covered", url));
-            }
-        }
-    }
-
-    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) { //TODO сделать так, чтобы не создавались дубликаты с одной парой НАЗВАНИЕ-АВТОР
-        ArrayList<Track> tracks = new ArrayList<>();
-
-        for (TrackDto dto : playlistDto.getTracks()) {
-            String authorsString  = String.join(", ", dto.getAuthors());
-
-            Track track = Track.builder()
-                    .authors(authorsString)
-                    .title(dto.getTitle())
-                    .build();
-
-            trackRepository.save(track);
-            tracks.add(track);
-        }
-        return tracks;
-    }
-
-    private User getUserById(int id) {
-        return userRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
+    @Override
+    public void getMyPlaylists(String userToken) {
+        //TODO
     }
 
     @Override
@@ -155,4 +122,46 @@ public class CoverServiceImpl implements CoverService {
         // нажатие кнопки "save" -> транзакционный метод регистрация + сохранение 2 в одном - придумать как реализовать
 
     }
+
+    private Playlist getPlaylistById(int playlistId) {
+        return playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
+    }
+
+    private void validateAlreadySaved(String url) {
+        if (playlistRepository.existsByUrl(url)) {
+            throw new BadRequestException(String.format("playlist with url %s is already covered", url));
+        }
+    }
+
+    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) { //TODO сделать так, чтобы не создавались дубликаты с одной парой НАЗВАНИЕ-АВТОР
+        ArrayList<Track> tracks = new ArrayList<>();
+
+        for (TrackDto dto : playlistDto.getTracks()) {
+            String authorsString = String.join(", ", dto.getAuthors());
+            String title = dto.getTitle();
+            Track track = trackRepository.findByTitleAndAuthors(authorsString, title);
+
+            if (track == null) {
+                Track newTrack = Track.builder()
+                        .authors(authorsString)
+                        .title(title)
+                        .build();
+
+                trackRepository.save(newTrack);
+            } else {
+                trackRepository.save(track);
+            }
+
+            tracks.add(track);
+        }
+        return tracks;
+    }
+
+    private User getUserById(int id) {
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
+    }
+
 }
