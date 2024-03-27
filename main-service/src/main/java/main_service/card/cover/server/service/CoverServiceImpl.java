@@ -127,6 +127,7 @@ public class CoverServiceImpl implements CoverService {
         // создается карточка плейлиста, не добавляется в бд, информация не сохраняется
         // нажатие кнопки "save" -> транзакционный метод регистрация + сохранение 2 в одном - придумать как реализовать
 
+        //TODO реализовать логику + добавить параметр savedAt
     }
 
     private Playlist getPlaylistById(int playlistId) {
@@ -140,7 +141,7 @@ public class CoverServiceImpl implements CoverService {
         }
     }
 
-    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) { //TODO сделать так, чтобы не создавались дубликаты с одной парой НАЗВАНИЕ-АВТОР
+    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) {
         ArrayList<Track> tracks = new ArrayList<>();
 
         for (TrackDto dto : playlistDto.getTracks()) {

@@ -1,13 +1,11 @@
-package coverit.ImageClient.dto;
+package image_client.dto;
 
+import image_client.constants.Constants;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.ArrayList;
-
-import static coverit.ImageClient.constants.Constants.MAX_PLAYLIST_TITLE_LENGTH;
-import static coverit.ImageClient.constants.Constants.MIN_PLAYLIST_TITLE_LENGTH;
 
 @Getter
 @Setter
@@ -15,8 +13,8 @@ import static coverit.ImageClient.constants.Constants.MIN_PLAYLIST_TITLE_LENGTH;
 @AllArgsConstructor
 @Builder
 public class PlaylistDto {
-    @Size(min = MIN_PLAYLIST_TITLE_LENGTH,
-    max = MAX_PLAYLIST_TITLE_LENGTH)
+    @Size(min = Constants.MIN_PLAYLIST_TITLE_LENGTH,
+    max = Constants.MAX_PLAYLIST_TITLE_LENGTH)
     private String title;
     @NotNull
     private ArrayList<TrackDto> tracks;

@@ -1,18 +1,16 @@
-package coverit.ImageServer.service;
+package image_service.service;
 
-import coverit.ImageClient.client.ImageClient;
-import coverit.ImageClient.constants.Constants;
-import coverit.ImageClient.dto.PlaylistDto;
-import coverit.ImageClient.dto.TrackDto;
-import coverit.ImageClient.exception.BadRequestException;
+import image_client.client.ImageClient;
+import image_client.constants.Constants;
+import image_client.dto.PlaylistDto;
+import image_client.dto.TrackDto;
+import image_client.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static coverit.ImageClient.constants.Constants.*;
 
 @Service
 @RequiredArgsConstructor

@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS playlist (
     user_id BIGINT,
     cover_id BIGINT NOT NULL,
     generations BIGINT NOT NULL,
+    saved_at TIMESTAMP WITHOUT TIME ZONE,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (cover_id) REFERENCES cover (id)
 );

@@ -18,36 +18,13 @@ import org.springframework.web.bind.annotation.*;
 public class CoverPrivateController {
     private final CoverService service;
 
-    @Operation(
-            description = "save generated playlist using playlistId, imageURL, and boolean isPrivate",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200"
-                    )
-            }
-    )
+    @Operation(summary = "save generated playlist using playlistId and boolean isPrivate")
     @PatchMapping("/cover/save")
     public void savePlaylist(@RequestHeader(value = "X-Playlist-Id") int playlistId,
                              @RequestParam(name = "is_private", required = true) @NotNull Boolean isPrivate,
-                             @RequestParam(name = "user", required = true) String userToken) {
+                             @RequestHeader(value = "X-UserToken", required = true) String userToken) {
         log.info("[MAIN_SERVER] save playlist with id {}", playlistId);
         userToken = userToken.substring(7);
         service.savePlaylist(playlistId, isPrivate, userToken);
-    }
-
-    @Operation(
-            description = "save generated playlist using playlistId, imageURL, and boolean isPrivate",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200"
-                    )
-            }
-    )
-    @PatchMapping("/cover/")
-    public void getMyPlaylists(@RequestHeader(name = "X-User", required = true) String userToken) {
-        log.info("[MAIN_SERVER] get my playlist for user");
-        userToken = userToken.substring(7);
-
-        service.getMyPlaylists(userToken);
     }
 }

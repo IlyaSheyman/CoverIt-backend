@@ -1,4 +1,4 @@
-package coverit.ImageClient.constants;
+package image_client.constants;
 
 public interface Constants {
     String SPOTIFY_REGEX = "^(https?://)?(www\\.)?(open\\.spotify\\.com/playlist/)[a-zA-Z0-9]+.*$";

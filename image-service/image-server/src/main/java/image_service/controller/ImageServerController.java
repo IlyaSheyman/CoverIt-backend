@@ -1,9 +1,9 @@
-package coverit.ImageServer.controller;
+package image_service.controller;
 
-import coverit.ImageClient.constants.Constants;
-import coverit.ImageClient.dto.PlaylistDto;
-import coverit.ImageClient.dto.UrlDto;
-import coverit.ImageServer.service.ImageServerService;
+import image_client.constants.Constants;
+import image_client.dto.PlaylistDto;
+import image_client.dto.UrlDto;
+import image_service.service.ImageServerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +41,6 @@ public class ImageServerController {
 
         return service.getCoverUrl(url, vibe, isAbstract);
     }
-
-    //TODO проверить isAbstract
 
     /**
      * Endpoint for getting playlist by spotify url
