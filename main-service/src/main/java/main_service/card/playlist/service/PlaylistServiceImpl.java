@@ -11,6 +11,15 @@ public class PlaylistServiceImpl {
     public void getMyPlaylists(String userToken, int page, int size) {
     }
 
-    public void getUserPlaylists(String search, int page, int size) {
+    public void getArchive(int page, int size, String sort) {
+    }
+
+    public void like(String userToken, int playlistId) {
+    }
+
+    public void unlikePlaylist(String userToken, int playlistId) {
+    }
+
+    public void getUserPlaylists(String requesterToken, int userId, int page, int size) {
     }
 }

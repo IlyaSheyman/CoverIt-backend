@@ -22,7 +22,7 @@ public class CoverPrivateController {
     @PatchMapping("/cover/save")
     public void savePlaylist(@RequestHeader(value = "X-Playlist-Id") int playlistId,
                              @RequestParam(name = "is_private", required = true) @NotNull Boolean isPrivate,
-                             @RequestHeader(value = "X-UserToken", required = true) String userToken) {
+                             @RequestHeader(name = "Authorization") String userToken) {
         log.info("[MAIN_SERVER] save playlist with id {}", playlistId);
         userToken = userToken.substring(7);
         service.savePlaylist(playlistId, isPrivate, userToken);

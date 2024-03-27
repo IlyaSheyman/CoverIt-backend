@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlaylistInMyCollectionDto {
+public class PlaylistMyCollectionDto {
     private int id;
     private String title;
     private String url;

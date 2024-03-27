@@ -120,4 +120,7 @@ public class UserService {
 
         return userDetailsService;
     }
+
+    public void search(String userToken, String search, UserUpdateDto dto, int page, int size) {
+    }
 }

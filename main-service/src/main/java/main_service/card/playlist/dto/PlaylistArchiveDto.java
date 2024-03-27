@@ -12,12 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlaylistInUserCollectionDto {
+public class PlaylistArchiveDto {
     private int id;
     private String title;
     private String url;
     private Constants.Vibe vibe;
+    private Boolean isPrivate;
     private List<Track> tracks;
     private Cover cover;
-
 }
