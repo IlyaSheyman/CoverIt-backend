@@ -22,13 +22,15 @@ public class ImageServerService {
     private final ImageClient client;
 
     public String getCoverUrl(String url, Constants.Vibe vibe, Boolean isAbstract) {
-        PlaylistDto playlistDto = getPlayListByUrl(url);
-        log.info("playlist name: " + playlistDto.getTitle());
-        String prompt = getPromptByPlaylist(playlistDto, vibe, isAbstract);
-        String imageUrl = getCoverByPrompt(prompt);
-        log.info("image url: " + imageUrl);
-
-        return imageUrl;
+//        PlaylistDto playlistDto = getPlayListByUrl(url);
+//        log.info("playlist name: " + playlistDto.getTitle());
+//        String prompt = getPromptByPlaylist(playlistDto, vibe, isAbstract);
+//        String imageUrl = getCoverByPrompt(prompt);
+//        log.info("image url: " + imageUrl);
+//
+//        return imageUrl;
+        String draftForDev = "https://oaidalleapiprodscus.blob.core.windows.net/private/org-g5uQeMCnQ8Fid3HaD7A568qD/user-MpCFiOesHOu11BWSiajNCsWv/img-IAcWztZv4bOa2BBIS2OeylWm.png?st=2024-03-26T22%3A45%3A28Z&se=2024-03-27T00%3A45%3A28Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-26T21%3A22%3A39Z&ske=2024-03-27T21%3A22%3A39Z&sks=b&skv=2021-08-06&sig=68HShPjpREP2HaRtDHBH/6rIew749bE3HAGC9VMDptY%3D";
+        return draftForDev;
     }
 
     private String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe, Boolean isAbstract) {

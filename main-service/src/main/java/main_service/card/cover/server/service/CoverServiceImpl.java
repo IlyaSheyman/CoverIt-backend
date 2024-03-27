@@ -53,8 +53,10 @@ public class CoverServiceImpl implements CoverService {
                 .title(dto.getTitle())
                 .vibe(vibe)
                 .isSaved(false)
-                .tracks(getTracksFromDto(dto))
                 .build();
+
+        ArrayList<Track> tracks = getTracksFromDto(dto);
+        newPlaylist.setTracks(tracks);
 
         if (userToken != null) { //TODO проверить, работает ли установление автора
             User user = getUserById(jwtService.extractUserId(userToken));
@@ -78,28 +80,32 @@ public class CoverServiceImpl implements CoverService {
     @Override
     public PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId) {
         Playlist playlist = getPlaylistById(playlistId);
+        int generations = playlist.getGenerations();
 
-        UrlDto urlDto = UrlDto.builder()
-                .link(playlist.getUrl())
-                .build();
+        if (generations > 3) {
+            UrlDto urlDto = UrlDto.builder()
+                    .link(playlist.getUrl())
+                    .build();
 
-        String coverUrl = client.createCover(urlDto, vibe, isAbstract);
+            String coverUrl = client.createCover(urlDto, vibe, isAbstract);
 
-        Cover cover = Cover.builder()
-                .created(LocalDateTime.now())
-                .isAbstract(isAbstract)
-                .link(coverUrl)
-                .build();
-        log.info(cover.toString());
+            Cover cover = Cover.builder()
+                    .created(LocalDateTime.now())
+                    .isAbstract(isAbstract)
+                    .link(coverUrl)
+                    .build();
 
-        coverRepository.save(cover);
+            coverRepository.save(cover);
 
-        int generations = playlist.getGenerations() + 1;
+            generations++;
 
-        playlist.setCover(cover);
-        playlist.setGenerations(generations);
+            playlist.setCover(cover);
+            playlist.setGenerations(generations);
 
-        return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
+            return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
+        } else {
+            throw new BadRequestException("generations limit is already reached");
+        }
     }
 
     @Override
@@ -140,7 +146,7 @@ public class CoverServiceImpl implements CoverService {
         for (TrackDto dto : playlistDto.getTracks()) {
             String authorsString = String.join(", ", dto.getAuthors());
             String title = dto.getTitle();
-            Track track = trackRepository.findByTitleAndAuthors(authorsString, title);
+            Track track = trackRepository.findByTitleAndAuthors(title, authorsString);
 
             if (track == null) {
                 Track newTrack = Track.builder()
@@ -149,11 +155,12 @@ public class CoverServiceImpl implements CoverService {
                         .build();
 
                 trackRepository.save(newTrack);
+                tracks.add(newTrack);
             } else {
-                trackRepository.save(track);
+                tracks.add(track);
             }
 
-            tracks.add(track);
+
         }
         return tracks;
     }

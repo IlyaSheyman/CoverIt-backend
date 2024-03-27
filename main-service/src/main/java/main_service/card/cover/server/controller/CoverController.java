@@ -35,11 +35,10 @@ public class CoverController {
 
     @PatchMapping("/regenerate")
     @Operation(summary = "Request to regenerate cover by playlist id")
-    public PlaylistUpdateDto updatePlaylistsCover(@RequestBody @Valid UrlDto url,
-                                                  @RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
+    public PlaylistUpdateDto updatePlaylistsCover(@RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
                                                   @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
                                                   @RequestHeader(name = "Playlist_Id", required = true) int playlistId) {
-        log.info("[COVERCONTROLLER] update cover by playlist URL {}", url.getLink());
+        log.info("[COVERCONTROLLER] update cover by playlist Id {}", playlistId);
 
         return service.updateCover(vibe, isAbstract, playlistId);
     }
