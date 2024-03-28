@@ -24,22 +24,18 @@ public class PlaylistPrivateController {
     @PatchMapping("/like")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void likePlaylist(@RequestHeader(name = "Authorization") String userToken,
-                             @RequestHeader(value = "X-Playlist-Id") int playlistId) {
-        userToken = userToken.substring(7);
-
+                             @RequestHeader(value = "Playlist_Id") int playlistId) {
+        log.info("[MAIN_SERVER] like playlist " + playlistId);
         service.like(userToken, playlistId);
-        //TODO
     }
 
     @Operation(summary = "unlike playlist")
     @PatchMapping("/unlike")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void unlikePlaylist(@RequestHeader(name = "Authorization") String userToken,
-                               @RequestHeader(value = "X-Playlist-Id") int playlistId) {
-        userToken = userToken.substring(7);
-
+                               @RequestHeader(value = "Playlist_Id") int playlistId) {
+        log.info("[MAIN_SERVER] unlike playlist " + playlistId);
         service.unlikePlaylist(userToken, playlistId);
-        //TODO
     }
 
     @Operation(summary = "get my playlists")

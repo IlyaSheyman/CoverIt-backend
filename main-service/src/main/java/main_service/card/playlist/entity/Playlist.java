@@ -64,4 +64,5 @@ public class Playlist {
     private LocalDateTime savedAt;
 
     private int generations;
+
 }
