@@ -7,6 +7,7 @@ import main_service.card.cover.entity.Cover;
 import main_service.card.cover.storage.CoverRepository;
 import main_service.card.playlist.dto.PlaylistDto;
 import main_service.card.playlist.dto.PlaylistNewDto;
+import main_service.card.playlist.dto.PlaylistSaveDto;
 import main_service.card.playlist.dto.PlaylistUpdateDto;
 import main_service.card.playlist.entity.Playlist;
 import main_service.card.playlist.mapper.PlaylistMapper;
@@ -55,7 +56,6 @@ public class CoverServiceImpl implements CoverService {
                 .title(dto.getTitle())
                 .vibe(vibe)
                 .isSaved(false)
-                .savedAt(LocalDateTime.now())
                 .build();
 
         ArrayList<Track> tracks = getTracksFromDto(dto);
@@ -129,20 +129,27 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Override
-    public void savePlaylist(int playlistId, Boolean isPrivate, String userToken) {
-        //сценарий 1: авторизованный пользователь
-        // 1) если private
-        // - создается карточка плейлиста, добавляется в бд, playlist.isPrivate = true (не отображается в рекомендациях)
+    public PlaylistSaveDto savePlaylist(int playlistId, Boolean isPrivate, String userToken) {
+        Playlist playlist = getPlaylistById(playlistId);
+        User author = playlist.getAuthor();
 
-        // 2) если public
-        // - создается карточка плейлиста, добавляется в бд, playlist.isPrivate = false (отображается в рекомендациях)
+        userToken = userToken.substring(7);
+        User user = getUserById(jwtService.extractUserId(userToken));
 
-        //сценарий 2: неавторизованный пользователь
-        // отсутствует поле private/public
-        // создается карточка плейлиста, не добавляется в бд, информация не сохраняется
-        // нажатие кнопки "save" -> транзакционный метод регистрация + сохранение 2 в одном - придумать как реализовать
+        if (user.getId() != author.getId()) {
+            throw new ConflictRequestException("only author of playlist can save it");
+        }
 
-        //TODO реализовать логику + добавить параметр savedAt
+        playlist.setIsPrivate(isPrivate);
+        playlist.setIsSaved(true);
+
+        if (playlist.getSavedAt() == null) {
+            playlist.setSavedAt(LocalDateTime.now());
+        }
+
+        playlistRepository.save(playlist);
+
+        return playlistMapper.toPlaylistSaveDto(playlist);
     }
 
     private Playlist getPlaylistById(int playlistId) {

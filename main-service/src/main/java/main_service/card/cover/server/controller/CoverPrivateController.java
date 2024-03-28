@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.card.cover.server.service.CoverService;
 import main_service.card.cover.server.service.UrlDto;
+import main_service.card.playlist.dto.PlaylistSaveDto;
+import main_service.card.playlist.dto.PlaylistUpdateDto;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,11 +23,11 @@ public class CoverPrivateController {
 
     @Operation(summary = "save generated playlist using playlistId and boolean isPrivate")
     @PatchMapping("/cover/save")
-    public void savePlaylist(@RequestHeader(value = "X-Playlist-Id") int playlistId,
-                             @RequestParam(name = "is_private", required = true) @NotNull Boolean isPrivate,
-                             @RequestHeader(name = "Authorization") String userToken) {
+    public PlaylistSaveDto savePlaylist(@RequestHeader(value = "Playlist_Id") int playlistId,
+                                        @RequestParam(name = "is_private") @NotNull Boolean isPrivate,
+                                        @RequestHeader(name = "Authorization") String userToken) {
         log.info("[MAIN_SERVER] save playlist with id {}", playlistId);
-        userToken = userToken.substring(7);
-        service.savePlaylist(playlistId, isPrivate, userToken);
+
+        return service.savePlaylist(playlistId, isPrivate, userToken);
     }
 }

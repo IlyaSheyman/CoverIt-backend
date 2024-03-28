@@ -40,7 +40,7 @@ public class CoverController {
     @Operation(summary = "Request to regenerate cover by playlist id")
     public PlaylistUpdateDto updatePlaylistsCover(@RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
                                                   @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
-                                                  @RequestHeader(name = "Playlist_Id", required = true) int playlistId,
+                                                  @RequestHeader(name = "Playlist_Id") int playlistId,
                                                   @RequestHeader(name = "Authorization", required = false) String userToken) {
         log.info("[COVERCONTROLLER] update cover by playlist Id {}", playlistId);
 
