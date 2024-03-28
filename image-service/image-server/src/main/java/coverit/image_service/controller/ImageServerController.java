@@ -1,9 +1,9 @@
-package image_service.controller;
+package coverit.image_service.controller;
 
-import image_client.constants.Constants;
-import image_client.dto.PlaylistDto;
-import image_client.dto.UrlDto;
-import image_service.service.ImageServerService;
+import coverit.image_client.constants.Constants;
+import coverit.image_client.dto.PlaylistDto;
+import coverit.image_client.dto.UrlDto;
+import coverit.image_service.service.ImageServerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

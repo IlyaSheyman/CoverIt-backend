@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @ToString
-public class UserSearchDto {
+public class UserSmallDto {
     private int id;
     private String username;
     private String email;

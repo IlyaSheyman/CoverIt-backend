@@ -1,4 +1,4 @@
-package image_client.dto;
+package coverit.image_client.dto;
 
 import lombok.*;
 

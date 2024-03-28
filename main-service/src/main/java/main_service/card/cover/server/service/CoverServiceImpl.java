@@ -17,6 +17,7 @@ import main_service.card.track.storage.TrackRepository;
 import main_service.config.security.JwtService;
 import main_service.constants.Constants;
 import main_service.exception.model.BadRequestException;
+import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
@@ -43,6 +44,7 @@ public class CoverServiceImpl implements CoverService {
     @Override
     public PlaylistNewDto getCover(String userToken, UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract) {
         String url = urlDto.getLink();
+
         validateAlreadySaved(url);
 
         PlaylistDto dto = client.getPlaylist(url);
@@ -53,12 +55,14 @@ public class CoverServiceImpl implements CoverService {
                 .title(dto.getTitle())
                 .vibe(vibe)
                 .isSaved(false)
+                .savedAt(LocalDateTime.now())
                 .build();
 
         ArrayList<Track> tracks = getTracksFromDto(dto);
         newPlaylist.setTracks(tracks);
 
         if (userToken != null) { //TODO проверить, работает ли установление автора
+            userToken = userToken.substring(7);
             User user = getUserById(jwtService.extractUserId(userToken));
             newPlaylist.setAuthor(user);
         }
@@ -78,11 +82,22 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Override
-    public PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId) {
+    public PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken) {
         Playlist playlist = getPlaylistById(playlistId);
         int generations = playlist.getGenerations();
 
-        if (generations > 3) {
+        User author = playlist.getAuthor();
+
+        if (author != null) {
+            userToken = userToken.substring(7);
+            User user = getUserById(jwtService.extractUserId(userToken));
+
+            if (user.getId() != author.getId()) {
+                throw new ConflictRequestException("only author of playlist can change its cover");
+            }
+        }
+
+        if (generations < 3) {
             UrlDto urlDto = UrlDto.builder()
                     .link(playlist.getUrl())
                     .build();

@@ -1,7 +1,7 @@
-package image_client.client;
+package coverit.image_client.client;
 
-import image_client.dto.PlaylistDto;
-import image_client.dto.TrackDto;
+import coverit.image_client.dto.PlaylistDto;
+import coverit.image_client.dto.TrackDto;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;

@@ -1,6 +1,6 @@
-package image_client.dto;
+package coverit.image_client.dto;
 
-import image_client.constants.Constants;
+import coverit.image_client.constants.Constants;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;

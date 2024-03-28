@@ -1,4 +1,4 @@
-package image_client.exception;
+package coverit.image_client.exception;
 
 public class BadRequestException extends RuntimeException {
     public BadRequestException(String message) {

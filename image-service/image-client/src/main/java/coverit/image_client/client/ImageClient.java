@@ -1,16 +1,14 @@
-package image_client.client;
+package coverit.image_client.client;
 
-import image_client.constants.Constants;
-import image_client.dto.PlaylistDto;
-import image_client.dto.TrackDto;
-import image_client.exception.BadRequestException;
-import image_client.exception.UnsupportedRequestException;
+import coverit.image_client.constants.Constants;
+import coverit.image_client.exception.BadRequestException;
+import coverit.image_client.exception.UnsupportedRequestException;
+import coverit.image_client.dto.PlaylistDto;
+import coverit.image_client.dto.TrackDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.client.AiClient;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Component

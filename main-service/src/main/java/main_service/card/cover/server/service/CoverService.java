@@ -9,7 +9,7 @@ public interface CoverService {
 
     void savePlaylist(int playlistId, Boolean isPrivate, String userToken);
 
-    PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId);
+    PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken);
 
     void getMyPlaylists(String userToken);
 }

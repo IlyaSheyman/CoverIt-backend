@@ -1,4 +1,4 @@
-package image_client.client;
+package coverit.image_client.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
