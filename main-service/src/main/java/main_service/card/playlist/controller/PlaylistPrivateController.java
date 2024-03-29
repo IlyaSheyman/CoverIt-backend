@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -40,15 +42,12 @@ public class PlaylistPrivateController {
 
     @Operation(summary = "get my playlists")
     @GetMapping("/my_collection")
-    public Page<PlaylistMyCollectionDto> getMyPlaylists(@RequestHeader(name = "Authorization") String userToken,
+    public List<PlaylistMyCollectionDto> getMyPlaylists(@RequestHeader(name = "Authorization") String userToken,
                                                         @RequestParam(name = "page", defaultValue = "0") int page,
                                                         @RequestParam(name = "size", defaultValue = "10") int size) {
         log.info("[MAIN_SERVER] get my playlist for user");
-        userToken = userToken.substring(7);
 
-        service.getMyPlaylists(userToken, page, size);
-
-        return null; //TODO (токен нужен для того, чтобы понять - выводить private/public или нет
+        return service.getMyPlaylists(userToken, page, size);
     }
 
     @Operation(summary = "get user's playlists by searching his name in 'find users'")

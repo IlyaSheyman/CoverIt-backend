@@ -20,4 +20,5 @@ public class PlaylistMyCollectionDto {
     private Boolean isPrivate;
     private List<Track> tracks;
     private Cover cover;
+    private Boolean isLiked;
 }

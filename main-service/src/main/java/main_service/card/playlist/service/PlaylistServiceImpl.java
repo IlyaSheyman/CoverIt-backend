@@ -2,17 +2,21 @@ package main_service.card.playlist.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import main_service.card.cover.storage.CoverRepository;
+import main_service.card.playlist.dto.PlaylistMyCollectionDto;
 import main_service.card.playlist.entity.Playlist;
 import main_service.card.playlist.mapper.PlaylistMapper;
 import main_service.card.playlist.storage.PlaylistRepository;
-import main_service.card.track.storage.TrackRepository;
 import main_service.config.security.JwtService;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +29,36 @@ public class PlaylistServiceImpl {
 
     private final PlaylistMapper playlistMapper;
 
-    public void getMyPlaylists(String userToken, int page, int size) {
+    public List<PlaylistMyCollectionDto> getMyPlaylists(String userToken, int page, int size) {
+        userToken = userToken.substring(7);
+        User user = getUserById(jwtService.extractUserId(userToken));
+        List<Playlist> liked = user.getLikes();
+
+        List<Playlist> collection = playlistRepository
+                .findByAuthor(user, PageRequest.of(page, size))
+                .stream()
+                .filter(playlist -> playlist.getIsSaved().equals(true))
+                .toList();
+
+        List<PlaylistMyCollectionDto> collectionDto = new ArrayList<>();
+
+        for (Playlist playlist: collection) {
+            PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
+
+            if (liked.contains(playlist)) {
+                dto.setIsLiked(true);
+            } else {
+                dto.setIsLiked(false);
+            }
+
+            collectionDto.add(dto);
+        }
+
+        return collectionDto;
     }
 
     public void getArchive(int page, int size, String sort) {
+
     }
 
     public void like(String userToken, int playlistId) {

@@ -1,5 +1,6 @@
 package main_service.card.playlist.mapper;
 
+import main_service.card.playlist.dto.PlaylistMyCollectionDto;
 import main_service.card.playlist.dto.PlaylistNewDto;
 import main_service.card.playlist.dto.PlaylistSaveDto;
 import main_service.card.playlist.dto.PlaylistUpdateDto;
@@ -15,4 +16,5 @@ public interface PlaylistMapper {
     PlaylistNewDto toPlaylistNewDto(Playlist playlist);
     PlaylistUpdateDto toPlaylistUpdateDto(Playlist playlist);
     PlaylistSaveDto toPlaylistSaveDto(Playlist playlist);
+    PlaylistMyCollectionDto toPlaylistMyCollectionDto(Playlist playlist);
 }
