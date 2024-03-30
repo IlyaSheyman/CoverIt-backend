@@ -9,6 +9,8 @@ import main_service.card.playlist.service.PlaylistServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -20,15 +22,13 @@ public class PlaylistController {
 
     @Operation(summary = "get archive of playlists")
     @GetMapping("/archive")
-    public Page<PlaylistArchiveDto> getArchive(@RequestParam(name = "page", defaultValue = "0") int page,
+    public List<PlaylistArchiveDto> getArchive(@RequestHeader(name = "Authorization", required = false) String userToken,
+                                               @RequestParam(name = "page", defaultValue = "0") int page,
                                                @RequestParam(name = "size", defaultValue = "10") int size,
                                                @RequestParam(name = "sort_by", required = false) String sort) {
-        log.info("[MAIN_SERVER] get my playlist for user");
+        log.info("[MAIN_SERVER] get playlists archive");
 
-        service.getArchive(page, size, sort);
-
-        return null; //TODO
+        return service.getArchive(page, size, sort, userToken);
     }
-
 
 }

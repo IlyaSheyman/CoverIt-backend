@@ -51,16 +51,14 @@ public class PlaylistPrivateController {
     }
 
     @Operation(summary = "get user's playlists by searching his name in 'find users'")
-    @GetMapping("/user/{userId}")
-    public Page<PlaylistUserCollectionDto> getUserPlaylists(@RequestHeader(name = "Authorization") String userToken,
-                                                            @PathVariable(name = "userId") int userId,
+    @GetMapping("/user_collection")
+    public List<PlaylistUserCollectionDto> getUserPlaylists(@RequestHeader(name = "Authorization") String userToken,
+                                                            @RequestHeader(name = "User_Id") int userId,
                                                             @RequestParam(name = "page", defaultValue = "0") int page,
                                                             @RequestParam(name = "size", defaultValue = "10") int size) {
-        log.info("[MAIN_SERVER] get user's playlists for user");
-        String requesterToken = userToken.substring(7);
-        service.getUserPlaylists(requesterToken, userId,  page, size);
+        log.info("[MAIN_SERVER] get user's playlists for user with id " + userId);
 
-        return null; //TODO
+        return service.getUserPlaylists(userToken, userId,  page, size);
     }
 
 }

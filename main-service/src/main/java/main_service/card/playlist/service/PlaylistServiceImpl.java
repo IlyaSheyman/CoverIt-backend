@@ -2,7 +2,9 @@ package main_service.card.playlist.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main_service.card.playlist.dto.PlaylistArchiveDto;
 import main_service.card.playlist.dto.PlaylistMyCollectionDto;
+import main_service.card.playlist.dto.PlaylistUserCollectionDto;
 import main_service.card.playlist.entity.Playlist;
 import main_service.card.playlist.mapper.PlaylistMapper;
 import main_service.card.playlist.storage.PlaylistRepository;
@@ -57,8 +59,38 @@ public class PlaylistServiceImpl {
         return collectionDto;
     }
 
-    public void getArchive(int page, int size, String sort) {
+    public List<PlaylistArchiveDto> getArchive(int page, int size, String sort, String userToken) {
+        List<Playlist> archive = playlistRepository
+                .findAll(PageRequest.of(page, size))
+                .stream()
+                .filter(playlist -> playlist.getIsSaved().equals(true))
+                .filter(playlist -> playlist.getIsPrivate().equals(false))
+                .toList();
 
+        if (userToken != null) {
+            List<PlaylistArchiveDto> collectionDto = new ArrayList<>();
+            String requesterToken = userToken.substring(7);
+            User requester = getUserById(jwtService.extractUserId(requesterToken));
+            List<Playlist> likedByRequester = requester.getLikes();
+
+            for (Playlist playlist : archive) {
+                PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);
+
+                if (likedByRequester.contains(playlist)) {
+                    dto.setIsLiked(true);
+                } else {
+                    dto.setIsLiked(false);
+                }
+
+                collectionDto.add(dto);
+            }
+
+            return collectionDto;
+        } else {
+            return archive.stream()
+                    .map(playlistMapper::toPlaylistArchiveDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     public void like(String userToken, int playlistId) {
@@ -91,7 +123,35 @@ public class PlaylistServiceImpl {
         log.info("playlist with id " + playlistId + " is unliked by user with username " + user.getUsername());
     }
 
-    public void getUserPlaylists(String requesterToken, int userId, int page, int size) {
+    public List<PlaylistUserCollectionDto> getUserPlaylists(String userToken, int userId, int page, int size) {
+        String requesterToken = userToken.substring(7);
+        User requester = getUserById(jwtService.extractUserId(requesterToken));
+        User user = getUserById(userId);
+
+        List<Playlist> likedByRequester = requester.getLikes();
+
+        List<Playlist> userCollection = playlistRepository
+                .findByAuthor(user, PageRequest.of(page, size))
+                .stream()
+                .filter(playlist -> playlist.getIsSaved().equals(true))
+                .filter(playlist -> playlist.getIsPrivate().equals(false))
+                .toList();
+
+        List<PlaylistUserCollectionDto> collectionDto = new ArrayList<>();
+
+        for (Playlist playlist: userCollection) {
+            PlaylistUserCollectionDto dto = playlistMapper.toPlaylistUserCollectionDto(playlist);
+
+            if (likedByRequester.contains(playlist)) {
+                dto.setIsLiked(true);
+            } else {
+                dto.setIsLiked(false);
+            }
+
+            collectionDto.add(dto);
+        }
+
+        return collectionDto;
     }
 
     private User getUserById(int id) {
