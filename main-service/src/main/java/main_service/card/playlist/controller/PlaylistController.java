@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.card.playlist.dto.PlaylistArchiveDto;
 import main_service.card.playlist.service.PlaylistServiceImpl;
+import main_service.constants.Constants;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class PlaylistController {
     public List<PlaylistArchiveDto> getArchive(@RequestHeader(name = "Authorization", required = false) String userToken,
                                                @RequestParam(name = "page", defaultValue = "0") int page,
                                                @RequestParam(name = "size", defaultValue = "10") int size,
-                                               @RequestParam(name = "sort_by", required = false) String sort) {
+                                               @RequestParam(name = "sort_by", required = false) Constants.SortBy sort) {
         log.info("[MAIN_SERVER] get playlists archive");
 
         return service.getArchive(page, size, sort, userToken);

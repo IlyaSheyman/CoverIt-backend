@@ -9,6 +9,7 @@ import main_service.card.playlist.entity.Playlist;
 import main_service.card.playlist.mapper.PlaylistMapper;
 import main_service.card.playlist.storage.PlaylistRepository;
 import main_service.config.security.JwtService;
+import main_service.constants.Constants;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.user.entity.User;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,13 +61,28 @@ public class PlaylistServiceImpl {
         return collectionDto;
     }
 
-    public List<PlaylistArchiveDto> getArchive(int page, int size, String sort, String userToken) {
+    public List<PlaylistArchiveDto> getArchive(int page, int size, Constants.SortBy sort, String userToken) {
         List<Playlist> archive = playlistRepository
                 .findAll(PageRequest.of(page, size))
                 .stream()
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .filter(playlist -> playlist.getIsPrivate().equals(false))
                 .toList();
+
+        if (sort != null) {
+            if (sort.equals(Constants.SortBy.CREATED)) {
+                archive = archive.stream()
+                        .sorted(Comparator.comparing(Playlist::getSavedAt).reversed())
+                        .collect(Collectors.toList());
+            } else {
+                archive = archive.stream()
+                        .filter(playlist -> {
+                            Constants.Vibe vibe = playlist.getVibe();
+                            return vibe != null && vibe.toString().equals(sort.toString());
+                        })
+                        .toList();
+            }
+        }
 
         if (userToken != null) {
             List<PlaylistArchiveDto> collectionDto = new ArrayList<>();
@@ -164,4 +181,5 @@ public class PlaylistServiceImpl {
         return playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
     }
+
 }

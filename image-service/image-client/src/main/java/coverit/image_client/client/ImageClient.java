@@ -56,7 +56,7 @@ public class ImageClient {
                 case NATURE_DOES_NOT_CARE:
                     request.append(Constants.NATURE_PROMPT);
                     break;
-                case EMPTY_SOUNDS:
+                case BREAKING_DOWN:
                     request.append(Constants.EMPTY_SOUNDS_PROMPT);
                     break;
                 case CAMPFIRE_CALMNESS:

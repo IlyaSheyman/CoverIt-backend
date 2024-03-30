@@ -47,11 +47,19 @@ public interface Constants {
     enum Vibe {
         DANCING_FLOOR,
         NATURE_DOES_NOT_CARE,
-        SOUND_OF_NOTHING,
+        BREAKING_DOWN,
         CAMPFIRE_CALMNESS,
         TOUGH_AND_STRAIGHT,
-        GARDEN_OF_NOSTALGIA,
-        FUTURE_IS_NOW,
-        ROUTINE_SOUNDS
+        ENDLESS_JOY
+    }
+
+    enum SortBy {
+        CREATED,
+        DANCING_FLOOR,
+        NATURE_DOES_NOT_CARE,
+        BREAKING_DOWN,
+        CAMPFIRE_CALMNESS,
+        TOUGH_AND_STRAIGHT,
+        ENDLESS_JOY
     }
 }

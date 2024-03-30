@@ -7,7 +7,6 @@ import coverit.image_client.dto.TrackDto;
 import coverit.image_client.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +60,7 @@ public class ImageServerService {
                 case NATURE_DOES_NOT_CARE:
                     prompt.append(NATURE_PROMPT);
                     break;
-                case EMPTY_SOUNDS:
+                case BREAKING_DOWN:
                     prompt.append(EMPTY_SOUNDS_PROMPT);
                     break;
                 case CAMPFIRE_CALMNESS:
