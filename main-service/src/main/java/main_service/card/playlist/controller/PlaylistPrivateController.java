@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import main_service.card.playlist.dto.PlaylistMyCollectionDto;
 import main_service.card.playlist.dto.PlaylistUserCollectionDto;
 import main_service.card.playlist.service.PlaylistServiceImpl;
+import main_service.constants.Constants;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -44,10 +45,11 @@ public class PlaylistPrivateController {
     @GetMapping("/my_collection")
     public List<PlaylistMyCollectionDto> getMyPlaylists(@RequestHeader(name = "Authorization") String userToken,
                                                         @RequestParam(name = "page", defaultValue = "0") int page,
-                                                        @RequestParam(name = "size", defaultValue = "10") int size) {
+                                                        @RequestParam(name = "size", defaultValue = "10") int size,
+                                                        @RequestParam(name = "sort_by", required = false) Constants.SortBy sort) {
         log.info("[MAIN_SERVER] get my playlist for user");
 
-        return service.getMyPlaylists(userToken, page, size);
+        return service.getMyPlaylists(userToken, page, size, sort);
     }
 
     @Operation(summary = "get user's playlists by searching his name in 'find users'")
@@ -55,10 +57,11 @@ public class PlaylistPrivateController {
     public List<PlaylistUserCollectionDto> getUserPlaylists(@RequestHeader(name = "Authorization") String userToken,
                                                             @RequestHeader(name = "User_Id") int userId,
                                                             @RequestParam(name = "page", defaultValue = "0") int page,
-                                                            @RequestParam(name = "size", defaultValue = "10") int size) {
+                                                            @RequestParam(name = "size", defaultValue = "10") int size,
+                                                            @RequestParam(name = "sort_by", required = false) Constants.SortBy sort) {
         log.info("[MAIN_SERVER] get user's playlists for user with id " + userId);
 
-        return service.getUserPlaylists(userToken, userId,  page, size);
+        return service.getUserPlaylists(userToken, userId,  page, size, sort);
     }
 
 }
