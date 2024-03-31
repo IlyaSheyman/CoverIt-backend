@@ -23,7 +23,7 @@ public class ImageServerService {
 
     private final ImageClient client;
 
-    public String getCoverUrl(String url, Constants.Vibe vibe, Boolean isAbstract) {
+    public String getPlaylistCoverUrl(String url, Constants.Vibe vibe, Boolean isAbstract) {
 //        PlaylistDto playlistDto = getPlayListByUrl(url);
 //        log.info("playlist name: " + playlistDto.getTitle());
 //        String prompt = getPromptByPlaylist(playlistDto, vibe, isAbstract);
@@ -111,4 +111,5 @@ public class ImageServerService {
     public String chatGpt(String text) {
         return client.chatGpt(text);
     }
+
 }

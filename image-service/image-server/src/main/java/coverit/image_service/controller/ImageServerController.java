@@ -26,8 +26,8 @@ public class ImageServerController {
      * @return cover url
      */
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/cover")
-    public String getCoverUrl(@RequestBody @Valid UrlDto urlDto,
+    @PostMapping("/cover_playlist")
+    public String getPlaylistCoverUrl(@RequestBody @Valid UrlDto urlDto,
                               @RequestParam(name = "vibe", required = false) String vibeString,
                               @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract) {
         String url = urlDto.getLink();
@@ -39,7 +39,17 @@ public class ImageServerController {
 
         log.info("[IMAGE_SERVER] generate cover by playlist url {}", url);
 
-        return service.getCoverUrl(url, vibe, isAbstract);
+        return service.getPlaylistCoverUrl(url, vibe, isAbstract);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/cover_release")
+    public String get(@RequestParam(name = "vibe", required = false) String vibeString,
+                      @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract) {
+
+        log.info("[IMAGE_SERVER] generate cover for release");
+
+        return service.getReleaseCoverUrl();
     }
 
     /**
