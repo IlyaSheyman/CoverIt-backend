@@ -1,9 +1,12 @@
-package coverit.ImageClient.client;
+package coverit.image_client.client;
 
-import coverit.ImageClient.dto.PlaylistDto;
-import coverit.ImageClient.dto.TrackDto;
+import coverit.image_client.dto.PlaylistDto;
+import coverit.image_client.dto.TrackDto;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
@@ -14,22 +17,34 @@ import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 @Component
 public class SpotifyClient {
-    private static final String clientId = "9c5799d5294b4a2fb2b42d699177ab95";
-    private static final String clientSecret = "db6d6aa567d84edf8327b27919d0258b";
-    private static final SpotifyApi spotifyApi = new SpotifyApi.Builder()
-            .setClientId(clientId)
-            .setClientSecret(clientSecret)
-            .build();
-    private static final ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
-            .build();
+    private final String clientId;
+    private final String clientSecret;
+    private SpotifyApi spotifyApi;
+    private ClientCredentialsRequest clientCredentialsRequest;
 
-    public static void clientCredentials_Sync() {
+    @Autowired
+    public SpotifyClient(@Value(value = "${spotify_clientId}") String clientId,
+                         @Value(value = "${spotify_clientSecret}") String clientSecret) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+    }
+
+    @PostConstruct
+    public void init() {
+        spotifyApi = new SpotifyApi.Builder()
+                .setClientId(clientId)
+                .setClientSecret(clientSecret)
+                .build();
+
+        clientCredentialsRequest = spotifyApi.clientCredentials().build();
+    }
+
+    public void clientCredentials_Sync() {
         try {
             final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
             spotifyApi.setAccessToken(clientCredentials.getAccessToken());

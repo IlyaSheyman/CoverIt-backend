@@ -7,6 +7,7 @@ import main_service.card.cover.entity.Cover;
 import main_service.card.cover.storage.CoverRepository;
 import main_service.card.playlist.dto.PlaylistDto;
 import main_service.card.playlist.dto.PlaylistNewDto;
+import main_service.card.playlist.dto.PlaylistSaveDto;
 import main_service.card.playlist.dto.PlaylistUpdateDto;
 import main_service.card.playlist.entity.Playlist;
 import main_service.card.playlist.mapper.PlaylistMapper;
@@ -17,6 +18,7 @@ import main_service.card.track.storage.TrackRepository;
 import main_service.config.security.JwtService;
 import main_service.constants.Constants;
 import main_service.exception.model.BadRequestException;
+import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
@@ -43,6 +45,7 @@ public class CoverServiceImpl implements CoverService {
     @Override
     public PlaylistNewDto getCover(String userToken, UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract) {
         String url = urlDto.getLink();
+
         validateAlreadySaved(url);
 
         PlaylistDto dto = client.getPlaylist(url);
@@ -53,10 +56,13 @@ public class CoverServiceImpl implements CoverService {
                 .title(dto.getTitle())
                 .vibe(vibe)
                 .isSaved(false)
-                .tracks(getTracksFromDto(dto))
                 .build();
 
+        ArrayList<Track> tracks = getTracksFromDto(dto);
+        newPlaylist.setTracks(tracks);
+
         if (userToken != null) { //TODO проверить, работает ли установление автора
+            userToken = userToken.substring(7);
             User user = getUserById(jwtService.extractUserId(userToken));
             newPlaylist.setAuthor(user);
         }
@@ -76,30 +82,74 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Override
-    public PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId) {
+    public PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken) {
         Playlist playlist = getPlaylistById(playlistId);
+        int generations = playlist.getGenerations();
 
-        UrlDto urlDto = UrlDto.builder()
-                .link(playlist.getUrl())
-                .build();
+        User author = playlist.getAuthor();
 
-        String coverUrl = client.createCover(urlDto, vibe, isAbstract);
+        if (author != null) {
+            userToken = userToken.substring(7);
+            User user = getUserById(jwtService.extractUserId(userToken));
 
-        Cover cover = Cover.builder()
-                .created(LocalDateTime.now())
-                .isAbstract(isAbstract)
-                .link(coverUrl)
-                .build();
-        log.info(cover.toString());
+            if (user.getId() != author.getId()) {
+                throw new ConflictRequestException("only author of playlist can change its cover");
+            }
+        }
 
-        coverRepository.save(cover);
+        if (generations < 3) {
+            UrlDto urlDto = UrlDto.builder()
+                    .link(playlist.getUrl())
+                    .build();
 
-        int generations = playlist.getGenerations() + 1;
+            String coverUrl = client.createCover(urlDto, vibe, isAbstract);
 
-        playlist.setCover(cover);
-        playlist.setGenerations(generations);
+            Cover cover = Cover.builder()
+                    .created(LocalDateTime.now())
+                    .isAbstract(isAbstract)
+                    .link(coverUrl)
+                    .build();
 
-        return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
+            coverRepository.save(cover);
+
+            generations++;
+
+            playlist.setCover(cover);
+            playlist.setGenerations(generations);
+
+            return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
+        } else {
+            throw new BadRequestException("generations limit is already reached");
+        }
+    }
+
+    @Override
+    public void getMyPlaylists(String userToken) {
+        //TODO
+    }
+
+    @Override
+    public PlaylistSaveDto savePlaylist(int playlistId, Boolean isPrivate, String userToken) {
+        Playlist playlist = getPlaylistById(playlistId);
+        User author = playlist.getAuthor();
+
+        userToken = userToken.substring(7);
+        User user = getUserById(jwtService.extractUserId(userToken));
+
+        if (user.getId() != author.getId()) {
+            throw new ConflictRequestException("only author of playlist can save it");
+        }
+
+        playlist.setIsPrivate(isPrivate);
+        playlist.setIsSaved(true);
+
+        if (playlist.getSavedAt() == null) {
+            playlist.setSavedAt(LocalDateTime.now());
+        }
+
+        playlistRepository.save(playlist);
+
+        return playlistMapper.toPlaylistSaveDto(playlist);
     }
 
     private Playlist getPlaylistById(int playlistId) {
@@ -107,29 +157,33 @@ public class CoverServiceImpl implements CoverService {
                 .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
     }
 
-    private void validateAlreadySaved(String url) { // TODO проверить этот метод
-        Playlist playlist = playlistRepository.getByUrl(url);
-
-        if (playlist != null) {
-            if (playlist.getIsSaved()) {
-                throw new BadRequestException(String.format("playlist with url %s is already covered", url));
-            }
+    private void validateAlreadySaved(String url) {
+        if (playlistRepository.existsByUrl(url)) {
+            throw new BadRequestException(String.format("playlist with url %s is already covered", url));
         }
     }
 
-    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) { //TODO сделать так, чтобы не создавались дубликаты с одной парой НАЗВАНИЕ-АВТОР
+    private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) {
         ArrayList<Track> tracks = new ArrayList<>();
 
         for (TrackDto dto : playlistDto.getTracks()) {
-            String authorsString  = String.join(", ", dto.getAuthors());
+            String authorsString = String.join(", ", dto.getAuthors());
+            String title = dto.getTitle();
+            Track track = trackRepository.findByTitleAndAuthors(title, authorsString);
 
-            Track track = Track.builder()
-                    .authors(authorsString)
-                    .title(dto.getTitle())
-                    .build();
+            if (track == null) {
+                Track newTrack = Track.builder()
+                        .authors(authorsString)
+                        .title(title)
+                        .build();
 
-            trackRepository.save(track);
-            tracks.add(track);
+                trackRepository.save(newTrack);
+                tracks.add(newTrack);
+            } else {
+                tracks.add(track);
+            }
+
+
         }
         return tracks;
     }
@@ -140,19 +194,4 @@ public class CoverServiceImpl implements CoverService {
                 .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
     }
 
-    @Override
-    public void savePlaylist(int playlistId, Boolean isPrivate, String userToken) {
-        //сценарий 1: авторизованный пользователь
-        // 1) если private
-        // - создается карточка плейлиста, добавляется в бд, playlist.isPrivate = true (не отображается в рекомендациях)
-
-        // 2) если public
-        // - создается карточка плейлиста, добавляется в бд, playlist.isPrivate = false (отображается в рекомендациях)
-
-        //сценарий 2: неавторизованный пользователь
-        // отсутствует поле private/public
-        // создается карточка плейлиста, не добавляется в бд, информация не сохраняется
-        // нажатие кнопки "save" -> транзакционный метод регистрация + сохранение 2 в одном - придумать как реализовать
-
-    }
 }

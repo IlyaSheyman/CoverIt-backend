@@ -1,6 +1,5 @@
-package coverit.ImageClient.dto;
+package coverit.image_client.dto;
 
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;

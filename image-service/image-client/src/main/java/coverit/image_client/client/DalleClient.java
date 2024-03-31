@@ -1,8 +1,9 @@
-package coverit.ImageClient.client;
+package coverit.image_client.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -12,6 +13,12 @@ import java.net.URL;
 @Component
 @Slf4j
 public class DalleClient {
+    private final String secretKey;
+
+    public DalleClient(@Value(value = "${openai_secretkey}")String secretKey) {
+        this.secretKey = secretKey;
+    }
+
     public String generateImage(String prompt) {
         try {
             String url = "https://api.openai.com/v1/images/generations";
@@ -19,7 +26,7 @@ public class DalleClient {
 
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
-            con.setRequestProperty("Authorization", "Bearer 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");
+            con.setRequestProperty("Authorization", "Bearer " + secretKey);
 
 //            String data = String.format("{\"model\":\"dall-e-3\",\"prompt\":\"%s\",\"n\":1,\"size\":\"1024x1024\"}", prompt);
             String data = String.format("{\"prompt\":\"%s\",\"n\":1,\"size\":\"1024x1024\"}", prompt);

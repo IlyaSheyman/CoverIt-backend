@@ -37,7 +37,6 @@ public class CoverClient extends HttpClient {
         } else {
             throw new RuntimeException("incorrect response from image-server. http status: "
                     + res.getStatusCode());
-            //TODO проконсультироваться и понять, как назвать кастомную ошибку
         }
     }
 

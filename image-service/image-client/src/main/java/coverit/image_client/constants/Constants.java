@@ -1,4 +1,4 @@
-package coverit.ImageClient.constants;
+package coverit.image_client.constants;
 
 public interface Constants {
     String SPOTIFY_REGEX = "^(https?://)?(www\\.)?(open\\.spotify\\.com/playlist/)[a-zA-Z0-9]+.*$";
@@ -15,9 +15,10 @@ public interface Constants {
     enum Vibe {
         DANCING_FLOOR,
         NATURE_DOES_NOT_CARE,
-        EMPTY_SOUNDS,
+        BREAKING_DOWN,
         CAMPFIRE_CALMNESS,
-        TOUGH_AND_STRAIGHT
+        TOUGH_AND_STRAIGHT,
+        ENDLESS_JOY
     }
     String GPT_REQUEST_MAIN = "Create a short fictional image description based on the following words without using them. ";
     String ABSTRACT_GPT_CONSTRAINT = "It must describe an abstract, visual phenomenon. ";

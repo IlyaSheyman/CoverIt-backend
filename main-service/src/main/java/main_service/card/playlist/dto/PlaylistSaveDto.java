@@ -1,34 +1,30 @@
 package main_service.card.playlist.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import main_service.card.cover.entity.Cover;
-import main_service.card.track.dto.TrackDto;
-import main_service.card.track.dto.TrackInPlaylistDto;
 import main_service.card.track.entity.Track;
 import main_service.constants.Constants;
 import main_service.user.dto.UserSmallDto;
 import main_service.user.entity.User;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static main_service.constants.Constants.*;
-import static main_service.constants.Constants.MAX_LINK_LENGTH;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlaylistNewDto {
+public class PlaylistSaveDto {
     private int id;
-    private String title;
-    private String url;
-    private Constants.Vibe vibe;
     private Boolean isPrivate;
-    private Boolean isSaved;
     private UserSmallDto author;
-    private ArrayList<TrackInPlaylistDto> tracks;
-    private Cover cover;
+    @JsonFormat(pattern = DATE_FORMAT)
+    private LocalDateTime savedAt;
     private int generations;
 }

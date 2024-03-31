@@ -10,6 +10,7 @@ import main_service.card.cover.server.service.UrlDto;
 import main_service.card.playlist.dto.PlaylistNewDto;
 import main_service.card.playlist.dto.PlaylistUpdateDto;
 import main_service.constants.Constants;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,6 +24,7 @@ public class CoverController {
 
 
     @PostMapping("/generate")
+    @Transactional
     @Operation(summary = "Request to generate cover")
     public PlaylistNewDto createPlaylistWithCover(@RequestBody @Valid UrlDto url,
                                                   @RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
@@ -34,14 +36,15 @@ public class CoverController {
     }
 
     @PatchMapping("/regenerate")
+    @Transactional
     @Operation(summary = "Request to regenerate cover by playlist id")
-    public PlaylistUpdateDto updatePlaylistsCover(@RequestBody @Valid UrlDto url,
-                                                  @RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
+    public PlaylistUpdateDto updatePlaylistsCover(@RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
                                                   @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
-                                                  @RequestHeader(name = "Playlist_Id", required = true) int playlistId) {
-        log.info("[COVERCONTROLLER] update cover by playlist URL {}", url.getLink());
+                                                  @RequestHeader(name = "Playlist_Id") int playlistId,
+                                                  @RequestHeader(name = "Authorization", required = false) String userToken) {
+        log.info("[COVERCONTROLLER] update cover by playlist Id {}", playlistId);
 
-        return service.updateCover(vibe, isAbstract, playlistId);
+        return service.updateCover(vibe, isAbstract, playlistId, userToken);
     }
 
 }
