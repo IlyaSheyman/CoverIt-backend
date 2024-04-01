@@ -4,10 +4,6 @@ public interface Constants {
     String SPOTIFY_REGEX = "^(https?://)?(www\\.)?(open\\.spotify\\.com/playlist/)[a-zA-Z0-9]+.*$";
     String YANDEX_MUSIC_REGEX = "^(https?://)?(music\\.yandex\\.ru/album/)[0-9]+.*$";
 
-    int MIN_LINK_LENGTH = 5;
-    int MAX_LINK_LENGTH = 115;
-
-
     int MIN_PLAYLIST_TITLE_LENGTH = 1;
     int MAX_PLAYLIST_TITLE_LENGTH = 50;
     int MAX_PLAYLIST_SIZE = 30;

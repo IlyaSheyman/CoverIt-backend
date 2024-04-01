@@ -1,8 +1,9 @@
 package main_service.playlist_card.cover.client;
 
-import main_service.playlist_card.cover.server.service.UrlDto;
-import main_service.playlist_card.playlist.dto.PlaylistDto;
 import main_service.constants.Constants;
+import main_service.playlist_card.cover.service.UrlDto;
+import main_service.playlist_card.playlist.dto.PlaylistDto;
+import main_service.release.dto.ReleaseRequestDto;
 import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -21,7 +22,20 @@ public class HttpClient {
         this.rest = rest;
     }
 
-    protected ResponseEntity<String> cover(UrlDto body, Constants.Vibe vibe, Boolean isAbstract, String response) {
+    protected ResponseEntity<String> coverRelease(ReleaseRequestDto body, String response) {
+
+        Map<String, Object> params = Map.of();
+
+        return makeAndSendRequest(
+                POST,
+                "/cover_release",
+                params,
+                body,
+                response
+        );
+    }
+
+    protected ResponseEntity<String> coverPlaylist(UrlDto body, Constants.Vibe vibe, Boolean isAbstract, String response) {
         Map<String, Object> params = Map.of("is_abstract", isAbstract);
 
         if (vibe != null) {

@@ -3,9 +3,10 @@ package main_service.playlist_card.cover.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import main_service.playlist_card.cover.server.service.UrlDto;
+import main_service.playlist_card.cover.service.UrlDto;
 import main_service.playlist_card.playlist.dto.PlaylistDto;
 import main_service.constants.Constants;
+import main_service.release.dto.ReleaseRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -26,11 +27,24 @@ public class CoverClient extends HttpClient {
                 .build());
     }
 
-    public String createCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract) {
+    public String createReleaseCover(ReleaseRequestDto releaseRequestDto) {
+        log.debug("[COVER CLIENT] sending request to generate cover for release to Image-Service");
+
+        ResponseEntity<String> res = this.coverRelease(releaseRequestDto, new String());
+
+        if (res.getStatusCode().is2xxSuccessful() && res.getBody() != null) {
+            return res.getBody().toString();
+        } else {
+            throw new RuntimeException("incorrect response from image-server. http status: "
+                    + res.getStatusCode());
+        }
+    }
+
+    public String createPlaylistCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract) {
         log.debug("[COVER CLIENT] sending request to generate cover for playlist {} to Image-Service",
                 urlDto.getLink());
 
-        ResponseEntity<String> res = this.cover(urlDto, vibe, isAbstract, new String());
+        ResponseEntity<String> res = this.coverPlaylist(urlDto, vibe, isAbstract, new String());
 
         if (res.getStatusCode().is2xxSuccessful() && res.getBody() != null) {
             return res.getBody().toString();

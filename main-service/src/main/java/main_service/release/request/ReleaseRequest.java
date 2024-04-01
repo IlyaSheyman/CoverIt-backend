@@ -1,5 +1,6 @@
-package main_service.release.dto;
+package main_service.release.request;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -29,7 +30,8 @@ public class ReleaseRequest {
             max = MAX_SURROUNDING_SIZE)
     private String surrounding;
 
-    private boolean isLoFi;
+    @NotNull
+    private Boolean isLoFi;
 
     @Size(min = MIN_COVER_DESCRIPTION_SIZE,
             max = MAX_COVER_DESCRIPTION_SIZE)

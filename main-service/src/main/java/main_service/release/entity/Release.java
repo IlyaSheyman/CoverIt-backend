@@ -31,8 +31,13 @@ public class Release {
 
     private int generations;
 
-    @Column(name = "cover_url")
-    private String coverUrl;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User author;
+
+    @OneToOne
+    @JoinColumn(name = "cover_id")
+    private Cover cover;
 
     @Column(name = "created_at")
     @JsonFormat(pattern = DATE_FORMAT)

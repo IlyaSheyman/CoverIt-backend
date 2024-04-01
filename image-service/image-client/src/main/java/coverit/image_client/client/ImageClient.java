@@ -1,6 +1,7 @@
 package coverit.image_client.client;
 
 import coverit.image_client.constants.Constants;
+import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.exception.BadRequestException;
 import coverit.image_client.exception.UnsupportedRequestException;
 import coverit.image_client.dto.PlaylistDto;
@@ -18,6 +19,41 @@ public class ImageClient {
     private final SpotifyClient spotifyClient;
     private final AiClient aiClient;
     private final DalleClient dalleClient;
+
+    public String getReleaseCoverUrl(ReleaseRequestDto dto) {
+        StringBuilder preGptRequest = new StringBuilder();
+        preGptRequest.append("An image depicting ")
+                .append(dto.getObject())
+                .append(". Surrounded by ")
+                .append(dto.getSurrounding())
+                .append(". The picture is ")
+                .append(dto.getCoverDescription().toString());
+
+        log.info("Pre-gpt prompt: " + preGptRequest);
+
+        String finalRequest = chatGptReleasePromptBuild(dto, preGptRequest);
+
+        log.info("Post-gpt prompt: " + finalRequest);
+
+        if (dto.getIsLoFi()) {
+            return dalleClient.generateImage(finalRequest, "dall-e-2");
+        } else {
+            return dalleClient.generateImage(finalRequest, "dall-e-3");
+        }
+    }
+
+    private String chatGptReleasePromptBuild(ReleaseRequestDto dto, StringBuilder requestToDalle) {
+        StringBuilder requestToGpt = new StringBuilder();
+        requestToGpt.append("Add to the visual AI prompt details (3-5 words) that reflect the mood: ")
+                .append(dto.getMood().toString())
+                .append(". Prompt: ")
+                .append(requestToDalle)
+                .append(". Your answer should include full updated prompt.");
+
+        log.info("Request to gpt: " + requestToGpt);
+
+        return aiClient.generate(requestToGpt.toString());
+    }
 
     public PlaylistDto getPlayListByUrl(String url) {
         //на долгий срок: TODO добавить получение плейлиста из Яндекс Музыки, отдельный клиент
@@ -98,17 +134,20 @@ public class ImageClient {
         return title;
     }
 
-
-    public String getCoverByPrompt(String prompt) {
-        return dalleClient.generateImage(prompt);
+    public String getCoverByPrompt(String prompt, Boolean isLoFi) {
+        if (isLoFi) {
+            return dalleClient.generateImage(prompt, "dall-e-2");
+        } else {
+            return dalleClient.generateImage(prompt, "dall-e-3");
+        }
     }
 
-
     public String generateImage(String prompt) {
-        return dalleClient.generateImage(prompt);
+        return dalleClient.generateImage(prompt, "dall-e-2");
     }
 
     public String chatGpt(String text) {
         return aiClient.generate(text);
     }
+
 }

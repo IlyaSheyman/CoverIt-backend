@@ -1,4 +1,4 @@
-package main_service.playlist_card.cover.server.service;
+package main_service.playlist_card.cover.service;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

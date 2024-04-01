@@ -1,11 +1,11 @@
-package main_service.playlist_card.cover.server.controller;
+package main_service.playlist_card.cover.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import main_service.playlist_card.cover.server.service.CoverService;
+import main_service.playlist_card.cover.service.CoverService;
 import main_service.playlist_card.playlist.dto.PlaylistSaveDto;
 import org.springframework.web.bind.annotation.*;
 

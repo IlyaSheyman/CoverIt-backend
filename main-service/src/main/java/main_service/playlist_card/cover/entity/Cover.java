@@ -30,4 +30,7 @@ public class Cover {
 
     @Column(name = "is_abstract")
     private Boolean isAbstract;
+
+    @Column(name = "is_lofi")
+    private Boolean isLoFi;
 }

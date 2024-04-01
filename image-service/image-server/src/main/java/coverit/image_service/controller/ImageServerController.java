@@ -2,6 +2,7 @@ package coverit.image_service.controller;
 
 import coverit.image_client.constants.Constants;
 import coverit.image_client.dto.PlaylistDto;
+import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.UrlDto;
 import coverit.image_service.service.ImageServerService;
 import jakarta.validation.Valid;
@@ -29,7 +30,8 @@ public class ImageServerController {
     @PostMapping("/cover_playlist")
     public String getPlaylistCoverUrl(@RequestBody @Valid UrlDto urlDto,
                               @RequestParam(name = "vibe", required = false) String vibeString,
-                              @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract) {
+                              @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
+                              @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) {
         String url = urlDto.getLink();
         Constants.Vibe vibe = null;
 
@@ -39,17 +41,22 @@ public class ImageServerController {
 
         log.info("[IMAGE_SERVER] generate cover by playlist url {}", url);
 
-        return service.getPlaylistCoverUrl(url, vibe, isAbstract);
+        return service.getPlaylistCoverUrl(url, vibe, isAbstract, isLoFi);
     }
 
+    /**
+     * Endpoint for getting cover for release
+     *
+     * @param request release's properties (of music and cover)
+     * @return cover url
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/cover_release")
-    public String get(@RequestParam(name = "vibe", required = false) String vibeString,
-                      @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract) {
+    public String getReleaseCoverUrl(@RequestBody ReleaseRequestDto request) {
 
         log.info("[IMAGE_SERVER] generate cover for release");
 
-        return service.getReleaseCoverUrl();
+        return service.getReleaseCoverUrl(request);
     }
 
     /**

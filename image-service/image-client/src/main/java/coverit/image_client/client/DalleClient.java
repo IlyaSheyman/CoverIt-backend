@@ -19,7 +19,7 @@ public class DalleClient {
         this.secretKey = secretKey;
     }
 
-    public String generateImage(String prompt) {
+    public String generateImage(String prompt, String model) {
         try {
             String url = "https://api.openai.com/v1/images/generations";
             HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
@@ -27,9 +27,13 @@ public class DalleClient {
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Authorization", "Bearer " + secretKey);
+            String data;
 
-//            String data = String.format("{\"model\":\"dall-e-3\",\"prompt\":\"%s\",\"n\":1,\"size\":\"1024x1024\"}", prompt);
-            String data = String.format("{\"prompt\":\"%s\",\"n\":1,\"size\":\"1024x1024\"}", prompt);
+            if (model.equals("dall-e-3")) {
+                 data = String.format("{\"model\":\"dall-e-3\",\"prompt\":\"%s\",\"n\":1,\"size\":\"1024x1024\"}", prompt);
+            } else {
+                data = String.format("{\"prompt\":\"%s\",\"n\":1,\"size\":\"1024x1024\"}", prompt);
+            }
 
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
