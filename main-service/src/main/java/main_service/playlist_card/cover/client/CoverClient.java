@@ -40,11 +40,11 @@ public class CoverClient extends HttpClient {
         }
     }
 
-    public String createPlaylistCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract) {
+    public String createPlaylistCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
         log.debug("[COVER CLIENT] sending request to generate cover for playlist {} to Image-Service",
                 urlDto.getLink());
 
-        ResponseEntity<String> res = this.coverPlaylist(urlDto, vibe, isAbstract, new String());
+        ResponseEntity<String> res = this.coverPlaylist(urlDto, vibe, isAbstract, isLoFi, new String());
 
         if (res.getStatusCode().is2xxSuccessful() && res.getBody() != null) {
             return res.getBody().toString();

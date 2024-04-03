@@ -31,10 +31,10 @@ public class ImageServerController {
     public String getPlaylistCoverUrl(@RequestBody @Valid UrlDto urlDto,
                               @RequestParam(name = "vibe", required = false) String vibeString,
                               @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
-                              @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) {
+                              @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) { //TODO сменить на стринг попробовать, чтобы пофиксить ошибку
         String url = urlDto.getLink();
-        Constants.Vibe vibe = null;
 
+        Constants.Vibe vibe = null;
         if (vibeString != null) {
             vibe = Constants.Vibe.valueOf(vibeString.toUpperCase());
         }

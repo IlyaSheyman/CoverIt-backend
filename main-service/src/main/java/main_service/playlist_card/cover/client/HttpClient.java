@@ -9,6 +9,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class HttpClient {
 
     protected ResponseEntity<String> coverRelease(ReleaseRequestDto body, String response) {
 
-        Map<String, Object> params = Map.of();
+        Map<String, Object> params = new HashMap<>();
 
         return makeAndSendRequest(
                 POST,
@@ -35,8 +36,13 @@ public class HttpClient {
         );
     }
 
-    protected ResponseEntity<String> coverPlaylist(UrlDto body, Constants.Vibe vibe, Boolean isAbstract, String response) {
-        Map<String, Object> params = Map.of("is_abstract", isAbstract);
+    protected ResponseEntity<String> coverPlaylist(UrlDto body,
+                                                   Constants.Vibe vibe,
+                                                   Boolean isAbstract,
+                                                   Boolean isLoFi,
+                                                   String response) {
+
+        Map<String, Object> params = new HashMap<>(Map.of("is_abstract", isAbstract, "is_lofi", isLoFi));
 
         if (vibe != null) {
             params.put("vibe", vibe);
@@ -44,7 +50,7 @@ public class HttpClient {
 
         return makeAndSendRequest(
                 POST,
-                "/cover_playlist",
+                "/cover_playlist?vibe={vibe}&is_abstract={is_abstract}&is_lofi={is_lofi}",
                 params,
                 body,
                 response

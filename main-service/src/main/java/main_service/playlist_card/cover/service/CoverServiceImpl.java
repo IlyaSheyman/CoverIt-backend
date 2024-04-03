@@ -93,8 +93,7 @@ public class CoverServiceImpl implements CoverService {
                                    Boolean isAbstract,
                                    Boolean isLoFi) {
         String url = urlDto.getLink();
-
-        validateAlreadySaved(url);
+//        validateAlreadySaved(url);
 
         PlaylistDto dto = client.getPlaylist(url);
 
@@ -115,7 +114,7 @@ public class CoverServiceImpl implements CoverService {
             newPlaylist.setAuthor(user);
         }
 
-        String coverUrl = client.createPlaylistCover(urlDto, vibe, isAbstract);
+        String coverUrl = client.createPlaylistCover(urlDto, vibe, isAbstract, isLoFi);
 
         Cover cover = Cover.builder()
                 .created(LocalDateTime.now())
@@ -153,7 +152,7 @@ public class CoverServiceImpl implements CoverService {
                         .link(playlist.getUrl())
                         .build();
 
-                String coverUrl = client.createPlaylistCover(urlDto, vibe, isAbstract);
+                String coverUrl = client.createPlaylistCover(urlDto, vibe, isAbstract, true);
 
                 Cover cover = Cover.builder()
                         .created(LocalDateTime.now())
