@@ -46,6 +46,8 @@ public class HttpClient {
 
         if (vibe != null) {
             params.put("vibe", vibe);
+        } else {
+            params.put("vibe", "none");
         }
 
         return makeAndSendRequest(

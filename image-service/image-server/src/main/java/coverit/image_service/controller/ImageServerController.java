@@ -35,7 +35,7 @@ public class ImageServerController {
         String url = urlDto.getLink();
 
         Constants.Vibe vibe = null;
-        if (vibeString != null) {
+        if (!vibeString.equals("none")) {
             vibe = Constants.Vibe.valueOf(vibeString.toUpperCase());
         }
 

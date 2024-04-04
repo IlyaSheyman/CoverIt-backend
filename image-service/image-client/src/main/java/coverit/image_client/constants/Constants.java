@@ -23,11 +23,11 @@ public interface Constants {
     String GPT_REQUEST_SETTINGS = "Your answer should consist of 1-2 sentences. Words list: ";
 
     //None vibe settings
-    String GPT_NONE_VIBE = "You must describe [what is shown - briefly], [where it is - with a detailed description], [what the mood is - in 1-2 adjectives]. Do not use interrogative sentences, provide only a description";
-    String NONE_VIBE_DALLE_INSTRUCTION = "The picture should be lo-fi and ascetic, clear, avoid neon colors and text.";
+    String GPT_NONE_VIBE = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 4-5 words], [what the mood of the image is in 2-3 adjectives]. Do not use interrogative sentences, provide only a description";
+    String NONE_VIBE_DALLE_INSTRUCTION = "The picture should be ascetic, clear, avoid text.";
 
     //Dancing floor vibe settings
-    String GPT_DANCING_FLOOR = "You must describe [what is shown - in a few words], [where it is - with description]. The action should take place in the future, include futuristic objects. The final description should be ascetic, light, minimalistic, without neon details. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
+    String GPT_DANCING_FLOOR = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 4-5 words]. The action should take place in the future, include futuristic objects. The final description should be ascetic, light, minimalistic, without neon details. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
     String DANCING_FLOOR_INSTRUCTION = "The picture should be abstract, light, nature, mostly in white colors";
 
     //TODO Other settings
