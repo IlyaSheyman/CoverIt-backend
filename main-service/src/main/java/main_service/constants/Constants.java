@@ -1,13 +1,5 @@
 package main_service.constants;
 
-import jakarta.validation.constraints.Size;
-import main_service.exception.model.BadRequestException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
-import java.util.List;
-
 public interface Constants {
 
     String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -60,7 +52,10 @@ public interface Constants {
     }
 
     enum SortBy {
-        CREATED,
+        ABSTRACT,
+        NOT_ABSTRACT,
+        LO_FI,
+        HI_FI,
         DANCING_FLOOR,
         NATURE_DOES_NOT_CARE,
         BREAKING_DOWN,

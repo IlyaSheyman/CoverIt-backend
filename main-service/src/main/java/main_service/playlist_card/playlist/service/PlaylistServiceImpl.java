@@ -180,17 +180,22 @@ public class PlaylistServiceImpl {
     }
 
     private List<Playlist> sort(Constants.SortBy sort, List<Playlist> archive) {
-        if (sort.equals(Constants.SortBy.CREATED)) {
-            return archive.stream()
-                    .sorted(Comparator.comparing(Playlist::getSavedAt).reversed())
-                    .collect(Collectors.toList());
-        } else {
-            return archive.stream()
-                    .filter(playlist -> {
+        return archive.stream()
+                .filter(playlist -> {
+                    if (sort.equals(Constants.SortBy.ABSTRACT)) {
+                        return playlist.getCover().getIsAbstract();
+                    } else if (sort.equals(Constants.SortBy.NOT_ABSTRACT)) {
+                        return !playlist.getCover().getIsAbstract();
+                    } else if (sort.equals(Constants.SortBy.HI_FI)) {
+                        return !playlist.getCover().getIsLoFi();
+                    } else if (sort.equals(Constants.SortBy.LO_FI)) {
+                        return playlist.getCover().getIsLoFi();
+                    } else {
                         Constants.Vibe vibe = playlist.getVibe();
                         return vibe != null && vibe.toString().equals(sort.toString());
-                    })
-                    .toList();
-        }
+                    }
+                })
+                .sorted(Comparator.comparing(Playlist::getSavedAt).reversed())
+                .toList();
     }
 }
