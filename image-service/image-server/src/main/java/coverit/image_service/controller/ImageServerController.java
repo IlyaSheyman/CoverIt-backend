@@ -4,6 +4,7 @@ import coverit.image_client.constants.Constants;
 import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.UrlDto;
+import coverit.image_client.response.CoverResponse;
 import coverit.image_service.service.ImageServerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,10 @@ public class ImageServerController {
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/cover_playlist")
-    public String getPlaylistCoverUrl(@RequestBody @Valid UrlDto urlDto,
-                              @RequestParam(name = "vibe", required = false) String vibeString,
-                              @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
-                              @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) { //TODO сменить на стринг попробовать, чтобы пофиксить ошибку
+    public CoverResponse getPlaylistCoverUrl(@RequestBody @Valid UrlDto urlDto,
+                                             @RequestParam(name = "vibe", required = false) String vibeString,
+                                             @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
+                                             @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) { //TODO сменить на стринг попробовать, чтобы пофиксить ошибку
         String url = urlDto.getLink();
 
         Constants.Vibe vibe = null;

@@ -2,6 +2,7 @@ package main_service.playlist_card.cover.client;
 
 import main_service.constants.Constants;
 import main_service.playlist_card.cover.service.UrlDto;
+import main_service.playlist_card.playlist.dto.CoverResponse;
 import main_service.playlist_card.playlist.dto.PlaylistDto;
 import main_service.release.dto.ReleaseRequestDto;
 import org.springframework.http.*;
@@ -36,11 +37,11 @@ public class HttpClient {
         );
     }
 
-    protected ResponseEntity<String> coverPlaylist(UrlDto body,
+    protected ResponseEntity<CoverResponse> coverPlaylist(UrlDto body,
                                                    Constants.Vibe vibe,
                                                    Boolean isAbstract,
                                                    Boolean isLoFi,
-                                                   String response) {
+                                                   CoverResponse response) {
 
         Map<String, Object> params = new HashMap<>(Map.of("is_abstract", isAbstract, "is_lofi", isLoFi));
 

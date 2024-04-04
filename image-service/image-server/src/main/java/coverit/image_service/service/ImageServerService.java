@@ -6,6 +6,7 @@ import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.TrackDto;
 import coverit.image_client.exception.BadRequestException;
+import coverit.image_client.response.CoverResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,14 +25,19 @@ public class ImageServerService {
 
     private final ImageClient client;
 
-    public String getPlaylistCoverUrl(String url, Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
+    public CoverResponse getPlaylistCoverUrl(String url, Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
         PlaylistDto playlistDto = getPlayListByUrl(url);
         log.info("playlist name: " + playlistDto.getTitle());
         String prompt = getPromptByPlaylist(playlistDto, vibe, isAbstract);
         String imageUrl = getCoverByPrompt(prompt, isLoFi);
         log.info("image url: " + imageUrl);
 
-        return imageUrl;
+        CoverResponse response = CoverResponse.builder()
+                .prompt(prompt)
+                .url(imageUrl)
+
+                .build();
+        return response;
     }
 
     private String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe, Boolean isAbstract) {

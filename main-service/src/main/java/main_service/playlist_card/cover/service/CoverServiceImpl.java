@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import main_service.playlist_card.cover.client.CoverClient;
 import main_service.playlist_card.cover.entity.Cover;
 import main_service.playlist_card.cover.storage.CoverRepository;
-import main_service.playlist_card.playlist.dto.PlaylistDto;
-import main_service.playlist_card.playlist.dto.PlaylistNewDto;
-import main_service.playlist_card.playlist.dto.PlaylistSaveDto;
-import main_service.playlist_card.playlist.dto.PlaylistUpdateDto;
+import main_service.playlist_card.playlist.dto.*;
 import main_service.playlist_card.playlist.entity.Playlist;
 import main_service.playlist_card.playlist.mapper.PlaylistMapper;
 import main_service.playlist_card.playlist.storage.PlaylistRepository;
@@ -114,13 +111,14 @@ public class CoverServiceImpl implements CoverService {
             newPlaylist.setAuthor(user);
         }
 
-        String coverUrl = client.createPlaylistCover(urlDto, vibe, isAbstract, isLoFi);
+        CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, isLoFi);
 
         Cover cover = Cover.builder()
                 .created(LocalDateTime.now())
                 .isAbstract(isAbstract)
                 .isLoFi(isLoFi)
-                .link(coverUrl)
+                .prompt(response.getPrompt())
+                .link(response.getUrl())
                 .build();
 
         coverRepository.save(cover);
@@ -152,12 +150,13 @@ public class CoverServiceImpl implements CoverService {
                         .link(playlist.getUrl())
                         .build();
 
-                String coverUrl = client.createPlaylistCover(urlDto, vibe, isAbstract, true);
+                CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, true);
 
                 Cover cover = Cover.builder()
                         .created(LocalDateTime.now())
                         .isAbstract(isAbstract)
-                        .link(coverUrl)
+                        .link(response.getUrl())
+                        .prompt(response.getPrompt())
                         .build();
 
                 coverRepository.save(cover);

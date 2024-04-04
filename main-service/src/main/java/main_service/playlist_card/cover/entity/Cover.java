@@ -2,6 +2,7 @@ package main_service.playlist_card.cover.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -27,6 +28,8 @@ public class Cover {
 
     @Size(min = MIN_LINK_LENGTH, max = MAX_LINK_LENGTH)
     private String link;
+
+    private String prompt;
 
     @Column(name = "is_abstract")
     private Boolean isAbstract;

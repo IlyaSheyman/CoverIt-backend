@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import main_service.playlist_card.cover.service.UrlDto;
+import main_service.playlist_card.playlist.dto.CoverResponse;
 import main_service.playlist_card.playlist.dto.PlaylistDto;
 import main_service.constants.Constants;
 import main_service.release.dto.ReleaseRequestDto;
@@ -40,14 +41,23 @@ public class CoverClient extends HttpClient {
         }
     }
 
-    public String createPlaylistCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
+    public CoverResponse createPlaylistCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
         log.debug("[COVER CLIENT] sending request to generate cover for playlist {} to Image-Service",
                 urlDto.getLink());
 
-        ResponseEntity<String> res = this.coverPlaylist(urlDto, vibe, isAbstract, isLoFi, new String());
+        ResponseEntity<CoverResponse> res = this.coverPlaylist(urlDto, vibe, isAbstract, isLoFi, new CoverResponse());
 
         if (res.getStatusCode().is2xxSuccessful() && res.getBody() != null) {
-            return res.getBody().toString();
+            ObjectMapper mapper = new ObjectMapper();
+
+            try {
+                return mapper.readValue(
+                        mapper.writeValueAsString(res.getBody()),
+                        CoverResponse.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+
         } else {
             throw new RuntimeException("incorrect response from image-server. http status: "
                     + res.getStatusCode());
