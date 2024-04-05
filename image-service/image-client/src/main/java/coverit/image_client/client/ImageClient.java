@@ -90,10 +90,10 @@ public class ImageClient {
                     request.append(Constants.GPT_DANCING_FLOOR);
                     break;
                 case NATURE_DOES_NOT_CARE:
-                    request.append(Constants.NATURE_PROMPT);
+                    request.append(Constants.GPT_NATURE);
                     break;
                 case BREAKING_DOWN:
-                    request.append(Constants.EMPTY_SOUNDS_PROMPT);
+                    request.append(Constants.GPT_BREAKING_DOWN);
                     break;
                 case CAMPFIRE_CALMNESS:
                     request.append(Constants.CAMPFIRE_CALMNESS_PROMPT);

@@ -62,10 +62,10 @@ public class ImageServerService {
                     prompt.append(DANCING_FLOOR_INSTRUCTION);
                     break;
                 case NATURE_DOES_NOT_CARE:
-                    prompt.append(NATURE_PROMPT);
+                    prompt.append(NATURE_INSTRUCTION);
                     break;
                 case BREAKING_DOWN:
-                    prompt.append(EMPTY_SOUNDS_PROMPT);
+                    prompt.append(GPT_BREAKING_DOWN);
                     break;
                 case CAMPFIRE_CALMNESS:
                     prompt.append(CAMPFIRE_CALMNESS_PROMPT);

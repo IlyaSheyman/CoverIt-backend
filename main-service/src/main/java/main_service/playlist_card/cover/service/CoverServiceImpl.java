@@ -229,8 +229,6 @@ public class CoverServiceImpl implements CoverService {
             } else {
                 tracks.add(track);
             }
-
-
         }
         return tracks;
     }

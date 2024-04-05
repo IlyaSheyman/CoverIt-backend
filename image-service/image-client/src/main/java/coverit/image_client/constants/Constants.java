@@ -6,7 +6,7 @@ public interface Constants {
 
     int MIN_PLAYLIST_TITLE_LENGTH = 1;
     int MAX_PLAYLIST_TITLE_LENGTH = 50;
-    int MAX_PLAYLIST_SIZE = 30;
+    int MAX_PLAYLIST_SIZE = 20;
 
     enum Vibe {
         DANCING_FLOOR,
@@ -23,16 +23,17 @@ public interface Constants {
     String GPT_REQUEST_SETTINGS = "Your answer should consist of 1-2 sentences. Words list: ";
 
     //None vibe settings
-    String GPT_NONE_VIBE = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 4-5 words], [what the mood of the image is in 2-3 adjectives]. Do not use interrogative sentences, provide only a description";
-    String NONE_VIBE_DALLE_INSTRUCTION = "The picture should be ascetic, clear, avoid text.";
+    String GPT_NONE_VIBE = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 3-5 words], [what the mood of the image is in 2-4 adjectives]. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
+    String NONE_VIBE_DALLE_INSTRUCTION = "The picture should be minimalistic, ascetic, avoid text.";
 
     //Dancing floor vibe settings
-    String GPT_DANCING_FLOOR = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 4-5 words]. The action should take place in the future, include futuristic objects. The final description should be ascetic, light, minimalistic, without neon details. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
-    String DANCING_FLOOR_INSTRUCTION = "The picture should be abstract, light, nature, mostly in white colors";
+    String GPT_DANCING_FLOOR = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 4-6 words]. The action should take place in the future, include futuristic objects. The final description should be ascetic, light, minimalistic, without neon details. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
+    String DANCING_FLOOR_INSTRUCTION = "The picture should be abstract, light, glitchy, mostly in white colors";
 
     //TODO Other settings
-    String NATURE_PROMPT = null;
-    String EMPTY_SOUNDS_PROMPT = null;
+    String GPT_NATURE = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 3-5 words]. The action should take place in nature (for example, mountain, lake, waterfall, tundra, etc.). The final description should be dreamy, organic, ethereal. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
+    String NATURE_INSTRUCTION = "The picture should be serene, mystical, tranquil, enchanting";
+    String GPT_BREAKING_DOWN = null;
     String CAMPFIRE_CALMNESS_PROMPT = null;
     String TOUGH_AND_STRAIGHT_PROMPT = null;
 }
