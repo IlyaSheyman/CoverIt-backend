@@ -24,7 +24,7 @@ public class HttpClient {
         this.rest = rest;
     }
 
-    protected ResponseEntity<String> coverRelease(ReleaseRequestDto body, String response) {
+    protected ResponseEntity<CoverResponse> coverRelease(ReleaseRequestDto body, CoverResponse response) {
 
         Map<String, Object> params = new HashMap<>();
 

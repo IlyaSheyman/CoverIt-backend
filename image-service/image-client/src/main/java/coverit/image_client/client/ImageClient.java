@@ -6,6 +6,7 @@ import coverit.image_client.exception.BadRequestException;
 import coverit.image_client.exception.UnsupportedRequestException;
 import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.TrackDto;
+import coverit.image_client.response.CoverResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.client.AiClient;
@@ -20,7 +21,7 @@ public class ImageClient {
     private final AiClient aiClient;
     private final DalleClient dalleClient;
 
-    public String getReleaseCoverUrl(ReleaseRequestDto dto) {
+    public CoverResponse getReleaseCoverUrl(ReleaseRequestDto dto) {
         StringBuilder preGptRequest = new StringBuilder();
         preGptRequest.append("An image depicting ")
                 .append(dto.getObject())
@@ -35,11 +36,18 @@ public class ImageClient {
 
         log.info("Post-gpt prompt: " + finalRequest);
 
+        String imageUrl;
+
         if (dto.getIsLoFi()) {
-            return dalleClient.generateImage(finalRequest, "dall-e-2");
+             imageUrl = dalleClient.generateImage(finalRequest, "dall-e-2");
         } else {
-            return dalleClient.generateImage(finalRequest, "dall-e-3");
+            imageUrl = dalleClient.generateImage(finalRequest, "dall-e-3");
         }
+
+        return CoverResponse.builder()
+                .url(imageUrl)
+                .prompt(finalRequest)
+                .build();
     }
 
     private String chatGptReleasePromptBuild(ReleaseRequestDto dto, StringBuilder requestToDalle) {

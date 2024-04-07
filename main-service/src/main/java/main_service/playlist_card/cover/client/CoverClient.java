@@ -28,25 +28,25 @@ public class CoverClient extends HttpClient {
                 .build());
     }
 
-    public String createReleaseCover(ReleaseRequestDto releaseRequestDto) {
+    public CoverResponse createReleaseCover(ReleaseRequestDto releaseRequestDto) {
         log.debug("[COVER CLIENT] sending request to generate cover for release to Image-Service");
 
-        ResponseEntity<String> res = this.coverRelease(releaseRequestDto, new String());
+        ResponseEntity<CoverResponse> res = this.coverRelease(releaseRequestDto, new CoverResponse());
 
-        if (res.getStatusCode().is2xxSuccessful() && res.getBody() != null) {
-            return res.getBody().toString();
-        } else {
-            throw new RuntimeException("incorrect response from image-server. http status: "
-                    + res.getStatusCode());
-        }
+        return getCoverResponse(res);
     }
 
     public CoverResponse createPlaylistCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
         log.debug("[COVER CLIENT] sending request to generate cover for playlist {} to Image-Service",
                 urlDto.getLink());
 
+
         ResponseEntity<CoverResponse> res = this.coverPlaylist(urlDto, vibe, isAbstract, isLoFi, new CoverResponse());
 
+        return getCoverResponse(res);
+    }
+
+    private CoverResponse getCoverResponse(ResponseEntity<CoverResponse> res) {
         if (res.getStatusCode().is2xxSuccessful() && res.getBody() != null) {
             ObjectMapper mapper = new ObjectMapper();
 

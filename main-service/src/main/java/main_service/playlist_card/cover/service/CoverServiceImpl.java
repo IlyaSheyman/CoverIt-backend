@@ -51,7 +51,9 @@ public class CoverServiceImpl implements CoverService {
 
     @Override
     public ReleaseNewDto getReleaseCover(String userToken, ReleaseRequest request) {
-        String coverUrl = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
+
+        CoverResponse coverResponse = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
+        String coverUrl = coverResponse.getUrl();
 
         Cover newCover = Cover.builder()
                 .created(LocalDateTime.now())

@@ -49,11 +49,11 @@ public class ImageServerController {
      * Endpoint for getting cover for release
      *
      * @param request release's properties (of music and cover)
-     * @return cover url
+     * @return cover url + prompt
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/cover_release")
-    public String getReleaseCoverUrl(@RequestBody ReleaseRequestDto request) {
+    public CoverResponse getReleaseCoverUrl(@RequestBody ReleaseRequestDto request) {
 
         log.info("[IMAGE_SERVER] generate cover for release");
 

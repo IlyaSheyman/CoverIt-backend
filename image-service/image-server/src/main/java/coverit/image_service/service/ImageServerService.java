@@ -124,14 +124,15 @@ public class ImageServerService {
                 + playlistDto.getTracks().size());
     }
 
-    public String getReleaseCoverUrl(ReleaseRequestDto request) {
-        String imageUrl = client.getReleaseCoverUrl(request);
-        log.info("image url: " + imageUrl);
+    public CoverResponse getReleaseCoverUrl(ReleaseRequestDto request) {
+        CoverResponse response = client.getReleaseCoverUrl(request);
 
-        String cloudUrl = uploadImage(imageUrl);
+        String cloudUrl = uploadImage(response.getUrl());
         log.info("cloud url: " + cloudUrl);
 
-        return cloudUrl;
+        response.setUrl(cloudUrl);
+
+        return response;
     }
 
     public PlaylistDto getPlayListByUrl(String url) {
