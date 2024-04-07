@@ -26,7 +26,7 @@ public class CoverController {
     private final CoverService service;
 
 
-    @PostMapping("/generate_playlist")
+    @PostMapping("/playlist/generate")
     @Transactional
     @Operation(summary = "Request to generate cover for playlist")
     public PlaylistNewDto createPlaylistWithCover(@RequestBody @Valid UrlDto url,
@@ -39,7 +39,7 @@ public class CoverController {
         return service.getCover(userToken, url, vibe, isAbstract, isLoFi);
     }
 
-    @PatchMapping("/regenerate_playlist")
+    @PatchMapping("/playlist/regenerate")
     @Transactional
     @Operation(summary = "Request to regenerate cover by playlist id")
     public PlaylistUpdateDto updatePlaylistsCover(@RequestParam(name = "vibe", required = false) Constants.Vibe vibe,

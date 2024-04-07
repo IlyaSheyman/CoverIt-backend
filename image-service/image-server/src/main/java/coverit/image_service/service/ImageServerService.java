@@ -1,5 +1,7 @@
 package coverit.image_service.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import coverit.image_client.client.ImageClient;
 import coverit.image_client.constants.Constants;
 import coverit.image_client.dto.PlaylistDto;
@@ -7,13 +9,16 @@ import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.TrackDto;
 import coverit.image_client.exception.BadRequestException;
 import coverit.image_client.response.CoverResponse;
+import coverit.image_service.storage.config.CloudinaryConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static coverit.image_client.constants.Constants.*;
 
@@ -24,20 +29,39 @@ import static coverit.image_client.constants.Constants.*;
 public class ImageServerService {
 
     private final ImageClient client;
+    private final CloudinaryConfig cloudinary;
 
     public CoverResponse getPlaylistCoverUrl(String url, Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
         PlaylistDto playlistDto = getPlayListByUrl(url);
         log.info("playlist name: " + playlistDto.getTitle());
+
         String prompt = getPromptByPlaylist(playlistDto, vibe, isAbstract);
+
         String imageUrl = getCoverByPrompt(prompt, isLoFi);
         log.info("image url: " + imageUrl);
 
+        String cloudUrl = uploadImage(imageUrl);
+        log.info("cloud url: " + cloudUrl);
+
         CoverResponse response = CoverResponse.builder()
                 .prompt(prompt)
-                .url(imageUrl)
-
+                .url(cloudUrl)
                 .build();
+
         return response;
+    }
+
+    private String uploadImage(String imageUrl) {
+        try {
+            Cloudinary cloud = cloudinary.cloudinaryConfig();
+            Map uploadResult = cloud.uploader().upload(imageUrl, ObjectUtils.emptyMap());
+
+            String url = (String) uploadResult.get("url");
+
+            return url;
+        } catch (IOException e) {
+            throw new RuntimeException("exception while uploading image: " + e.getMessage());
+        }
     }
 
     private String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe, Boolean isAbstract) {
@@ -104,7 +128,10 @@ public class ImageServerService {
         String imageUrl = client.getReleaseCoverUrl(request);
         log.info("image url: " + imageUrl);
 
-        return imageUrl;
+        String cloudUrl = uploadImage(imageUrl);
+        log.info("cloud url: " + cloudUrl);
+
+        return cloudUrl;
     }
 
     public PlaylistDto getPlayListByUrl(String url) {

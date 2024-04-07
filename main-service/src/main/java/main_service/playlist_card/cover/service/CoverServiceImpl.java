@@ -62,7 +62,6 @@ public class CoverServiceImpl implements CoverService {
         Release newRelease = Release.builder()
                 .title(request.getTitle())
                 .createdAt(LocalDateTime.now())
-                .generations(1)
                 .cover(newCover)
                 .build();
 
@@ -76,11 +75,6 @@ public class CoverServiceImpl implements CoverService {
         releaseRepository.save(newRelease);
 
         return releaseMapper.toReleaseNewDto(newRelease);
-    }
-
-    @Override
-    public ReleaseUpdateDto updateReleaseCover(ReleaseRequest request, int releaseId, String userToken) {
-        return null;
     }
 
     @Override

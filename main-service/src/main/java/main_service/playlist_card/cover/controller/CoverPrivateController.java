@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping
-@Tag(name = "Private cover controller", description = "For saving covers by authenticated users")
+@RequestMapping("/cover")
+@Tag(name = "Private cover controller", description = "For saving covers & release generation by authenticated users")
 public class CoverPrivateController {
     private final CoverService service;
 
     @Operation(summary = "save generated playlist using playlistId and boolean isPrivate")
-    @PatchMapping("/cover/save")
+    @PatchMapping("/playlist/save")
     public PlaylistSaveDto savePlaylist(@RequestHeader(value = "Playlist_Id") int playlistId,
                                         @RequestParam(name = "is_private") @NotNull Boolean isPrivate,
                                         @RequestHeader(name = "Authorization") String userToken) {
@@ -33,24 +33,13 @@ public class CoverPrivateController {
     }
 
     @ResponseBody
-    @PostMapping("/generate_track")
+    @PostMapping("/track/generate")
     @Transactional
     @Operation(summary = "Request to generate cover for release")
     public ReleaseNewDto createReleaseCover(@RequestBody @Valid ReleaseRequest request,
-                                            @RequestHeader(name = "Authorization", required = false) String userToken) {
+                                            @RequestHeader(name = "Authorization") String userToken) {
         log.info("[COVERCONTROLLER] get cover for release");
 
         return service.getReleaseCover(userToken, request);
-    }
-
-    @PatchMapping("/regenerate_track")
-    @Transactional
-    @Operation(summary = "Request to regenerate cover by playlist id")
-    public ReleaseUpdateDto updatePlaylistsCover(@RequestBody @Valid ReleaseRequest request,
-                                                 @RequestHeader(name = "Release_Id") int releaseId,
-                                                 @RequestHeader(name = "Authorization", required = false) String userToken) {
-        log.info("[COVERCONTROLLER] update release cover by release Id {}", releaseId);
-
-        return service.updateReleaseCover(request, releaseId, userToken);
     }
 }

@@ -27,7 +27,7 @@ public class SignUpRequest {
     @Email(message = "Email address should be formatted as user@example.com")
     private String email;
 
-    @Schema(description = "Пароль", example = "kozyasolov12!")
+    @Schema(description = "Password", example = "Kozyasolov12!")
     @Size(min = MIN_USER_PASSWORD_LENGTH, max = MAX_USER_PASSWORD_LENGTH)
     @ValidPassword
     private String password;

@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class ReleaseNewDto {
     private int id;
     private String title;
-    private int generations;
     private UserSmallDto author;
     private CoverSmallDto cover;
     private LocalDateTime createdAt;

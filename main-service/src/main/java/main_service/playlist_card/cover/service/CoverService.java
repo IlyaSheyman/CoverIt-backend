@@ -17,5 +17,4 @@ public interface CoverService {
 
     ReleaseNewDto getReleaseCover(String userToken, ReleaseRequest request);
 
-    ReleaseUpdateDto updateReleaseCover(ReleaseRequest request, int releaseId, String userToken);
 }

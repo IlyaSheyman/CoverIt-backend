@@ -29,8 +29,6 @@ public class Release {
             max = MAX_RELEASE_TITLE_LENGTH)
     private String title;
 
-    private int generations;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User author;
