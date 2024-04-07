@@ -30,9 +30,9 @@ public interface Constants {
     String GPT_DANCING_FLOOR = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 4-6 words]. The action should take place in the future, include futuristic objects. The final description should be ascetic, light, minimalistic, without neon details. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
     String DANCING_FLOOR_INSTRUCTION = "The picture should be abstract, light, glitchy, mostly in white colors";
 
-    //TODO Other settings
-    String GPT_NATURE = "You must describe [what is shown: object or action in 2-3 words], [surrounding in 3-5 words]. The action should take place in nature (for example, mountain, lake, waterfall, tundra, etc.). The final description should be dreamy, organic, ethereal. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
-    String NATURE_INSTRUCTION = "The picture should be serene, mystical, tranquil, enchanting";
+    //Nature doesn't care vibe settings
+    String GPT_NATURE = "You must describe natural landscape: [what is shown in 2-3 words], [description of natural surrounding in 3-5 words]. The final description should be dreamy, organic, ethereal. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
+    String NATURE_INSTRUCTION = "The picture should include natural landscape, be organic, enchanting";
     String GPT_BREAKING_DOWN = null;
     String CAMPFIRE_CALMNESS_PROMPT = null;
     String TOUGH_AND_STRAIGHT_PROMPT = null;

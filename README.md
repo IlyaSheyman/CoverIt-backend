@@ -8,6 +8,6 @@ Result:
 ![generate auth.jpg](..%2F..%2F..%2F..%2Fcoding%2Fcoverit%2Freadme%2Fgenerate%20auth.jpg)
 You can also share playlists, sort them by different parameters, add them to your collection, and more.
 ![my playlists.jpg](..%2F..%2F..%2F..%2Fcoding%2Fcoverit%2Freadme%2Fmy%20playlists.jpg)
-## 🔧Configuration: [swagger](..%2F..%2F..%2F..%2Fcoding%2Fcoverit%2Fcoverit_openapi3_0%28v.4%29.json)
+## 🔧Configuration: [swagger](..%2F..%2F..%2F..%2Fcoding%2Fcoverit%2Fcoverit_openapi3_0%20%28v.%205%29.json)
 ## 🚀Setup
 work in progress...

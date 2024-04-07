@@ -32,6 +32,12 @@ public class User implements UserDetails {
     @NotEmpty
     private String password;
 
+    @Column(name = "is_enabled")
+    private boolean enabled;
+
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
     @ManyToMany
     @JoinTable(
             name = "likes",
@@ -62,6 +68,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }

@@ -50,27 +50,4 @@ public class CoverController {
 
         return service.updateCover(vibe, isAbstract, playlistId, userToken);
     }
-
-    @ResponseBody
-    @PostMapping("/generate_track")
-    @Transactional
-    @Operation(summary = "Request to generate cover for release")
-    public ReleaseNewDto createReleaseCover(@RequestBody @Valid ReleaseRequest request,
-                                            @RequestHeader(name = "Authorization", required = false) String userToken) {
-        log.info("[COVERCONTROLLER] get cover for release");
-
-        return service.getReleaseCover(userToken, request);
-    }
-
-    @PatchMapping("/regenerate_track")
-    @Transactional
-    @Operation(summary = "Request to regenerate cover by playlist id")
-    public ReleaseUpdateDto updatePlaylistsCover(@RequestBody @Valid ReleaseRequest request,
-                                                 @RequestHeader(name = "Release_Id") int releaseId,
-                                                 @RequestHeader(name = "Authorization", required = false) String userToken) {
-        log.info("[COVERCONTROLLER] update release cover by release Id {}", releaseId);
-
-        return service.updateReleaseCover(request, releaseId, userToken);
-    }
-
 }

@@ -2,17 +2,23 @@ package main_service.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main_service.user.entity.User;
 import main_service.user.service.AuthenticationService;
 import main_service.config.security.JwtAuthenticationResponse;
 import main_service.user.dto.SignInRequest;
 import main_service.user.dto.SignUpRequest;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import main_service.user.service.UserService;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,12 +27,25 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Authentication", description = "Public controller")
 public class AuthController {
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @Operation(summary = "User's registration")
     @PostMapping("/sign-up")
-    public JwtAuthenticationResponse signUp(@RequestBody @Valid SignUpRequest request) {
-        log.info("[AUTH_CONTROLLER] sign-up user with username " + request.getUsername());
-        return authenticationService.signUp(request);
+    @Transactional
+    @ResponseStatus(HttpStatus.CREATED)
+    public void signUp(@RequestBody @Valid SignUpRequest userDto, HttpServletRequest request)
+            throws MessagingException, UnsupportedEncodingException {
+        log.info("[AUTH_CONTROLLER] sign-up user with username " + userDto.getUsername());
+        authenticationService.signUp(userDto, getSiteURL(request));
+    }
+    @Operation(summary = "User's email verification. Used as a link sent to email")
+    @GetMapping("/verify")
+    public String verifyUser(@Param("code") String code) {
+        if (userService.verify(code)) {
+            return "verify_success";
+        } else {
+            return "verify_fail";
+        }
     }
 
     @Operation(summary = "User's authorization")
@@ -34,5 +53,10 @@ public class AuthController {
     public JwtAuthenticationResponse signIn(@RequestBody @Valid SignInRequest request) {
         log.info("[AUTH_CONTROLLER] sign-in user with email " + request.getEmail());
         return authenticationService.signIn(request);
+    }
+
+    private String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
     }
 }

@@ -50,16 +50,16 @@ public class UserService {
     }
 
     /**
-     * Создание пользователя
+     * Creating user
      *
-     * @return созданный пользователь
+     * @return created user
      */
     public User create(User user) {
-        if (repository.existsByUsernameIgnoreCase(user.getUsername())) {
-            throw new BadRequestException("Пользователь с таким именем уже существует");
+        if (repository.existsByUsernameIgnoreCaseAndEnabled(user.getUsername(), true)) {
+            throw new BadRequestException("User with this username already exists");
         }
-        if (repository.existsByEmailIgnoreCase(user.getEmail())) {
-            throw new BadRequestException("Пользователь с таким email уже существует");
+        if (repository.existsByEmailIgnoreCaseAndEnabled(user.getEmail(), true)) {
+            throw new BadRequestException("User with this email already exists");
         }
         return save(user);
     }
@@ -122,5 +122,21 @@ public class UserService {
     }
 
     public void search(String userToken, String search, UserUpdateDto dto, int page, int size) {
+        //TODO
+    }
+
+    public boolean verify(String verificationCode) {
+        User user = repository.findByVerificationCode(verificationCode);
+
+        if (user == null || user.isEnabled()) {
+            return false;
+        } else {
+            user.setVerificationCode(null);
+            user.setEnabled(true);
+            repository.save(user);
+
+            log.info("user with id " + user.getId() + " is verified");
+            return true;
+        }
     }
 }
