@@ -46,6 +46,12 @@ public class User implements UserDetails {
     )
     private List<Playlist> likes;
 
+    @Column(name = "hifi_generations")
+    private int hiFiGenerations;
+
+    @Column(name = "lofi_generations")
+    private int loFiGenerations;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;

@@ -2,6 +2,11 @@ package main_service.playlist_card.cover.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main_service.config.security.JwtService;
+import main_service.constants.Constants;
+import main_service.exception.model.BadRequestException;
+import main_service.exception.model.ConflictRequestException;
+import main_service.exception.model.NotFoundException;
 import main_service.playlist_card.cover.client.CoverClient;
 import main_service.playlist_card.cover.entity.Cover;
 import main_service.playlist_card.cover.storage.CoverRepository;
@@ -12,17 +17,11 @@ import main_service.playlist_card.playlist.storage.PlaylistRepository;
 import main_service.playlist_card.track.dto.TrackDto;
 import main_service.playlist_card.track.entity.Track;
 import main_service.playlist_card.track.storage.TrackRepository;
-import main_service.config.security.JwtService;
-import main_service.constants.Constants;
-import main_service.exception.model.BadRequestException;
-import main_service.exception.model.ConflictRequestException;
-import main_service.exception.model.NotFoundException;
 import main_service.release.dto.ReleaseNewDto;
-import main_service.release.mapper.ReleaseRequestMapper;
-import main_service.release.request.ReleaseRequest;
-import main_service.release.dto.ReleaseUpdateDto;
 import main_service.release.entity.Release;
 import main_service.release.mapper.ReleaseMapper;
+import main_service.release.mapper.ReleaseRequestMapper;
+import main_service.release.request.ReleaseRequest;
 import main_service.release.storage.ReleaseRepository;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
@@ -30,6 +29,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
+import static main_service.constants.Constants.HIFI_LIMIT;
+import static main_service.constants.Constants.LOFI_LIMIT;
 
 @Service
 @RequiredArgsConstructor
@@ -51,32 +53,49 @@ public class CoverServiceImpl implements CoverService {
 
     @Override
     public ReleaseNewDto getReleaseCover(String userToken, ReleaseRequest request) {
+        userToken = userToken.substring(7);
+        User user = getUserById(jwtService.extractUserId(userToken));
+
+        generationsUpdate(request, user);
 
         CoverResponse coverResponse = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
-        String coverUrl = coverResponse.getUrl();
 
         Cover newCover = Cover.builder()
                 .created(LocalDateTime.now())
                 .isLoFi(request.getIsLoFi())
-                .link(coverUrl)
+                .link(coverResponse.getUrl())
+                .prompt(coverResponse.getPrompt())
                 .build();
 
         Release newRelease = Release.builder()
                 .title(request.getTitle())
                 .createdAt(LocalDateTime.now())
                 .cover(newCover)
+                .author(user)
                 .build();
-
-        if (userToken != null) {
-            userToken = userToken.substring(7);
-            User user = getUserById(jwtService.extractUserId(userToken));
-            newRelease.setAuthor(user);
-        }
 
         coverRepository.save(newCover);
         releaseRepository.save(newRelease);
 
         return releaseMapper.toReleaseNewDto(newRelease);
+    }
+
+    private void generationsUpdate(ReleaseRequest request, User user) {
+        if (request.getIsLoFi() && (user.getLoFiGenerations() < LOFI_LIMIT)) {
+            int loFiGenerations  = user.getLoFiGenerations();
+            loFiGenerations++;
+
+            user.setLoFiGenerations(loFiGenerations);
+            userRepository.save(user);
+        } else if (!request.getIsLoFi() && (user.getHiFiGenerations() < HIFI_LIMIT)) {
+            int hiFiGenerations  = user.getHiFiGenerations();
+            hiFiGenerations++;
+
+            user.setHiFiGenerations(hiFiGenerations);
+            userRepository.save(user);
+        } else {
+            throw new ConflictRequestException("user with id " + user.getId() + " has reached generations limit");
+        }
     }
 
     @Override
@@ -86,7 +105,7 @@ public class CoverServiceImpl implements CoverService {
                                    Boolean isAbstract,
                                    Boolean isLoFi) {
         String url = urlDto.getLink();
-//        validateAlreadySaved(url);
+        validateAlreadySaved(url);
 
         PlaylistDto dto = client.getPlaylist(url);
 

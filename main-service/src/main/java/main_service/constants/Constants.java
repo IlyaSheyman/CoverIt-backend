@@ -42,6 +42,8 @@ public interface Constants {
     int MIN_COVER_DESCRIPTION_SIZE = 1;
     int MAX_COVER_DESCRIPTION_SIZE  = 3;
 
+    int HIFI_LIMIT = 2;
+    int LOFI_LIMIT = 5;
     enum Vibe {
         DANCING_FLOOR,
         NATURE_DOES_NOT_CARE,

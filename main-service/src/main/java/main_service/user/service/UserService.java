@@ -11,10 +11,16 @@ import main_service.user.mapper.UserMapper;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static main_service.constants.Constants.HIFI_LIMIT;
+import static main_service.constants.Constants.LOFI_LIMIT;
 
 @Slf4j
 @Service
@@ -137,6 +143,17 @@ public class UserService {
 
             log.info("user with id " + user.getId() + " is verified");
             return true;
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateLimitsForAllUsers() {
+        List<User> users = repository.findAll();
+        for (User user : users) {
+            user.setLoFiGenerations(0);
+            user.setHiFiGenerations(0);
+
+            repository.save(user);
         }
     }
 }
