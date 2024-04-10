@@ -11,10 +11,17 @@ import main_service.user.mapper.UserMapper;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static main_service.constants.Constants.HIFI_LIMIT;
+import static main_service.constants.Constants.LOFI_LIMIT;
 
 @Slf4j
 @Service
@@ -50,16 +57,16 @@ public class UserService {
     }
 
     /**
-     * Создание пользователя
+     * Creating user
      *
-     * @return созданный пользователь
+     * @return created user
      */
     public User create(User user) {
-        if (repository.existsByUsernameIgnoreCase(user.getUsername())) {
-            throw new BadRequestException("Пользователь с таким именем уже существует");
+        if (repository.existsByUsernameIgnoreCaseAndEnabled(user.getUsername(), true)) {
+            throw new BadRequestException("User with this username already exists");
         }
-        if (repository.existsByEmailIgnoreCase(user.getEmail())) {
-            throw new BadRequestException("Пользователь с таким email уже существует");
+        if (repository.existsByEmailIgnoreCaseAndEnabled(user.getEmail(), true)) {
+            throw new BadRequestException("User with this email already exists");
         }
         return save(user);
     }
@@ -122,5 +129,36 @@ public class UserService {
     }
 
     public void search(String userToken, String search, UserUpdateDto dto, int page, int size) {
+        //TODO
+    }
+
+    public boolean verify(String verificationCode) {
+        User user = repository.findByVerificationCode(verificationCode);
+
+        if (user == null || user.isEnabled()) {
+            return false;
+        } else {
+            user.setEnabledAt(LocalDateTime.now());
+            user.setVerificationCode(null);
+            user.setEnabled(true);
+            repository.save(user);
+
+            log.info("user with id " + user.getId() + " is verified");
+
+            return true;
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateGenerationsCountForAllUsers() {
+        List<User> users = repository.findAll(); //TODO сделать разные статусы в зависимости от подписок, сделать обновление через сутки после created_at юзера
+        for (User user : users) {
+            user.setLoFiGenerations(0);
+            user.setHiFiGenerations(0);
+
+            repository.save(user);
+        }
+
+        log.info("hi-fi and lo-fi generations updated for all users");
     }
 }

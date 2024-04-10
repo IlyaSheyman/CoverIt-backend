@@ -37,7 +37,7 @@ public class UserPrivateController {
     @GetMapping("/find_users")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Page<UserSmallDto> searchUsers(@RequestHeader(name = "Authorization") String userToken,
-                                          @RequestParam(name = "search", required = true) String search,
+                                          @RequestParam(name = "search") String search,
                                           @RequestBody @Valid UserUpdateDto dto,
                                           @RequestParam(name = "page", defaultValue = "0") int page,
                                           @RequestParam(name = "size", defaultValue = "10") int size) {

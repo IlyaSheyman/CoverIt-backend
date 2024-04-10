@@ -1,14 +1,10 @@
 package main_service.constants;
 
-import main_service.exception.model.BadRequestException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
 public interface Constants {
 
     String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    //USER PROPERTIES
     int MIN_USERNAME_LENGTH = 2;
     int MAX_USERNAME_LENGTH = 30;
 
@@ -18,9 +14,7 @@ public interface Constants {
     int MIN_USER_EMAIL_LENGTH = 6;
     int MAX_USER_EMAIL_LENGTH = 254;
 
-    String FROM = "0";
-    String SIZE = "10";
-
+    //PLAYLIST PROPERTIES
     int MIN_PLAYLIST_TITLE_LENGTH = 1;
     int MAX_PLAYLIST_TITLE_LENGTH = 50;
 
@@ -32,17 +26,24 @@ public interface Constants {
     int MIN_LINK_LENGTH = 5;
     int MAX_LINK_LENGTH = 1000;
 
-    static Pageable checkPageable(Integer from, Integer size, Sort sort) {
-        if (from == null) from = Integer.parseInt(FROM);
-        if (size == null) size = Integer.parseInt(SIZE);
-        if (from < 0 || size <= 0) {
-            throw new BadRequestException("Pageable incorrect");
-        }
-        if (sort != null) {
-            return PageRequest.of(from / size, size, sort);
-        }
-        return PageRequest.of(from / size, size);
-    }
+    //RELEASE PROPERTIES
+    int MIN_RELEASE_TITLE_LENGTH = 1;
+    int MAX_RELEASE_TITLE_LENGTH = 50;
+
+    int MIN_MOOD_SIZE = 1;
+    int MAX_MOOD_SIZE = 3;
+
+    int MIN_OBJECT_SIZE = 2;
+    int MAX_OBJECT_SIZE = 255;
+
+    int MIN_SURROUNDING_SIZE = 2;
+    int MAX_SURROUNDING_SIZE = 255;
+
+    int MIN_COVER_DESCRIPTION_SIZE = 1;
+    int MAX_COVER_DESCRIPTION_SIZE = 3;
+
+    int HIFI_LIMIT = 2;
+    int LOFI_LIMIT = 5;
 
     enum Vibe {
         DANCING_FLOOR,
@@ -53,8 +54,11 @@ public interface Constants {
         ENDLESS_JOY
     }
 
-    enum SortBy {
-        CREATED,
+    enum Filters {
+        ABSTRACT,
+        NOT_ABSTRACT,
+        LO_FI,
+        HI_FI,
         DANCING_FLOOR,
         NATURE_DOES_NOT_CARE,
         BREAKING_DOWN,

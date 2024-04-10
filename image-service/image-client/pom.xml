@@ -44,6 +44,11 @@
             <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
             <version>0.7.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http44</artifactId>
+            <version>1.17.0</version>
+        </dependency>
     </dependencies>
 
     <build>

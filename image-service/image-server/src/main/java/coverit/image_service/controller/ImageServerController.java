@@ -2,7 +2,9 @@ package coverit.image_service.controller;
 
 import coverit.image_client.constants.Constants;
 import coverit.image_client.dto.PlaylistDto;
+import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.UrlDto;
+import coverit.image_client.response.CoverResponse;
 import coverit.image_service.service.ImageServerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,20 +28,36 @@ public class ImageServerController {
      * @return cover url
      */
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/cover")
-    public String getCoverUrl(@RequestBody @Valid UrlDto urlDto,
-                              @RequestParam(name = "vibe", required = false) String vibeString,
-                              @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract) {
+    @PostMapping("/cover_playlist")
+    public CoverResponse getPlaylistCoverUrl(@RequestBody @Valid UrlDto urlDto,
+                                             @RequestParam(name = "vibe", required = false) String vibeString,
+                                             @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
+                                             @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) { //TODO сменить на стринг попробовать, чтобы пофиксить ошибку
         String url = urlDto.getLink();
-        Constants.Vibe vibe = null;
 
-        if (vibeString != null) {
+        Constants.Vibe vibe = null;
+        if (!vibeString.equals("none")) {
             vibe = Constants.Vibe.valueOf(vibeString.toUpperCase());
         }
 
         log.info("[IMAGE_SERVER] generate cover by playlist url {}", url);
 
-        return service.getCoverUrl(url, vibe, isAbstract);
+        return service.getPlaylistCoverUrl(url, vibe, isAbstract, isLoFi);
+    }
+
+    /**
+     * Endpoint for getting cover for release
+     *
+     * @param request release's properties (of music and cover)
+     * @return cover url + prompt
+     */
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/cover_release")
+    public CoverResponse getReleaseCoverUrl(@RequestBody ReleaseRequestDto request) {
+
+        log.info("[IMAGE_SERVER] generate cover for release");
+
+        return service.getReleaseCoverUrl(request);
     }
 
     /**
