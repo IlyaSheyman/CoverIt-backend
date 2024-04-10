@@ -8,6 +8,7 @@ import main_service.playlist_card.playlist.entity.Playlist;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,6 +35,9 @@ public class User implements UserDetails {
 
     @Column(name = "is_enabled")
     private boolean enabled;
+
+    @Column(name = "enabled_at")
+    private LocalDateTime enabledAt;
 
     @Column(name = "verification_code", length = 64)
     private String verificationCode;

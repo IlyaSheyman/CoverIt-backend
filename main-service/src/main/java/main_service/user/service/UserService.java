@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static main_service.constants.Constants.HIFI_LIMIT;
@@ -137,23 +138,27 @@ public class UserService {
         if (user == null || user.isEnabled()) {
             return false;
         } else {
+            user.setEnabledAt(LocalDateTime.now());
             user.setVerificationCode(null);
             user.setEnabled(true);
             repository.save(user);
 
             log.info("user with id " + user.getId() + " is verified");
+
             return true;
         }
     }
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void updateLimitsForAllUsers() {
-        List<User> users = repository.findAll();
+    public void updateGenerationsCountForAllUsers() {
+        List<User> users = repository.findAll(); //TODO сделать разные статусы в зависимости от подписок, сделать обновление через сутки после created_at юзера
         for (User user : users) {
             user.setLoFiGenerations(0);
             user.setHiFiGenerations(0);
 
             repository.save(user);
         }
+
+        log.info("hi-fi and lo-fi generations updated for all users");
     }
 }

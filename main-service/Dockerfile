@@ -1,3 +1,3 @@
-FROM amazoncorretto:11-alpine-jdk
+FROM openjdk:17-jdk
 COPY target/*.jar main-service.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java", "-jar", "/main-service.jar"]

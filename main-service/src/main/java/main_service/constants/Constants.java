@@ -40,10 +40,11 @@ public interface Constants {
     int MAX_SURROUNDING_SIZE = 255;
 
     int MIN_COVER_DESCRIPTION_SIZE = 1;
-    int MAX_COVER_DESCRIPTION_SIZE  = 3;
+    int MAX_COVER_DESCRIPTION_SIZE = 3;
 
     int HIFI_LIMIT = 2;
     int LOFI_LIMIT = 5;
+
     enum Vibe {
         DANCING_FLOOR,
         NATURE_DOES_NOT_CARE,
@@ -53,7 +54,7 @@ public interface Constants {
         ENDLESS_JOY
     }
 
-    enum SortBy {
+    enum Filters {
         ABSTRACT,
         NOT_ABSTRACT,
         LO_FI,

@@ -33,7 +33,10 @@ public class PlaylistServiceImpl {
 
     private final PlaylistMapper playlistMapper;
 
-    public List<PlaylistMyCollectionDto> getMyPlaylists(String userToken, int page, int size, Constants.SortBy sort) {
+    public List<PlaylistMyCollectionDto> getMyPlaylists(String userToken,
+                                                        int page,
+                                                        int size,
+                                                        Constants.Filters filters) {
         userToken = userToken.substring(7);
         User user = getUserById(jwtService.extractUserId(userToken));
         List<Playlist> liked = user.getLikes();
@@ -44,13 +47,13 @@ public class PlaylistServiceImpl {
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .toList();
 
-        if (sort != null) {
-            collection = sort(sort, collection);
+        if (filters != null) {
+            collection = sort(filters, collection);
         }
 
         List<PlaylistMyCollectionDto> collectionDto = new ArrayList<>();
 
-        for (Playlist playlist: collection) {
+        for (Playlist playlist : collection) {
             PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
 
             if (liked.contains(playlist)) {
@@ -65,7 +68,10 @@ public class PlaylistServiceImpl {
         return collectionDto;
     }
 
-    public List<PlaylistArchiveDto> getArchive(int page, int size, Constants.SortBy sort, String userToken) {
+    public List<PlaylistArchiveDto> getArchive(int page,
+                                               int size,
+                                               Constants.Filters filters,
+                                               String userToken) {
         List<Playlist> archive = playlistRepository
                 .findAll(PageRequest.of(page, size))
                 .stream()
@@ -73,8 +79,8 @@ public class PlaylistServiceImpl {
                 .filter(playlist -> playlist.getIsPrivate().equals(false))
                 .toList();
 
-        if (sort != null) {
-            archive = sort(sort, archive);
+        if (filters != null) {
+            archive = sort(filters, archive);
         }
 
         if (userToken != null) {
@@ -110,6 +116,8 @@ public class PlaylistServiceImpl {
 
         if (user.getLikes().contains(playlist)) {
             throw new BadRequestException("playlist with id " + playlistId + " is already liked by " + user.getUsername());
+        } else if (playlist.getAuthor().getId() == user.getId()) {
+            throw new BadRequestException("user cannot like his own playlist");
         }
 
         user.getLikes().add(playlist);
@@ -133,7 +141,11 @@ public class PlaylistServiceImpl {
         log.info("playlist with id " + playlistId + " is unliked by user with username " + user.getUsername());
     }
 
-    public List<PlaylistUserCollectionDto> getUserPlaylists(String userToken, int userId, int page, int size, Constants.SortBy sort) {
+    public List<PlaylistUserCollectionDto> getUserPlaylists(String userToken,
+                                                            int userId,
+                                                            int page,
+                                                            int size,
+                                                            Constants.Filters filters) {
         String requesterToken = userToken.substring(7);
         User requester = getUserById(jwtService.extractUserId(requesterToken));
         User user = getUserById(userId);
@@ -147,13 +159,13 @@ public class PlaylistServiceImpl {
                 .filter(playlist -> playlist.getIsPrivate().equals(false))
                 .toList();
 
-        if (sort != null) {
-            userCollection = sort(sort, userCollection);
+        if (filters != null) {
+            userCollection = sort(filters, userCollection);
         }
 
         List<PlaylistUserCollectionDto> collectionDto = new ArrayList<>();
 
-        for (Playlist playlist: userCollection) {
+        for (Playlist playlist : userCollection) {
             PlaylistUserCollectionDto dto = playlistMapper.toPlaylistUserCollectionDto(playlist);
 
             if (likedByRequester.contains(playlist)) {
@@ -179,20 +191,20 @@ public class PlaylistServiceImpl {
                 .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
     }
 
-    private List<Playlist> sort(Constants.SortBy sort, List<Playlist> archive) {
+    private List<Playlist> sort(Constants.Filters filter, List<Playlist> archive) {
         return archive.stream()
                 .filter(playlist -> {
-                    if (sort.equals(Constants.SortBy.ABSTRACT)) {
+                    if (filter.equals(Constants.Filters.ABSTRACT)) {
                         return playlist.getCover().getIsAbstract();
-                    } else if (sort.equals(Constants.SortBy.NOT_ABSTRACT)) {
+                    } else if (filter.equals(Constants.Filters.NOT_ABSTRACT)) {
                         return !playlist.getCover().getIsAbstract();
-                    } else if (sort.equals(Constants.SortBy.HI_FI)) {
+                    } else if (filter.equals(Constants.Filters.HI_FI)) {
                         return !playlist.getCover().getIsLoFi();
-                    } else if (sort.equals(Constants.SortBy.LO_FI)) {
+                    } else if (filter.equals(Constants.Filters.LO_FI)) {
                         return playlist.getCover().getIsLoFi();
                     } else {
                         Constants.Vibe vibe = playlist.getVibe();
-                        return vibe != null && vibe.toString().equals(sort.toString());
+                        return vibe != null && vibe.toString().equals(filter.toString());
                     }
                 })
                 .sorted(Comparator.comparing(Playlist::getSavedAt).reversed())

@@ -45,10 +45,10 @@ public class PlaylistPrivateController {
     public List<PlaylistMyCollectionDto> getMyPlaylists(@RequestHeader(name = "Authorization") String userToken,
                                                         @RequestParam(name = "page", defaultValue = "0") int page,
                                                         @RequestParam(name = "size", defaultValue = "10") int size,
-                                                        @RequestParam(name = "sort_by", required = false) Constants.SortBy sort) {
+                                                        @RequestParam(name = "filter", required = false) Constants.Filters filters) {
         log.info("[MAIN_SERVER] get my playlist for user");
 
-        return service.getMyPlaylists(userToken, page, size, sort);
+        return service.getMyPlaylists(userToken, page, size, filters);
     }
 
     @Operation(summary = "get user's playlists by searching his name in 'find users'")
@@ -57,10 +57,10 @@ public class PlaylistPrivateController {
                                                             @RequestHeader(name = "User_Id") int userId,
                                                             @RequestParam(name = "page", defaultValue = "0") int page,
                                                             @RequestParam(name = "size", defaultValue = "10") int size,
-                                                            @RequestParam(name = "sort_by", required = false) Constants.SortBy sort) {
+                                                            @RequestParam(name = "filter", required = false) Constants.Filters filters) {
         log.info("[MAIN_SERVER] get user's playlists for user with id " + userId);
 
-        return service.getUserPlaylists(userToken, userId,  page, size, sort);
+        return service.getUserPlaylists(userToken, userId,  page, size, filters);
     }
 
 }

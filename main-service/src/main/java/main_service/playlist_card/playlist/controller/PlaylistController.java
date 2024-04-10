@@ -25,10 +25,10 @@ public class PlaylistController {
     public List<PlaylistArchiveDto> getArchive(@RequestHeader(name = "Authorization", required = false) String userToken,
                                                @RequestParam(name = "page", defaultValue = "0") int page,
                                                @RequestParam(name = "size", defaultValue = "10") int size,
-                                               @RequestParam(name = "sort_by", required = false) Constants.SortBy sort) {
+                                               @RequestParam(name = "filter", required = false) Constants.Filters filters) {
         log.info("[MAIN_SERVER] get playlists archive");
 
-        return service.getArchive(page, size, sort, userToken);
+        return service.getArchive(page, size, filters, userToken);
     }
 
 }

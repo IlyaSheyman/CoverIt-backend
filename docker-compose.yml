@@ -2,16 +2,25 @@ version: '3.1'
 
 services:
   image-server:
-    build: image-service/image-server
+    build: image-server
     image: image-server
     container_name: image-server
+    env_file: .env
     ports:
       - "9090:9090"
+    environment:
+      - OPENAI_SECRET_KEY=${OPENAI_SECRET_KEY}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - CLOUD_NAME=${CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
 
   main-service:
     build: main-service
     image: main-service
     container_name: main-service
+    env_file: .env
     ports:
       - "8080:8080"
     depends_on:
@@ -19,7 +28,9 @@ services:
       - image-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://coverit-db:5432/coverit
-
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - EMAIL_APP_PASSWORD=${EMAIL_APP_PASSWORD}
+      - TOKEN_SIGNING_KEY=${TOKEN_SIGNING_KEY}
 
   coverit-db:
     image: postgres:14-alpine
