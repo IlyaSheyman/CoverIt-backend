@@ -29,7 +29,7 @@ public class UserPrivateController {
     public void updateUsername(@RequestHeader(name = "Authorization") String userToken,
                                @RequestBody @Valid UserUpdateDto dto) {
         log.info("[USER_CONTROLLER] update username for user");
-        userToken = userToken.substring(7);
+
         service.updateUsername(userToken, dto);
     }
 
@@ -51,5 +51,12 @@ public class UserPrivateController {
         return null;
     }
 
+    @Operation(summary = "verify subscription")
+    @PostMapping("/verify/subscription")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void verifySubscription(@RequestHeader(name = "Authorization") String userToken) {
+        log.info("[USER_CONTROLLER] subscribe user");
 
+        service.verifySubscription(userToken);
+    }
 }

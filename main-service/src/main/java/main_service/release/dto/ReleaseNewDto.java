@@ -1,9 +1,8 @@
 package main_service.release.dto;
 
 import lombok.*;
-import main_service.playlist_card.cover.dto.CoverSmallDto;
+import main_service.cover.dto.CoverSmallDto;
 import main_service.user.dto.UserReleaseDto;
-import main_service.user.dto.UserSmallDto;
 
 import java.time.LocalDateTime;
 

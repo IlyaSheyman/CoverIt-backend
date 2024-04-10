@@ -41,14 +41,16 @@ public class AuthenticationService {
      */
     public void signUp(SignUpRequest request, String siteURL)
             throws MessagingException, UnsupportedEncodingException {
-        String randomCode = RandomStringUtils.random(64);
+        String verificationCode = RandomStringUtils.random(64);
+        String generationCode = RandomStringUtils.random(32);
 
         var user = User.builder()
                 .username(request.getUsername().toLowerCase())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .enabled(false)
-                .verificationCode(randomCode)
+                .subscribed(false)
+                .verificationCode(verificationCode)
                 .build();
 
         userService.create(user);

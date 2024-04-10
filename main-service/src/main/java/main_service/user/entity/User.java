@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import main_service.playlist_card.playlist.entity.Playlist;
+import main_service.playlist.entity.Playlist;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -41,6 +41,9 @@ public class User implements UserDetails {
 
     @Column(name = "verification_code", length = 64)
     private String verificationCode;
+
+    @Column(name = "is_subscribed")
+    private boolean subscribed;
 
     @ManyToMany
     @JoinTable(

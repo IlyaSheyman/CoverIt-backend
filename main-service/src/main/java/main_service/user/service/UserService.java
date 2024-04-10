@@ -6,9 +6,10 @@ import main_service.config.security.JwtService;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
+import main_service.user.client.PatreonClient;
 import main_service.user.dto.UserUpdateDto;
-import main_service.user.mapper.UserMapper;
 import main_service.user.entity.User;
+import main_service.user.mapper.UserMapper;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,9 +21,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static main_service.constants.Constants.HIFI_LIMIT;
-import static main_service.constants.Constants.LOFI_LIMIT;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,8 +30,10 @@ public class UserService {
     @Qualifier("userMapperImpl")
     private final UserMapper mapper;
     private final JwtService jwtService;
+    private final PatreonClient patreonClient;
 
     public void updateUsername(String userToken, UserUpdateDto dto) {
+        userToken = userToken.substring(7);
         User user = getUserById(jwtService.extractUserId(userToken));
 
         String newUsername = dto.getUsername();
@@ -160,5 +160,31 @@ public class UserService {
         }
 
         log.info("hi-fi and lo-fi generations updated for all users");
+    }
+
+    public void verifySubscription(String userToken) {
+        userToken = userToken.substring(7);
+        User user = getUserById(jwtService.extractUserId(userToken));
+        String email = user.getEmail();
+
+        if (verifyPatreon(email)) {
+            user.setSubscribed(true);
+            repository.save(user);
+            log.info("user with email " + email + " is subscribed now");
+        } else {
+            throw new BadRequestException("This user is not found in subscribers list");
+        }
+    }
+
+    private boolean verifyPatreon(String email) {
+        List<String> emails = patreonClient.getPatreonEmails();
+
+        for (String em: emails) {
+            if (em.equals(email)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users
     password          VARCHAR,
     verification_code VARCHAR(64),
     is_enabled        BOOLEAN NOT NULL,
+    is_subscribed     BOOLEAN NOT NULL,
     enabled_at        TIMESTAMP WITHOUT TIME ZONE
 );
 
