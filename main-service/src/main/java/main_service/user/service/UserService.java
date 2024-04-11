@@ -7,6 +7,7 @@ import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.user.client.PatreonClient;
+import main_service.user.dto.PatronDto;
 import main_service.user.dto.UserUpdateDto;
 import main_service.user.entity.User;
 import main_service.user.mapper.UserMapper;
@@ -162,29 +163,23 @@ public class UserService {
         log.info("hi-fi and lo-fi generations updated for all users");
     }
 
-    public void verifySubscription(String userToken) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
-        String email = user.getEmail();
+    public void verifySubscription(String code) {
+        String accessToken = patreonClient.getAccessToken(code);
+        PatronDto patron = patreonClient.getPatron(accessToken);
+        log.info("patron: " + patron.toString());
 
-        if (verifyPatreon(email)) {
+        String email = patron.getEmail();
+        String patronName = patron.getFullName();
+
+        if (patreonClient.getPatronsNames().contains(patronName)) {
+            User user = getByEmail(email);
             user.setSubscribed(true);
+            user.setPatronName(patronName);
             repository.save(user);
+
             log.info("user with email " + email + " is subscribed now");
         } else {
-            throw new BadRequestException("This user is not found in subscribers list");
+            throw new NotFoundException("user is not found in subscribers");
         }
-    }
-
-    private boolean verifyPatreon(String email) {
-        List<String> emails = patreonClient.getPatreonEmails();
-
-        for (String em: emails) {
-            if (em.equals(email)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

@@ -33,7 +33,11 @@ public interface Constants {
     //Nature doesn't care vibe settings
     String GPT_NATURE = "You must describe natural landscape: [what is shown in 2-3 words], [description of natural surrounding in 3-5 words]. The final description should be dreamy, organic, ethereal. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
     String NATURE_INSTRUCTION = "The picture should include natural landscape, be organic, enchanting";
+
+    //Breaking down vibe settings
     String GPT_BREAKING_DOWN = null;
+    String BREAKING_DOWN_INSTRUCTION = "";
+
     String CAMPFIRE_CALMNESS_PROMPT = null;
     String TOUGH_AND_STRAIGHT_PROMPT = null;
 }

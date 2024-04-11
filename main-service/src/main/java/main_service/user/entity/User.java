@@ -45,6 +45,9 @@ public class User implements UserDetails {
     @Column(name = "is_subscribed")
     private boolean subscribed;
 
+    @Column(name = "patron_name")
+    private String patronName;
+
     @ManyToMany
     @JoinTable(
             name = "likes",

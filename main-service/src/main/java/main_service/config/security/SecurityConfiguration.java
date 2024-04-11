@@ -45,7 +45,7 @@ public class SecurityConfiguration {
                 }))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**","/cover/playlist/generate", "/cover/playlist/regenerate",
-                                "/playlist/archive").permitAll()
+                                "/playlist/archive", "/user/verify/subscription").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**", "/swagger-ui.html", "/api-docs").permitAll()
                         .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())

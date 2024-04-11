@@ -50,13 +50,4 @@ public class UserPrivateController {
         service.search(userToken, search, dto, page, size);
         return null;
     }
-
-    @Operation(summary = "verify subscription")
-    @PostMapping("/verify/subscription")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void verifySubscription(@RequestHeader(name = "Authorization") String userToken) {
-        log.info("[USER_CONTROLLER] subscribe user");
-
-        service.verifySubscription(userToken);
-    }
 }
