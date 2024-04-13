@@ -1,18 +1,17 @@
 package coverit.image_client.client;
 
 import coverit.image_client.constants.Constants;
+import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.ReleaseRequestDto;
+import coverit.image_client.dto.TrackDto;
 import coverit.image_client.exception.BadRequestException;
 import coverit.image_client.exception.UnsupportedRequestException;
-import coverit.image_client.dto.PlaylistDto;
-import coverit.image_client.dto.TrackDto;
 import coverit.image_client.response.CoverResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.client.AiClient;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
