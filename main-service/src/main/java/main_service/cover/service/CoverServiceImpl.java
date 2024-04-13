@@ -105,7 +105,7 @@ public class CoverServiceImpl implements CoverService {
                                    Boolean isAbstract,
                                    Boolean isLoFi) {
         String url = urlDto.getLink();
-        validateAlreadySaved(url);
+//        validateAlreadySaved(url);
 
         PlaylistDto dto = client.getPlaylist(url);
 

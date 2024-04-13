@@ -4,20 +4,21 @@ import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.TrackDto;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.michaelthelin.spotify.SpotifyApi;
-import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.specification.*;
 import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -44,39 +45,40 @@ public class SpotifyClient {
         clientCredentialsRequest = spotifyApi.clientCredentials().build();
     }
 
-    public void clientCredentials_Sync() {
-        try {
-            final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
-            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            log.warn("Error: " + e.getMessage());
-        }
+    public CompletableFuture<PlaylistDto> getPlaylistByUrlAsync(String url) {
+        CompletableFuture<ClientCredentials> credentialsFuture = clientCredentialsRequest.executeAsync()
+                .thenApplyAsync(clientCredentials -> {
+                    spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+                    System.out.println("Expires in: " + clientCredentials.getExpiresIn());
+                    return clientCredentials;
+                });
+
+        CompletableFuture<PlaylistDto> delayedFuture = CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(7));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new CompletionException(e);
+            }
+            return null;
+        });
+
+        return credentialsFuture.thenCompose(__ -> {
+            return delayedFuture.thenApplyAsync(__1 -> {
+                String playlistId = extractPlaylistIdFromUrl(url);
+                GetPlaylistRequest getPlaylistRequest = spotifyApi.getPlaylist(playlistId).build();
+                try {
+                    Playlist playlist = getPlaylistRequest.executeAsync().get();
+                    return PlaylistDto.builder()
+                            .title(playlist.getName())
+                            .tracks(getTracksFromPlaylist(playlist))
+                            .build();
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        });
     }
-
-    public PlaylistDto getPlaylistByUrl(String url) {
-        try {
-            clientCredentials_Sync();
-
-            String playlistId = extractPlaylistIdFromUrl(url);
-
-            GetPlaylistRequest getPlaylistRequest = spotifyApi
-                    .getPlaylist(playlistId)
-                    .build();
-
-            Playlist playlist = getPlaylistRequest.execute();
-
-            PlaylistDto playlistDto = PlaylistDto.builder()
-                    .title(playlist.getName())
-                    .tracks(getTracksFromPlaylist(playlist))
-                    .build();
-
-            return playlistDto;
-        } catch (ParseException | IOException | SpotifyWebApiException e) {
-            log.warn("Error: " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
     private ArrayList<TrackDto> getTracksFromPlaylist(Playlist playlist) {
 
         ArrayList<TrackDto> tracksDto = new ArrayList<>();

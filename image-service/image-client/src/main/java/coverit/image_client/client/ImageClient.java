@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.client.AiClient;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -63,10 +66,10 @@ public class ImageClient {
         return aiClient.generate(requestToGpt.toString());
     }
 
-    public PlaylistDto getPlayListByUrl(String url) {
+    public PlaylistDto getPlayListByUrl(String url) throws ExecutionException, InterruptedException {
         //на долгий срок: TODO добавить получение плейлиста из Яндекс Музыки, отдельный клиент
         if (url.matches(Constants.SPOTIFY_REGEX)) {
-            return spotifyClient.getPlaylistByUrl(url);
+            return spotifyClient.getPlaylistByUrlAsync(url).get();
         } else if (url.matches(Constants.YANDEX_MUSIC_REGEX)) {
             throw new UnsupportedRequestException("yandex music playlist is not supported yet");
         } else {
