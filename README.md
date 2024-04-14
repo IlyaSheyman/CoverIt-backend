@@ -69,3 +69,6 @@ To run this project, you will need to add the following environment variables to
 - `PATREON_CLIENT_SECRET`: Patreon client secret key.
 - `PATREON_REDIRECT_URI`: Redirect URI for Patreon authorization.
 
+**DB & miscroservices configuration:**
+- `IMAGE_SERVER_URL=http://image-server:9090`
+- `SPRING_DATASOURCE_URL=jdbc:postgresql://coverit-db:5432/coverit`
