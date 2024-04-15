@@ -1,9 +1,9 @@
 package main_service.playlist.dto;
 
 import lombok.*;
+import main_service.constants.Constants;
 import main_service.cover.entity.Cover;
 import main_service.playlist.track.dto.TrackInPlaylistDto;
-import main_service.constants.Constants;
 
 import java.util.List;
 

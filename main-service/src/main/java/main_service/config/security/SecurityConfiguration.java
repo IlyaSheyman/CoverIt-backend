@@ -2,7 +2,6 @@ package main_service.config.security;
 
 import lombok.RequiredArgsConstructor;
 import main_service.user.service.UserService;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

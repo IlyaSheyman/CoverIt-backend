@@ -1,14 +1,14 @@
 package main_service.playlist.track.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import static main_service.constants.Constants.*;
+import static main_service.constants.Constants.MAX_TRACK_TITLE_LENGTH;
+import static main_service.constants.Constants.MIN_TRACK_TITLE_LENGTH;
 
 @Entity
 @Getter

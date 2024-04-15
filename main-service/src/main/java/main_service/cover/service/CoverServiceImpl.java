@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.config.security.JwtService;
 import main_service.constants.Constants;
+import main_service.cover.client.CoverClient;
+import main_service.cover.entity.Cover;
 import main_service.cover.storage.CoverRepository;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
-import main_service.cover.client.CoverClient;
-import main_service.cover.entity.Cover;
 import main_service.playlist.dto.*;
 import main_service.playlist.entity.Playlist;
 import main_service.playlist.mapper.PlaylistMapper;
@@ -51,7 +51,7 @@ public class CoverServiceImpl implements CoverService {
     private final ReleaseRequestMapper requestMapper;
 
     @Override
-    public ReleaseNewDto getReleaseCover(String userToken, ReleaseRequest request) {
+    public ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request) {
         User user = extractUser(userToken);
 
         generationsUpdate(request, user);
@@ -87,31 +87,36 @@ public class CoverServiceImpl implements CoverService {
     }
 
     private void updateGenerationsForNonSubscribedUser(ReleaseRequest request, User user) {
-        int loFiGenerations = user.getLoFiGenerations();
-        int hiFiGenerations = user.getHiFiGenerations();
+        int loFiGenerations = user.getLoFiReleaseGenerations();
+        int hiFiGenerations = user.getHiFiReleaseGenerations();
 
-        if (request.getIsLoFi() && (loFiGenerations < LOFI_LIMIT)) {
-            user.setLoFiGenerations(loFiGenerations + 1);
-        } else if (!request.getIsLoFi() && (hiFiGenerations < HIFI_LIMIT)) {
-            user.setHiFiGenerations(hiFiGenerations + 1);
+        if (request.getIsLoFi() && (loFiGenerations < LOFI_LIMIT_PLAYLIST)) {
+            user.setLoFiReleaseGenerations(loFiGenerations + 1);
+        } else if (!request.getIsLoFi() && (hiFiGenerations < HIFI_LIMIT_PLAYLIST)) {
+            user.setHiFiReleaseGenerations(hiFiGenerations + 1);
         } else {
-            throw new ConflictRequestException("User with id " + user.getId() + " has reached generations limit");
+            int hiFiLeft = HIFI_LIMIT_RELEASE - user.getHiFiReleaseGenerations();
+            int loFiLeft = LOFI_LIMIT_RELEASE - user.getLoFiReleaseGenerations();
+
+            throw new ConflictRequestException("User with id " + user.getId() + " has reached generations limit. " +
+                    "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
         }
         userRepository.save(user);
     }
 
     private void updateGenerationsForSubscribedUser(ReleaseRequest request, User user) {
-        int totalGenerations = user.getLoFiGenerations() + user.getHiFiGenerations() + user.getPlaylistGenerations();
+        int totalGenerations = getTotalGenerations(user);
 
         if (totalGenerations < SUBSCRIPTION_GENERATIONS_LIMIT) {
             if (request.getIsLoFi()) {
-                user.setLoFiGenerations(user.getLoFiGenerations() + 1);
+                user.setLoFiReleaseGenerations(user.getLoFiReleaseGenerations() + 1);
             } else {
-                user.setHiFiGenerations(user.getHiFiGenerations() + 1);
+                user.setHiFiReleaseGenerations(user.getHiFiReleaseGenerations() + 1);
             }
             userRepository.save(user);
         } else {
-            throw new ConflictRequestException("User with id " + user.getId() + " has reached generations limit");
+            throw new ConflictRequestException("Subscriber with id " + user.getId()
+                    + " has reached generations limit.");
         }
     }
 
@@ -127,7 +132,6 @@ public class CoverServiceImpl implements CoverService {
         PlaylistDto dto = client.getPlaylist(url);
 
         Playlist newPlaylist = Playlist.builder()
-                .generations(1)
                 .url(url)
                 .title(dto.getTitle())
                 .vibe(vibe)
@@ -139,10 +143,21 @@ public class CoverServiceImpl implements CoverService {
 
         if (userToken != null) {
             User user = extractUser(userToken);
-            int generations = user.getPlaylistGenerations();
-            user.setPlaylistGenerations(generations + 1);
 
-            newPlaylist.setAuthor(userRepository.save(user));
+            setCounter(isLoFi, user);
+            newPlaylist.setAuthor(user);
+
+        }
+
+        if (newPlaylist.getAuthor() != null && (!newPlaylist.getAuthor().isSubscribed())) {
+            newPlaylist.setLoFiGenerationsLeft(LOFI_LIMIT_PLAYLIST);
+            newPlaylist.setHiFiGenerationsLeft(HIFI_LIMIT_PLAYLIST);
+
+            if (isLoFi) {
+                newPlaylist.setLoFiGenerationsLeft(newPlaylist.getLoFiGenerationsLeft() - 1);
+            } else {
+                newPlaylist.setHiFiGenerationsLeft(newPlaylist.getHiFiGenerationsLeft() - 1);
+            }
         }
 
         CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, isLoFi);
@@ -162,77 +177,106 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Override
-    public PlaylistUpdateDto updatePlaylistCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken) {
+    public PlaylistUpdateDto updatePlaylistCover(Constants.Vibe vibe,
+                                                 Boolean isAbstract,
+                                                 int playlistId,
+                                                 String userToken,
+                                                 Boolean isLoFi) {
         Playlist playlist = getPlaylistById(playlistId);
-        int generations = playlist.getGenerations();
-        Cover previousCover = playlist.getCover();
-
         User author = playlist.getAuthor();
-
         UrlDto urlDto = UrlDto.builder()
                 .link(playlist.getUrl())
                 .build();
 
-        if (author != null) {
+        if (author != null && author.isSubscribed()) {
             User user = extractUser(userToken);
 
             if (user.getId() != author.getId()) {
                 throw new ConflictRequestException("only author of playlist can change its cover");
             }
 
-            int playlistGenerations = user.getPlaylistGenerations();
-            user.setPlaylistGenerations(playlistGenerations + 1);
+            return updateForSubscribed(author, isLoFi, playlist, urlDto, vibe, isAbstract);
 
-            userRepository.save(user);
-
-            if (user.isSubscribed()) {
-                int totalGenerations = user.getLoFiGenerations()
-                        + user.getHiFiGenerations()
-                        + user.getPlaylistGenerations();
-
-                if (totalGenerations  < SUBSCRIPTION_GENERATIONS_LIMIT) {
-                    return getPlaylistUpdateDto(vibe, isAbstract, playlist, generations, urlDto);
-                } else {
-                    throw new ConflictRequestException("User with id " + user.getId()
-                            + " has reached generations limit");
-                }
-            }
-        }
-
-        if (previousCover.getIsLoFi()) { // it is not possible to regenerate the hi-fi cover
-            if (generations < 3) {
-                return getPlaylistUpdateDto(vibe, isAbstract, playlist, generations, urlDto);
-            } else {
-                throw new BadRequestException("generations limit is already reached");
-            }
         } else {
-            throw new BadRequestException("limit for hi-fi covers = 1");
+            int hiFiLeft = playlist.getHiFiGenerationsLeft();
+            int loFiLeft = playlist.getLoFiGenerationsLeft();
+
+            if (author != null) {
+                setCounter(isLoFi, author);
+                playlist.setAuthor(author);
+            }
+            return updateForNonSubscribedOrNonAuth(playlist, urlDto, loFiLeft, hiFiLeft, vibe, isLoFi, isAbstract);
         }
     }
 
-    private PlaylistUpdateDto getPlaylistUpdateDto(Vibe vibe, Boolean isAbstract, Playlist playlist, int generations, UrlDto urlDto) {
-        CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, true);
+    private PlaylistUpdateDto updateForSubscribed(User author,
+                                                  Boolean isLoFi,
+                                                  Playlist playlist,
+                                                  UrlDto urlDto,
+                                                  Constants.Vibe vibe,
+                                                  Boolean isAbstract) {
+        setCounter(isLoFi, author);
+        playlist.setAuthor(author);
+
+        int totalGenerations = getTotalGenerations(author);
+
+        if (totalGenerations < SUBSCRIPTION_GENERATIONS_LIMIT) {
+            return getPlaylistUpdateDto(vibe, isAbstract, isLoFi, playlist, urlDto);
+        } else {
+            throw new ConflictRequestException("Subscriber with id " + author.getId()
+                    + " has reached generations limit.");
+        }
+    }
+
+    private PlaylistUpdateDto updateForNonSubscribedOrNonAuth(Playlist playlist,
+                                                              UrlDto urlDto,
+                                                              Integer loFiLeft,
+                                                              Integer hiFiLeft,
+                                                              Constants.Vibe vibe,
+                                                              Boolean isLoFi,
+                                                              Boolean isAbstract) {
+        if (isLoFi) {
+            if (loFiLeft > 0) {
+                playlist.setLoFiGenerationsLeft(loFiLeft - 1);
+                return getPlaylistUpdateDto(vibe, isAbstract, true, playlist, urlDto);
+            } else {
+                throw new ConflictRequestException("User has reached generations limit. " +
+                        "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
+            }
+        } else {
+            if (hiFiLeft > 0) {
+                playlist.setHiFiGenerationsLeft(hiFiLeft - 1);
+                return getPlaylistUpdateDto(vibe, isAbstract, false, playlist, urlDto);
+            } else {
+                throw new ConflictRequestException("User has reached generations limit. " +
+                        "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
+            }
+        }
+    }
+
+    private PlaylistUpdateDto getPlaylistUpdateDto(Vibe vibe,
+                                                   Boolean isAbstract,
+                                                   Boolean isLofi,
+                                                   Playlist playlist,
+                                                   UrlDto urlDto) {
+        CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, isLofi);
 
         Cover cover = Cover.builder()
                 .created(LocalDateTime.now())
                 .isAbstract(isAbstract)
                 .link(response.getUrl())
                 .prompt(response.getPrompt())
-                .isLoFi(true)
+                .isLoFi(isLofi)
                 .build();
 
         coverRepository.save(cover);
-
-        generations++;
-
         playlist.setCover(cover);
-        playlist.setGenerations(generations);
 
         return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
     }
 
     @Override
-    public PlaylistSaveDto savePlaylist(int playlistId, Boolean isPrivate, String userToken) {
+    public PlaylistSaveDto savePlaylist(int playlistId, int coverId, Boolean isPrivate, String userToken) {
         Playlist playlist = getPlaylistById(playlistId);
         User author = playlist.getAuthor();
 
@@ -241,7 +285,7 @@ public class CoverServiceImpl implements CoverService {
         if (user.getId() != author.getId()) {
             throw new ConflictRequestException("only author of playlist can save it");
         }
-
+        playlist.setCover(getCoverById(coverId));
         playlist.setIsPrivate(isPrivate);
         playlist.setIsSaved(true);
 
@@ -252,17 +296,6 @@ public class CoverServiceImpl implements CoverService {
         playlistRepository.save(playlist);
 
         return playlistMapper.toPlaylistSaveDto(playlist);
-    }
-
-    private Playlist getPlaylistById(int playlistId) {
-        return playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
-    }
-
-    private void validateAlreadySaved(String url) {
-        if (playlistRepository.existsByUrl(url)) {
-            throw new BadRequestException(String.format("playlist with url %s is already covered", url));
-        }
     }
 
     private ArrayList<Track> getTracksFromDto(PlaylistDto playlistDto) {
@@ -288,14 +321,49 @@ public class CoverServiceImpl implements CoverService {
         return tracks;
     }
 
+    private User extractUser(String userToken) {
+        userToken = userToken.substring(7);
+        return getUserById(jwtService.extractUserId(userToken));
+    }
+
     private User getUserById(int id) {
         return userRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
     }
 
-    private User extractUser(String userToken) {
-        userToken = userToken.substring(7);
-        return getUserById(jwtService.extractUserId(userToken));
+
+    private int getTotalGenerations(User user) {
+        return user.getLoFiReleaseGenerations()
+                + user.getHiFiReleaseGenerations()
+                + user.getLoFiPlaylistGenerations()
+                + user.getHiFiPlaylistGenerations();
+    }
+
+    private void setCounter(Boolean isLoFi, User user) {
+        if (isLoFi) {
+            int lofi = user.getLoFiPlaylistGenerations() + 1;
+            user.setLoFiPlaylistGenerations(lofi);
+        } else {
+            int hifi = user.getHiFiPlaylistGenerations() + 1;
+            user.setHiFiPlaylistGenerations(hifi);
+        }
+        userRepository.save(user);
+    }
+
+    private Playlist getPlaylistById(int playlistId) {
+        return playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
+    }
+
+    private Cover getCoverById(int coverId) {
+        return coverRepository.findById(coverId)
+                .orElseThrow(() -> new NotFoundException("Cover with id " + coverId + " not found"));
+    }
+
+    private void validateAlreadySaved(String url) {
+        if (playlistRepository.existsByUrl(url)) {
+            throw new BadRequestException(String.format("playlist with url %s is already covered", url));
+        }
     }
 }

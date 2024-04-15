@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import static main_service.constants.Constants.*;
-import static main_service.constants.Constants.MAX_USER_EMAIL_LENGTH;
 
 @Data
 @Schema(description = "Sign in request")

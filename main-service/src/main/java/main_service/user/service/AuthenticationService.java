@@ -11,8 +11,6 @@ import main_service.user.dto.SignInRequest;
 import main_service.user.dto.SignUpRequest;
 import main_service.user.entity.User;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;

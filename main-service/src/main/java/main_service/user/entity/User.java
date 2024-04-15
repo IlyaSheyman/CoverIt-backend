@@ -59,14 +59,17 @@ public class User implements UserDetails {
     )
     private List<Playlist> likes;
 
-    @Column(name = "hifi_generations")
-    private int hiFiGenerations;
+    @Column(name = "hifi_release_generations")
+    private int hiFiReleaseGenerations;
 
-    @Column(name = "lofi_generations")
-    private int loFiGenerations;
+    @Column(name = "lofi_release_generations")
+    private int loFiReleaseGenerations;
 
-    @Column(name = "playlist_generations")
-    private int playlistGenerations;
+    @Column(name = "hifi_playlist_generations")
+    private int hiFiPlaylistGenerations;
+
+    @Column(name = "lofi_playlist_generations")
+    private int loFiPlaylistGenerations;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

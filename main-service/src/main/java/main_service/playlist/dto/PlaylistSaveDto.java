@@ -6,7 +6,7 @@ import main_service.user.dto.UserSmallDto;
 
 import java.time.LocalDateTime;
 
-import static main_service.constants.Constants.*;
+import static main_service.constants.Constants.DATE_FORMAT;
 
 @Getter
 @Setter
@@ -19,5 +19,4 @@ public class PlaylistSaveDto {
     private UserSmallDto author;
     @JsonFormat(pattern = DATE_FORMAT)
     private LocalDateTime savedAt;
-    private int generations;
 }

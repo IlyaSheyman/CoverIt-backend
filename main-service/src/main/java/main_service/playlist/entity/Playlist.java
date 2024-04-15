@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import main_service.constants.Constants;
 import main_service.cover.entity.Cover;
 import main_service.playlist.track.entity.Track;
-import main_service.constants.Constants;
 import main_service.user.entity.User;
 
 import java.time.LocalDateTime;
@@ -63,6 +63,9 @@ public class Playlist {
     @JsonFormat(pattern = DATE_FORMAT)
     private LocalDateTime savedAt;
 
-    private int generations;
+    @Column(name = "hifi_generations_left")
+    private Integer hiFiGenerationsLeft;
 
+    @Column(name = "lofi_generations_left")
+    private Integer loFiGenerationsLeft;
 }

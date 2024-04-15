@@ -12,5 +12,6 @@ public class UserSmallDto {
     private int id;
     private String username;
     private String email;
-    private int playlistGenerations;
+    private int loFiPlaylistGenerations;
+    private int hiFiPlaylistGenerations;
 }

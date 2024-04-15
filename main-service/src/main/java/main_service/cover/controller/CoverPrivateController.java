@@ -24,11 +24,13 @@ public class CoverPrivateController {
     @Operation(summary = "save generated playlist using playlistId and boolean isPrivate")
     @PatchMapping("/playlist/save")
     public PlaylistSaveDto savePlaylist(@RequestHeader(value = "Playlist_Id") int playlistId,
+                                        @RequestHeader(value = "Cover_Id") int coverId,
                                         @RequestParam(name = "is_private") @NotNull Boolean isPrivate,
                                         @RequestHeader(name = "Authorization") String userToken) {
         log.info("[MAIN_SERVER] save playlist with id {}", playlistId);
 
-        return service.savePlaylist(playlistId, isPrivate, userToken);
+        return service.savePlaylist(playlistId, coverId, isPrivate, userToken);
+        //TODO add cover Id here
     }
 
     @ResponseBody
@@ -39,6 +41,6 @@ public class CoverPrivateController {
                                             @RequestHeader(name = "Authorization") String userToken) {
         log.info("[COVERCONTROLLER] get cover for release");
 
-        return service.getReleaseCover(userToken, request);
+        return service.createReleaseCover(userToken, request);
     }
 }

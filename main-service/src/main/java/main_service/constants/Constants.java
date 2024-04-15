@@ -43,8 +43,11 @@ public interface Constants {
     int MAX_COVER_DESCRIPTION_SIZE = 3;
 
     int SUBSCRIPTION_GENERATIONS_LIMIT = 100;
-    int HIFI_LIMIT = 2;
-    int LOFI_LIMIT = 4;
+    int HIFI_LIMIT_RELEASE = 2;
+    int LOFI_LIMIT_RELEASE = 4;
+
+    int HIFI_LIMIT_PLAYLIST = 1;
+    int LOFI_LIMIT_PLAYLIST = 3;
 
     enum Vibe {
         DANCING_FLOOR,

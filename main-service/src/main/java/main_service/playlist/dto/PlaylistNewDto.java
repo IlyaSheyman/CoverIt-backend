@@ -23,5 +23,6 @@ public class PlaylistNewDto {
     private UserSmallDto author;
     private ArrayList<TrackInPlaylistDto> tracks;
     private Cover cover;
-    private int generations;
+    private Integer hiFiGenerationsLeft;
+    private Integer loFiGenerationsLeft;
 }

@@ -12,6 +12,7 @@ import main_service.user.dto.UserSmallDto;
 public class PlaylistUpdateDto {
     private int id;
     private Cover cover;
-    private int generations;
     private UserSmallDto author;
+    private Integer hiFiGenerationsLeft;
+    private Integer loFiGenerationsLeft;
 }

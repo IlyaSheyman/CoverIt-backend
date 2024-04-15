@@ -5,11 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main_service.constants.Constants;
 import main_service.cover.service.CoverService;
 import main_service.cover.service.UrlDto;
 import main_service.playlist.dto.PlaylistNewDto;
 import main_service.playlist.dto.PlaylistUpdateDto;
-import main_service.constants.Constants;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,9 +42,10 @@ public class CoverController {
     public PlaylistUpdateDto updatePlaylistsCover(@RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
                                                   @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
                                                   @RequestHeader(name = "Playlist_Id") int playlistId,
-                                                  @RequestHeader(name = "Authorization", required = false) String userToken) {
+                                                  @RequestHeader(name = "Authorization", required = false) String userToken,
+                                                  @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) {
         log.info("[COVERCONTROLLER] update cover by playlist Id {}", playlistId);
 
-        return service.updatePlaylistCover(vibe, isAbstract, playlistId, userToken);
+        return service.updatePlaylistCover(vibe, isAbstract, playlistId, userToken, isLoFi);
     }
 }

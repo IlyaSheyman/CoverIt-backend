@@ -142,6 +142,7 @@ public class UserService {
             user.setEnabledAt(LocalDateTime.now());
             user.setVerificationCode(null);
             user.setEnabled(true);
+
             repository.save(user);
 
             log.info("user with id " + user.getId() + " is verified");
@@ -155,14 +156,13 @@ public class UserService {
         List<User> users = repository.findAll(); //TODO сделать разные статусы в зависимости от подписок, сделать обновление через сутки после created_at юзера
         for (User user : users) {
             if (!user.isSubscribed()) {
-                user.setLoFiGenerations(0);
-                user.setHiFiGenerations(0);
+                user.setLoFiReleaseGenerations(0);
+                user.setHiFiReleaseGenerations(0);
 
                 repository.save(user);
             } else {
                 if (LocalDateTime.now().getDayOfMonth() == user.getSubscribedAt().getDayOfMonth()) {
-                    user.setHiFiGenerations(0);
-                    user.setLoFiGenerations(0);
+                    renewCountersForSubscribed(user);
                 }
             }
         }
@@ -183,11 +183,20 @@ public class UserService {
             user.setSubscribed(true);
             user.setSubscribedAt(LocalDateTime.now());
             user.setPatronName(patronName);
+            renewCountersForSubscribed(user);
+
             repository.save(user);
 
             log.info("user with email " + email + " is subscribed now");
         } else {
             throw new NotFoundException("user is not found in subscribers");
         }
+    }
+
+    private void renewCountersForSubscribed(User user) {
+        user.setHiFiReleaseGenerations(0);
+        user.setLoFiReleaseGenerations(0);
+        user.setLoFiPlaylistGenerations(0);
+        user.setHiFiPlaylistGenerations(0);
     }
 }
