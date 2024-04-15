@@ -54,7 +54,7 @@ public class CoverServiceImpl implements CoverService {
     public ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request) {
         User user = extractUser(userToken);
 
-        generationsUpdate(request, user);
+        releaseGenerationsUpdate(request, user);
 
         CoverResponse coverResponse = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
 
@@ -78,7 +78,7 @@ public class CoverServiceImpl implements CoverService {
         return releaseMapper.toReleaseNewDto(newRelease);
     }
 
-    private void generationsUpdate(ReleaseRequest request, User user) {
+    private void releaseGenerationsUpdate(ReleaseRequest request, User user) {
         if (!user.isSubscribed()) {
             updateGenerationsForNonSubscribedUser(request, user);
         } else {
@@ -90,9 +90,9 @@ public class CoverServiceImpl implements CoverService {
         int loFiGenerations = user.getLoFiReleaseGenerations();
         int hiFiGenerations = user.getHiFiReleaseGenerations();
 
-        if (request.getIsLoFi() && (loFiGenerations < LOFI_LIMIT_PLAYLIST)) {
+        if (request.getIsLoFi() && (loFiGenerations < LOFI_LIMIT_RELEASE)) {
             user.setLoFiReleaseGenerations(loFiGenerations + 1);
-        } else if (!request.getIsLoFi() && (hiFiGenerations < HIFI_LIMIT_PLAYLIST)) {
+        } else if (!request.getIsLoFi() && (hiFiGenerations < HIFI_LIMIT_RELEASE)) {
             user.setHiFiReleaseGenerations(hiFiGenerations + 1);
         } else {
             int hiFiLeft = HIFI_LIMIT_RELEASE - user.getHiFiReleaseGenerations();
