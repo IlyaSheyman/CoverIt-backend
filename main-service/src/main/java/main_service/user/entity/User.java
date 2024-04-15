@@ -45,6 +45,9 @@ public class User implements UserDetails {
     @Column(name = "is_subscribed")
     private boolean subscribed;
 
+    @Column(name = "subscribed_at")
+    private LocalDateTime subscribedAt;
+
     @Column(name = "patron_name")
     private String patronName;
 
@@ -61,6 +64,9 @@ public class User implements UserDetails {
 
     @Column(name = "lofi_generations")
     private int loFiGenerations;
+
+    @Column(name = "playlist_generations")
+    private int playlistGenerations;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

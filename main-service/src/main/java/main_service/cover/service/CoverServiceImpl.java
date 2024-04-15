@@ -30,8 +30,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import static main_service.constants.Constants.HIFI_LIMIT;
-import static main_service.constants.Constants.LOFI_LIMIT;
+import static main_service.constants.Constants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +52,7 @@ public class CoverServiceImpl implements CoverService {
 
     @Override
     public ReleaseNewDto getReleaseCover(String userToken, ReleaseRequest request) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUser(userToken);
 
         generationsUpdate(request, user);
 
@@ -81,31 +79,50 @@ public class CoverServiceImpl implements CoverService {
     }
 
     private void generationsUpdate(ReleaseRequest request, User user) {
-        if (request.getIsLoFi() && (user.getLoFiGenerations() < LOFI_LIMIT)) {
-            int loFiGenerations  = user.getLoFiGenerations();
-            loFiGenerations++;
+        if (!user.isSubscribed()) {
+            updateGenerationsForNonSubscribedUser(request, user);
+        } else {
+            updateGenerationsForSubscribedUser(request, user);
+        }
+    }
 
-            user.setLoFiGenerations(loFiGenerations);
-            userRepository.save(user);
-        } else if (!request.getIsLoFi() && (user.getHiFiGenerations() < HIFI_LIMIT)) {
-            int hiFiGenerations  = user.getHiFiGenerations();
-            hiFiGenerations++;
+    private void updateGenerationsForNonSubscribedUser(ReleaseRequest request, User user) {
+        int loFiGenerations = user.getLoFiGenerations();
+        int hiFiGenerations = user.getHiFiGenerations();
 
-            user.setHiFiGenerations(hiFiGenerations);
+        if (request.getIsLoFi() && (loFiGenerations < LOFI_LIMIT)) {
+            user.setLoFiGenerations(loFiGenerations + 1);
+        } else if (!request.getIsLoFi() && (hiFiGenerations < HIFI_LIMIT)) {
+            user.setHiFiGenerations(hiFiGenerations + 1);
+        } else {
+            throw new ConflictRequestException("User with id " + user.getId() + " has reached generations limit");
+        }
+        userRepository.save(user);
+    }
+
+    private void updateGenerationsForSubscribedUser(ReleaseRequest request, User user) {
+        int totalGenerations = user.getLoFiGenerations() + user.getHiFiGenerations() + user.getPlaylistGenerations();
+
+        if (totalGenerations < SUBSCRIPTION_GENERATIONS_LIMIT) {
+            if (request.getIsLoFi()) {
+                user.setLoFiGenerations(user.getLoFiGenerations() + 1);
+            } else {
+                user.setHiFiGenerations(user.getHiFiGenerations() + 1);
+            }
             userRepository.save(user);
         } else {
-            throw new ConflictRequestException("user with id " + user.getId() + " has reached generations limit");
+            throw new ConflictRequestException("User with id " + user.getId() + " has reached generations limit");
         }
     }
 
     @Override
-    public PlaylistNewDto getCover(String userToken,
-                                   UrlDto urlDto,
-                                   Constants.Vibe vibe,
-                                   Boolean isAbstract,
-                                   Boolean isLoFi) {
+    public PlaylistNewDto createPlaylistCover(String userToken,
+                                              UrlDto urlDto,
+                                              Constants.Vibe vibe,
+                                              Boolean isAbstract,
+                                              Boolean isLoFi) {
         String url = urlDto.getLink();
-//        validateAlreadySaved(url);
+        validateAlreadySaved(url);
 
         PlaylistDto dto = client.getPlaylist(url);
 
@@ -121,9 +138,11 @@ public class CoverServiceImpl implements CoverService {
         newPlaylist.setTracks(tracks);
 
         if (userToken != null) {
-            userToken = userToken.substring(7);
-            User user = getUserById(jwtService.extractUserId(userToken));
-            newPlaylist.setAuthor(user);
+            User user = extractUser(userToken);
+            int generations = user.getPlaylistGenerations();
+            user.setPlaylistGenerations(generations + 1);
+
+            newPlaylist.setAuthor(userRepository.save(user));
         }
 
         CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, isLoFi);
@@ -143,45 +162,46 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Override
-    public PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken) {
+    public PlaylistUpdateDto updatePlaylistCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken) {
         Playlist playlist = getPlaylistById(playlistId);
         int generations = playlist.getGenerations();
         Cover previousCover = playlist.getCover();
 
         User author = playlist.getAuthor();
 
+        UrlDto urlDto = UrlDto.builder()
+                .link(playlist.getUrl())
+                .build();
+
         if (author != null) {
-            userToken = userToken.substring(7);
-            User user = getUserById(jwtService.extractUserId(userToken));
+            User user = extractUser(userToken);
 
             if (user.getId() != author.getId()) {
                 throw new ConflictRequestException("only author of playlist can change its cover");
             }
+
+            int playlistGenerations = user.getPlaylistGenerations();
+            user.setPlaylistGenerations(playlistGenerations + 1);
+
+            userRepository.save(user);
+
+            if (user.isSubscribed()) {
+                int totalGenerations = user.getLoFiGenerations()
+                        + user.getHiFiGenerations()
+                        + user.getPlaylistGenerations();
+
+                if (totalGenerations  < SUBSCRIPTION_GENERATIONS_LIMIT) {
+                    return getPlaylistUpdateDto(vibe, isAbstract, playlist, generations, urlDto);
+                } else {
+                    throw new ConflictRequestException("User with id " + user.getId()
+                            + " has reached generations limit");
+                }
+            }
         }
 
-        if (previousCover.getIsLoFi()) {
+        if (previousCover.getIsLoFi()) { // it is not possible to regenerate the hi-fi cover
             if (generations < 3) {
-                UrlDto urlDto = UrlDto.builder()
-                        .link(playlist.getUrl())
-                        .build();
-
-                CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, true);
-
-                Cover cover = Cover.builder()
-                        .created(LocalDateTime.now())
-                        .isAbstract(isAbstract)
-                        .link(response.getUrl())
-                        .prompt(response.getPrompt())
-                        .build();
-
-                coverRepository.save(cover);
-
-                generations++;
-
-                playlist.setCover(cover);
-                playlist.setGenerations(generations);
-
-                return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
+                return getPlaylistUpdateDto(vibe, isAbstract, playlist, generations, urlDto);
             } else {
                 throw new BadRequestException("generations limit is already reached");
             }
@@ -190,13 +210,33 @@ public class CoverServiceImpl implements CoverService {
         }
     }
 
+    private PlaylistUpdateDto getPlaylistUpdateDto(Vibe vibe, Boolean isAbstract, Playlist playlist, int generations, UrlDto urlDto) {
+        CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, true);
+
+        Cover cover = Cover.builder()
+                .created(LocalDateTime.now())
+                .isAbstract(isAbstract)
+                .link(response.getUrl())
+                .prompt(response.getPrompt())
+                .isLoFi(true)
+                .build();
+
+        coverRepository.save(cover);
+
+        generations++;
+
+        playlist.setCover(cover);
+        playlist.setGenerations(generations);
+
+        return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
+    }
+
     @Override
     public PlaylistSaveDto savePlaylist(int playlistId, Boolean isPrivate, String userToken) {
         Playlist playlist = getPlaylistById(playlistId);
         User author = playlist.getAuthor();
 
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUser(userToken);
 
         if (user.getId() != author.getId()) {
             throw new ConflictRequestException("only author of playlist can save it");
@@ -252,5 +292,10 @@ public class CoverServiceImpl implements CoverService {
         return userRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
+    }
+
+    private User extractUser(String userToken) {
+        userToken = userToken.substring(7);
+        return getUserById(jwtService.extractUserId(userToken));
     }
 }

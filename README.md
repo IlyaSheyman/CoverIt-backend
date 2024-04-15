@@ -24,22 +24,26 @@ Result:
 <br>
 ## 🔧Configuration: [swagger](swagger.json)
 ## 🚀Setup
-### 1. Install Docker
-- Windows и macOS: Download Docker Desktop and follow the installation instructions.
-- Linux: Install Docker using the instructions for your Linux distribution, available on the official Docker website.
+### 1. Install Docker & Maven 
+- [Download Docker Desktop](https://www.docker.com/products/docker-desktop/) and follow the installation instructions.
+- Download Maven from [Apache Maven official website](https://maven.apache.org/index.html)
 ### 2. Running with Docker Compose
 1. Clone the repository to your computer:
 - `git clone <repository_url>`
 
 2. Go to the project root directory:
-- `cd <dev\coverit>`
+- `cd CoverIt-backend`
 
 3. Create a .env file with the required environment variables.
+<br>
+<br>
+4. Run Maven package
+- `mvn clean package`
 
-4. Run Docker Compose:
-- `docker-compose up`
+5. Run Docker Compose:
+- `docker build -t image-server ./image-service/image-server && docker build -t main-service ./main-service && docker compose up`
 
-5. After successful launch, you will be able to access your application at:
+6. After successful launch, you will be able to access your application at:
 - http://localhost:8080 for Main Service
 - http://localhost:9090 for Image Service
 

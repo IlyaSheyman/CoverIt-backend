@@ -154,10 +154,17 @@ public class UserService {
     public void updateGenerationsCountForAllUsers() {
         List<User> users = repository.findAll(); //TODO сделать разные статусы в зависимости от подписок, сделать обновление через сутки после created_at юзера
         for (User user : users) {
-            user.setLoFiGenerations(0);
-            user.setHiFiGenerations(0);
+            if (!user.isSubscribed()) {
+                user.setLoFiGenerations(0);
+                user.setHiFiGenerations(0);
 
-            repository.save(user);
+                repository.save(user);
+            } else {
+                if (LocalDateTime.now().getDayOfMonth() == user.getSubscribedAt().getDayOfMonth()) {
+                    user.setHiFiGenerations(0);
+                    user.setLoFiGenerations(0);
+                }
+            }
         }
 
         log.info("hi-fi and lo-fi generations updated for all users");
@@ -174,6 +181,7 @@ public class UserService {
         if (patreonClient.getPatronsNames().contains(patronName)) {
             User user = getByEmail(email);
             user.setSubscribed(true);
+            user.setSubscribedAt(LocalDateTime.now());
             user.setPatronName(patronName);
             repository.save(user);
 

@@ -33,7 +33,7 @@ public class CoverController {
                                                   @RequestHeader(name = "Authorization", required = false) String userToken) {
         log.info("[COVERCONTROLLER] get cover by playlist URL {}", url.getLink());
 
-        return service.getCover(userToken, url, vibe, isAbstract, isLoFi);
+        return service.createPlaylistCover(userToken, url, vibe, isAbstract, isLoFi);
     }
 
     @PatchMapping("/playlist/regenerate")
@@ -45,6 +45,6 @@ public class CoverController {
                                                   @RequestHeader(name = "Authorization", required = false) String userToken) {
         log.info("[COVERCONTROLLER] update cover by playlist Id {}", playlistId);
 
-        return service.updateCover(vibe, isAbstract, playlistId, userToken);
+        return service.updatePlaylistCover(vibe, isAbstract, playlistId, userToken);
     }
 }

@@ -8,11 +8,11 @@ import main_service.release.dto.ReleaseNewDto;
 import main_service.release.request.ReleaseRequest;
 
 public interface CoverService {
-    PlaylistNewDto getCover(String userId, UrlDto url, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi);
+    PlaylistNewDto createPlaylistCover(String userId, UrlDto url, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi);
 
     PlaylistSaveDto savePlaylist(int playlistId, Boolean isPrivate, String userToken);
 
-    PlaylistUpdateDto updateCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken);
+    PlaylistUpdateDto updatePlaylistCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken);
 
     ReleaseNewDto getReleaseCover(String userToken, ReleaseRequest request);
 

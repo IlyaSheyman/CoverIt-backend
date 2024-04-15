@@ -42,6 +42,7 @@ public interface Constants {
     int MIN_COVER_DESCRIPTION_SIZE = 1;
     int MAX_COVER_DESCRIPTION_SIZE = 3;
 
+    int SUBSCRIPTION_GENERATIONS_LIMIT = 100;
     int HIFI_LIMIT = 2;
     int LOFI_LIMIT = 4;
 
