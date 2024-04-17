@@ -45,7 +45,6 @@ Result:
 
 6. After successful launch, you will be able to access your application at:
 - http://localhost:8080 for Main Service
-- http://localhost:9090 for Image Service
 
 ### Environment Variables
 
