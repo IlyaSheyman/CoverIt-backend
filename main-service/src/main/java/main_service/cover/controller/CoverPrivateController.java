@@ -13,6 +13,8 @@ import main_service.release.request.ReleaseRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -42,5 +44,19 @@ public class CoverPrivateController {
         log.info("[COVERCONTROLLER] get cover for release");
 
         return service.createReleaseCover(userToken, request);
+    }
+
+    @GetMapping("/track/generate/mood")
+    @Operation(summary = "Request to get list of 8 adjectives that describe mood of music in release")
+    public List<String> getMusicMoods(@RequestHeader(name = "Authorization") String userToken) {
+        log.info("[COVERCONTROLLER] get music moods for release cover");
+        return service.getMusicData("moods");
+    }
+
+    @GetMapping("/track/generate/style")
+    @Operation(summary = "Request to get list of 8 styles that describe final cover of release")
+    public List<String> getCoverStyles(@RequestHeader(name = "Authorization") String userToken) {
+        log.info("[COVERCONTROLLER] get music styles for release cover");
+        return service.getMusicData("styles");
     }
 }

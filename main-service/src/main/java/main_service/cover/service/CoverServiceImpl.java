@@ -29,6 +29,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import static main_service.constants.Constants.*;
 
@@ -319,6 +322,31 @@ public class CoverServiceImpl implements CoverService {
             }
         }
         return tracks;
+    }
+
+    @Override
+    public List<String> getMusicData(String dataType) {
+        List<String> data = new ArrayList<>();
+        Random random = new Random();
+
+        if ("moods".equals(dataType)) {
+            Mood[] allMoods = Mood.values();
+            for (int i = 0; i < 8; i++) {
+                int randomIndex = random.nextInt(allMoods.length);
+                String moodAdjective = allMoods[randomIndex].toString().toLowerCase();
+                data.add(moodAdjective);
+            }
+        } else if ("styles".equals(dataType)) {
+            Style[] allStyles = Style.values();
+            for (int i = 0; i < 8; i++) {
+                int randomIndex = random.nextInt(allStyles.length);
+                String styleName = allStyles[randomIndex].toString().toLowerCase();
+                data.add(styleName);
+            }
+        }
+
+        Collections.shuffle(data);
+        return data;
     }
 
     private User extractUser(String userToken) {

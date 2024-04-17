@@ -7,6 +7,8 @@ import main_service.playlist.dto.PlaylistUpdateDto;
 import main_service.release.dto.ReleaseNewDto;
 import main_service.release.request.ReleaseRequest;
 
+import java.util.List;
+
 public interface CoverService {
     PlaylistNewDto createPlaylistCover(String userId, UrlDto url, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi);
 
@@ -16,4 +18,5 @@ public interface CoverService {
 
     ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request);
 
+    List<String> getMusicData(String dataType);
 }
