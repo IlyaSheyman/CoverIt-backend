@@ -94,13 +94,13 @@ public class AuthenticationService {
          * @return токен
          */
     public JwtAuthenticationResponse signIn(SignInRequest request) {
+        var user = userService
+                .getByEmail(request.getEmail());
+
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
                 request.getPassword()
         ));
-
-        var user = userService
-                .getByEmail(request.getEmail());
 
         if (user.isEnabled()) {
             var jwt = jwtService.generateToken(user);

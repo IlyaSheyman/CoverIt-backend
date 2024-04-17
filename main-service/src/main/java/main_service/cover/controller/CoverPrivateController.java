@@ -32,7 +32,6 @@ public class CoverPrivateController {
         log.info("[MAIN_SERVER] save playlist with id {}", playlistId);
 
         return service.savePlaylist(playlistId, coverId, isPrivate, userToken);
-        //TODO add cover Id here
     }
 
     @ResponseBody
