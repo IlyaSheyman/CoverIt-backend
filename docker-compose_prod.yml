@@ -1,8 +1,15 @@
 version: '3.1'
 
 services:
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - main-service
+
   image-server:
-    build: image-server
+    build: image-service/image-server
     image: image-server
     container_name: image-server
     env_file: .env
