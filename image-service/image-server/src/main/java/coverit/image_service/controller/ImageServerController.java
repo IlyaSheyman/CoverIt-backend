@@ -10,7 +10,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @RestController
@@ -32,7 +35,7 @@ public class ImageServerController {
     public CoverResponse getPlaylistCoverUrl(@RequestBody @Valid UrlDto urlDto,
                                              @RequestParam(name = "vibe", required = false) String vibeString,
                                              @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
-                                             @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) { //TODO сменить на стринг попробовать, чтобы пофиксить ошибку
+                                             @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) throws ExecutionException, InterruptedException { //TODO сменить на стринг попробовать, чтобы пофиксить ошибку
         String url = urlDto.getLink();
 
         Constants.Vibe vibe = null;
@@ -68,7 +71,8 @@ public class ImageServerController {
      */
     @ResponseBody
     @GetMapping("/playlist")
-    public PlaylistDto getPlaylistByUrl(@RequestBody UrlDto urlDto) {
+    @Async
+    public PlaylistDto getPlaylistByUrl(@RequestBody UrlDto urlDto) throws ExecutionException, InterruptedException {
         String url = urlDto.getLink();
         System.out.println(urlDto);
 

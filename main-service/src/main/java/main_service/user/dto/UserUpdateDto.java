@@ -3,14 +3,10 @@ package main_service.user.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
-import static main_service.constants.Constants.*;
+import static main_service.constants.Constants.MAX_USERNAME_LENGTH;
+import static main_service.constants.Constants.MIN_USERNAME_LENGTH;
 
 @Getter
 @Setter

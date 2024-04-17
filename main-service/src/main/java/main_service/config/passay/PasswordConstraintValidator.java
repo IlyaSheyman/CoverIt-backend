@@ -1,20 +1,10 @@
 package main_service.config.passay;
 
-import lombok.SneakyThrows;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.EnglishSequenceData;
-import org.passay.IllegalSequenceRule;
-import org.passay.LengthRule;
-import org.passay.MessageResolver;
-import org.passay.PasswordData;
-import org.passay.PasswordValidator;
-import org.passay.PropertiesMessageResolver;
-import org.passay.RuleResult;
-import org.passay.WhitespaceRule;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.SneakyThrows;
+import org.passay.*;
+
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;

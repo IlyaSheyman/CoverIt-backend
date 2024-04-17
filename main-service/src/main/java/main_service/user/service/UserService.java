@@ -6,9 +6,11 @@ import main_service.config.security.JwtService;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
+import main_service.user.client.PatreonClient;
+import main_service.user.dto.PatronDto;
 import main_service.user.dto.UserUpdateDto;
-import main_service.user.mapper.UserMapper;
 import main_service.user.entity.User;
+import main_service.user.mapper.UserMapper;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,9 +22,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static main_service.constants.Constants.HIFI_LIMIT;
-import static main_service.constants.Constants.LOFI_LIMIT;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,8 +31,10 @@ public class UserService {
     @Qualifier("userMapperImpl")
     private final UserMapper mapper;
     private final JwtService jwtService;
+    private final PatreonClient patreonClient;
 
     public void updateUsername(String userToken, UserUpdateDto dto) {
+        userToken = userToken.substring(7);
         User user = getUserById(jwtService.extractUserId(userToken));
 
         String newUsername = dto.getUsername();
@@ -141,6 +142,7 @@ public class UserService {
             user.setEnabledAt(LocalDateTime.now());
             user.setVerificationCode(null);
             user.setEnabled(true);
+
             repository.save(user);
 
             log.info("user with id " + user.getId() + " is verified");
@@ -153,12 +155,48 @@ public class UserService {
     public void updateGenerationsCountForAllUsers() {
         List<User> users = repository.findAll(); //TODO сделать разные статусы в зависимости от подписок, сделать обновление через сутки после created_at юзера
         for (User user : users) {
-            user.setLoFiGenerations(0);
-            user.setHiFiGenerations(0);
+            if (!user.isSubscribed()) {
+                user.setLoFiReleaseGenerations(0);
+                user.setHiFiReleaseGenerations(0);
 
-            repository.save(user);
+                repository.save(user);
+            } else {
+                if (LocalDateTime.now().getDayOfMonth() == user.getSubscribedAt().getDayOfMonth()) {
+                    renewCountersForSubscribed(user);
+                }
+            }
         }
 
         log.info("hi-fi and lo-fi generations updated for all users");
+    }
+
+    public void verifySubscription(String code) {
+        String accessToken = patreonClient.getAccessToken(code);
+        PatronDto patron = patreonClient.getPatron(accessToken);
+        log.info("patron: " + patron.toString());
+
+        String email = patron.getEmail();
+        String patronName = patron.getFullName();
+
+        if (patreonClient.getPatronsNames().contains(patronName)) {
+            User user = getByEmail(email);
+            user.setSubscribed(true);
+            user.setSubscribedAt(LocalDateTime.now());
+            user.setPatronName(patronName);
+            renewCountersForSubscribed(user);
+
+            repository.save(user);
+
+            log.info("user with email " + email + " is subscribed now");
+        } else {
+            throw new NotFoundException("user is not found in subscribers");
+        }
+    }
+
+    private void renewCountersForSubscribed(User user) {
+        user.setHiFiReleaseGenerations(0);
+        user.setLoFiReleaseGenerations(0);
+        user.setLoFiPlaylistGenerations(0);
+        user.setHiFiPlaylistGenerations(0);
     }
 }

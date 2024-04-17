@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static coverit.image_client.constants.Constants.*;
 
@@ -31,7 +32,7 @@ public class ImageServerService {
     private final ImageClient client;
     private final CloudinaryConfig cloudinary;
 
-    public CoverResponse getPlaylistCoverUrl(String url, Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
+    public CoverResponse getPlaylistCoverUrl(String url, Vibe vibe, Boolean isAbstract, Boolean isLoFi) throws ExecutionException, InterruptedException {
         PlaylistDto playlistDto = getPlayListByUrl(url);
         log.info("playlist name: " + playlistDto.getTitle());
 
@@ -135,7 +136,7 @@ public class ImageServerService {
         return response;
     }
 
-    public PlaylistDto getPlayListByUrl(String url) {
+    public PlaylistDto getPlayListByUrl(String url) throws ExecutionException, InterruptedException {
         return client.getPlayListByUrl(url);
     }
 

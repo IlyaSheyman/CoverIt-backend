@@ -29,7 +29,7 @@ public class UserPrivateController {
     public void updateUsername(@RequestHeader(name = "Authorization") String userToken,
                                @RequestBody @Valid UserUpdateDto dto) {
         log.info("[USER_CONTROLLER] update username for user");
-        userToken = userToken.substring(7);
+
         service.updateUsername(userToken, dto);
     }
 
@@ -50,6 +50,4 @@ public class UserPrivateController {
         service.search(userToken, search, dto, page, size);
         return null;
     }
-
-
 }

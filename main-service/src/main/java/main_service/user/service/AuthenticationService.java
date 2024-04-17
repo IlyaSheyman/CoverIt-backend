@@ -11,8 +11,6 @@ import main_service.user.dto.SignInRequest;
 import main_service.user.dto.SignUpRequest;
 import main_service.user.entity.User;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,14 +39,16 @@ public class AuthenticationService {
      */
     public void signUp(SignUpRequest request, String siteURL)
             throws MessagingException, UnsupportedEncodingException {
-        String randomCode = RandomStringUtils.random(64);
+        String verificationCode = RandomStringUtils.random(64);
+        String generationCode = RandomStringUtils.random(32);
 
         var user = User.builder()
                 .username(request.getUsername().toLowerCase())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .enabled(false)
-                .verificationCode(randomCode)
+                .subscribed(false)
+                .verificationCode(verificationCode)
                 .build();
 
         userService.create(user);
@@ -94,13 +94,13 @@ public class AuthenticationService {
          * @return токен
          */
     public JwtAuthenticationResponse signIn(SignInRequest request) {
+        var user = userService
+                .getByEmail(request.getEmail());
+
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
                 request.getPassword()
         ));
-
-        var user = userService
-                .getByEmail(request.getEmail());
 
         if (user.isEnabled()) {
             var jwt = jwtService.generateToken(user);

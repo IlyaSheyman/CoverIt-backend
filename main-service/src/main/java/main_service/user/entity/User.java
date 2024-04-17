@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import main_service.playlist_card.playlist.entity.Playlist;
+import main_service.playlist.entity.Playlist;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -42,6 +42,15 @@ public class User implements UserDetails {
     @Column(name = "verification_code", length = 64)
     private String verificationCode;
 
+    @Column(name = "is_subscribed")
+    private boolean subscribed;
+
+    @Column(name = "subscribed_at")
+    private LocalDateTime subscribedAt;
+
+    @Column(name = "patron_name")
+    private String patronName;
+
     @ManyToMany
     @JoinTable(
             name = "likes",
@@ -50,11 +59,17 @@ public class User implements UserDetails {
     )
     private List<Playlist> likes;
 
-    @Column(name = "hifi_generations")
-    private int hiFiGenerations;
+    @Column(name = "hifi_release_generations")
+    private int hiFiReleaseGenerations;
 
-    @Column(name = "lofi_generations")
-    private int loFiGenerations;
+    @Column(name = "lofi_release_generations")
+    private int loFiReleaseGenerations;
+
+    @Column(name = "hifi_playlist_generations")
+    private int hiFiPlaylistGenerations;
+
+    @Column(name = "lofi_playlist_generations")
+    private int loFiPlaylistGenerations;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

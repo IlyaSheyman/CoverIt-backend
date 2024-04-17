@@ -2,7 +2,6 @@ package main_service.config.security;
 
 import lombok.RequiredArgsConstructor;
 import main_service.user.service.UserService;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,7 +44,7 @@ public class SecurityConfiguration {
                 }))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**","/cover/playlist/generate", "/cover/playlist/regenerate",
-                                "/playlist/archive").permitAll()
+                                "/playlist/archive", "/user/verify/subscription").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**", "/swagger-ui.html", "/api-docs").permitAll()
                         .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())

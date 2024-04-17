@@ -12,6 +12,6 @@ public class UserReleaseDto {
     private int id;
     private String username;
     private String email;
-    private int hiFiGenerations;
-    private int loFiGenerations;
+    private int hiFiReleaseGenerations;
+    private int loFiReleaseGenerations;
 }
