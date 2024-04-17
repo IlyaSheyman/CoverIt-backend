@@ -35,8 +35,7 @@ Result:
 - `cd CoverIt-backend`
 
 3. Create a .env file with the required environment variables.
-<br>
-<br>
+
 4. Run Maven package
 - `mvn clean package`
 
