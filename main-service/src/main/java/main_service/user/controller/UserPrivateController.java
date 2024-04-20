@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main_service.user.dto.UserProfileDto;
 import main_service.user.dto.UserSmallDto;
 import main_service.user.dto.UserUpdateDto;
 import main_service.user.service.UserService;
@@ -49,5 +50,13 @@ public class UserPrivateController {
 
         service.search(userToken, search, dto, page, size);
         return null;
+    }
+
+    @Operation(summary = "get current user's profile info")
+    @GetMapping("/me")
+    public UserProfileDto getCurrentUserProfile(@RequestHeader(name = "Authorization") String userToken) {
+        log.info("request to get current user's profile");
+
+        return service.getCurrentUserProfile(userToken);
     }
 }

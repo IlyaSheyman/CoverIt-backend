@@ -8,6 +8,7 @@ import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.user.client.PatreonClient;
 import main_service.user.dto.PatronDto;
+import main_service.user.dto.UserProfileDto;
 import main_service.user.dto.UserUpdateDto;
 import main_service.user.entity.User;
 import main_service.user.mapper.UserMapper;
@@ -34,8 +35,7 @@ public class UserService {
     private final PatreonClient patreonClient;
 
     public void updateUsername(String userToken, UserUpdateDto dto) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUserFromToken(userToken);
 
         String newUsername = dto.getUsername();
         
@@ -151,6 +151,11 @@ public class UserService {
         }
     }
 
+    public UserProfileDto getCurrentUserProfile(String userToken) {
+        User current = extractUserFromToken(userToken);
+        return mapper.toUserProfileDto(current);
+    }
+
     @Scheduled(cron = "0 0 0 * * *")
     public void updateGenerationsCountForAllUsers() {
         List<User> users = repository.findAll(); //TODO сделать разные статусы в зависимости от подписок, сделать обновление через сутки после created_at юзера
@@ -198,5 +203,10 @@ public class UserService {
         user.setLoFiReleaseGenerations(0);
         user.setLoFiPlaylistGenerations(0);
         user.setHiFiPlaylistGenerations(0);
+    }
+
+    private User extractUserFromToken(String userToken) {
+        userToken = userToken.substring(7);
+        return getUserById(jwtService.extractUserId(userToken));
     }
 }
