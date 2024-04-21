@@ -9,11 +9,13 @@ import main_service.exception.model.NotFoundException;
 import main_service.user.client.PatreonClient;
 import main_service.user.dto.PatronDto;
 import main_service.user.dto.UserProfileDto;
+import main_service.user.dto.UserSubscriptionDto;
 import main_service.user.dto.UserUpdateDto;
 import main_service.user.entity.User;
 import main_service.user.mapper.UserMapper;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static main_service.constants.Constants.SUBSCRIPTION_GENERATIONS_LIMIT;
 
 @Slf4j
 @Service
@@ -154,6 +158,35 @@ public class UserService {
     public UserProfileDto getCurrentUserProfile(String userToken) {
         User current = extractUserFromToken(userToken);
         return mapper.toUserProfileDto(current);
+    }
+
+    public UserSubscriptionDto getUserSubscription(String userToken) {
+        User current = extractUserFromToken(userToken);
+        if (current.isSubscribed()) {
+            LocalDateTime updateAt = LocalDateTime.of(LocalDateTime.now().getYear(),
+                    LocalDateTime.now().getMonthValue(),
+                    current.getSubscribedAt().getDayOfMonth(),
+                    LocalDateTime.now().getHour(),
+                    LocalDateTime.now().getMinute(),
+                    LocalDateTime.now().getSecond());
+
+            int generationsLeft = SUBSCRIPTION_GENERATIONS_LIMIT -
+                    (current.getHiFiPlaylistGenerations()
+                            + current.getLoFiPlaylistGenerations()
+                            + current.getLoFiReleaseGenerations()
+                            + current.getHiFiReleaseGenerations());
+
+            return UserSubscriptionDto.builder()
+                    .subscribed(current.isSubscribed())
+                    .generationsUpdateAt(updateAt)
+                    .generationsLeft(generationsLeft)
+                    .email(current.getEmail())
+                    .build();
+        } else {
+            return UserSubscriptionDto.builder()
+                    .email(current.getEmail())
+                    .build();
+        }
     }
 
     @Scheduled(cron = "0 0 0 * * *")

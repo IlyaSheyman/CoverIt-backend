@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.user.dto.UserProfileDto;
 import main_service.user.dto.UserSmallDto;
+import main_service.user.dto.UserSubscriptionDto;
 import main_service.user.dto.UserUpdateDto;
 import main_service.user.service.UserService;
 import org.springframework.data.domain.Page;
@@ -59,4 +60,13 @@ public class UserPrivateController {
 
         return service.getCurrentUserProfile(userToken);
     }
+
+    @Operation(summary = "get current user's subscription info")
+    @GetMapping("/subscription")
+    public UserSubscriptionDto getUserSubscription(@RequestHeader(name = "Authorization") String userToken) {
+        log.info("request to get current user's subscription info");
+
+        return service.getUserSubscription(userToken);
+    }
+
 }
