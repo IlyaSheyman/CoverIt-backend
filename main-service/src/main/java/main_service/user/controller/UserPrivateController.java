@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @Validated
@@ -36,21 +38,14 @@ public class UserPrivateController {
     }
 
     @Operation(summary = "search users in 'find users'")
-    @GetMapping("/find_users")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public Page<UserSmallDto> searchUsers(@RequestHeader(name = "Authorization") String userToken,
+    @GetMapping("/find")
+    public List<UserSmallDto> searchUsers(@RequestHeader(name = "Authorization") String userToken,
                                           @RequestParam(name = "search") String search,
-                                          @RequestBody @Valid UserUpdateDto dto,
                                           @RequestParam(name = "page", defaultValue = "0") int page,
                                           @RequestParam(name = "size", defaultValue = "10") int size) {
-        log.info("[USER_CONTROLLER] update username for user");
+        log.info("[USER_CONTROLLER] search users containing " + search + " in their username");
 
-        if (userToken != null) {
-            userToken = userToken.substring(7);
-        }
-
-        service.search(userToken, search, dto, page, size);
-        return null;
+        return service.search(search, page, size);
     }
 
     @Operation(summary = "get current user's profile info")

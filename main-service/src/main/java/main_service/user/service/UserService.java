@@ -7,15 +7,12 @@ import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.user.client.PatreonClient;
-import main_service.user.dto.PatronDto;
-import main_service.user.dto.UserProfileDto;
-import main_service.user.dto.UserSubscriptionDto;
-import main_service.user.dto.UserUpdateDto;
+import main_service.user.dto.*;
 import main_service.user.entity.User;
 import main_service.user.mapper.UserMapper;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -53,7 +50,7 @@ public class UserService {
     }
 
     /**
-     * Сохранение пользователя
+     * Saving user
      *
      * @return сохраненный пользователь
      */
@@ -133,8 +130,11 @@ public class UserService {
         return userDetailsService;
     }
 
-    public void search(String userToken, String search, UserUpdateDto dto, int page, int size) {
-        //TODO
+    public List<UserSmallDto> search(String search, int page, int size) {
+        return repository.findByUsernameContaining(search, PageRequest.of(page, size))
+                .stream()
+                .map(mapper::toUserSmallDto)
+                .toList();
     }
 
     public boolean verify(String verificationCode) {
