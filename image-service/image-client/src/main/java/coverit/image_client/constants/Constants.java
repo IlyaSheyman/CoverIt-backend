@@ -35,9 +35,18 @@ public interface Constants {
     String NATURE_INSTRUCTION = "The picture should include natural landscape, be organic, enchanting";
 
     //Breaking down vibe settings
-    String GPT_BREAKING_DOWN = null;
-    String BREAKING_DOWN_INSTRUCTION = "";
+    String GPT_BREAKING_DOWN = "You must describe sad and nostalgic landscape: [what is shown in 2-3 words], [description of gloomy surrounding in 3-5 words]. The final description should be dreary, melancholic. Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
+    String BREAKING_DOWN_INSTRUCTION = "The picture should be 3D render, foggy, blurred, minimalistic. ";
 
-    String CAMPFIRE_CALMNESS_PROMPT = null;
-    String TOUGH_AND_STRAIGHT_PROMPT = null;
+    //Campfire calmness vibe settings
+    String GPT_CAMPFIRE_CALMNESS = null;
+    String CAMPFIRE_CALMNESS_INSTRUCTION = null;
+
+    //Tough and straight vibe settings
+    String GPT_TOUGH_AND_STRAIGHT = null;
+    String TOUGH_AND_STRAIGHT_INSTRUCTION = null;
+
+    //Endless joy vibe settings
+    String GPT_ENDLESS_JOY = null;
+    String ENDLESS_JOY_INSTRUCTION = null;
 }

@@ -90,13 +90,13 @@ public class ImageServerService {
                     prompt.append(NATURE_INSTRUCTION);
                     break;
                 case BREAKING_DOWN:
-                    prompt.append(GPT_BREAKING_DOWN);
+                    prompt.append(BREAKING_DOWN_INSTRUCTION);
                     break;
                 case CAMPFIRE_CALMNESS:
-                    prompt.append(CAMPFIRE_CALMNESS_PROMPT);
+                    prompt.append(CAMPFIRE_CALMNESS_INSTRUCTION);
                     break;
                 case TOUGH_AND_STRAIGHT:
-                    prompt.append(TOUGH_AND_STRAIGHT_PROMPT);
+                    prompt.append(TOUGH_AND_STRAIGHT_INSTRUCTION);
                     break;
                 default:
                     throw new BadRequestException("this vibe is not present");

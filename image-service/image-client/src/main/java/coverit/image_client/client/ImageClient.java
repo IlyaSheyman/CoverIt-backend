@@ -106,10 +106,10 @@ public class ImageClient {
                     request.append(Constants.GPT_BREAKING_DOWN);
                     break;
                 case CAMPFIRE_CALMNESS:
-                    request.append(Constants.CAMPFIRE_CALMNESS_PROMPT);
+                    request.append(Constants.GPT_CAMPFIRE_CALMNESS);
                     break;
                 case TOUGH_AND_STRAIGHT:
-                    request.append(Constants.TOUGH_AND_STRAIGHT_PROMPT);
+                    request.append(Constants.GPT_TOUGH_AND_STRAIGHT);
                     break;
                 default:
                     throw new BadRequestException("this vibe is not present");

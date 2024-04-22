@@ -20,8 +20,6 @@ public interface Constants {
 
     int MIN_TRACK_TITLE_LENGTH = 1;
     int MAX_TRACK_TITLE_LENGTH = 200;
-    int MIN_AUTHOR_NAME_LENGTH = 1;
-    int MAX_AUTHOR_NAME_LENGTH = 200;
 
     int MIN_LINK_LENGTH = 5;
     int MAX_LINK_LENGTH = 1000;

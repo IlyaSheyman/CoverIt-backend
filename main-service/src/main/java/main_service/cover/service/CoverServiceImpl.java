@@ -273,6 +273,7 @@ public class CoverServiceImpl implements CoverService {
                 .build();
 
         coverRepository.save(cover);
+        playlist.setVibe(vibe);
         playlist.setCover(cover);
 
         return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
