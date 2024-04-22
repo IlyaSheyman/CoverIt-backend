@@ -10,7 +10,6 @@ import main_service.user.dto.UserSmallDto;
 import main_service.user.dto.UserSubscriptionDto;
 import main_service.user.dto.UserUpdateDto;
 import main_service.user.service.UserService;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
