@@ -98,6 +98,9 @@ public class ImageServerService {
                 case TOUGH_AND_STRAIGHT:
                     prompt.append(TOUGH_AND_STRAIGHT_INSTRUCTION);
                     break;
+                case ENDLESS_JOY:
+                    prompt.append(ENDLESS_JOY_INSTRUCTION);
+                    break;
                 default:
                     throw new BadRequestException("this vibe is not present");
             }

@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutionException;
 
+import static coverit.image_client.constants.Constants.GPT_ENDLESS_JOY;
+import static coverit.image_client.constants.Constants.GPT_SETTINGS_AVOID;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -111,12 +114,16 @@ public class ImageClient {
                 case TOUGH_AND_STRAIGHT:
                     request.append(Constants.GPT_TOUGH_AND_STRAIGHT);
                     break;
+                case ENDLESS_JOY:
+                    request.append(GPT_ENDLESS_JOY);
+                    break;
                 default:
                     throw new BadRequestException("this vibe is not present");
             }
         }
 
-        request.append(Constants.GPT_REQUEST_SETTINGS);
+        request.append(GPT_SETTINGS_AVOID);
+        request.append(Constants.GPT_SETTINGS_LENGTH);
         log.info("request to ChatGPT: " + request);
 
         return aiClient.generate(request.toString());
