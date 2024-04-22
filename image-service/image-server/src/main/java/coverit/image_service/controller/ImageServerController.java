@@ -5,12 +5,11 @@ import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.UrlDto;
 import coverit.image_client.response.CoverResponse;
-import coverit.image_service.service.ImageServerService;
+import coverit.image_service.service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.ExecutionException;
@@ -20,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class ImageServerController {
 
-    private final ImageServerService service;
+    private final ImageService service;
 
     /**
      * Endpoint for generating playlist cover
@@ -71,7 +70,6 @@ public class ImageServerController {
      */
     @ResponseBody
     @GetMapping("/playlist")
-    @Async
     public PlaylistDto getPlaylistByUrl(@RequestBody UrlDto urlDto) throws ExecutionException, InterruptedException {
         String url = urlDto.getLink();
         System.out.println(urlDto);
