@@ -117,7 +117,7 @@ public class PlaylistServiceImpl {
         if (user.getLikes().contains(playlist)) {
             throw new BadRequestException("playlist with id " + playlistId + " is already liked by " + user.getUsername());
         } else if (playlist.getAuthor().getId() == user.getId()) {
-            throw new BadRequestException("user cannot like his own playlist");
+            throw new BadRequestException("You can't like your own playlist");
         }
 
         user.getLikes().add(playlist);
@@ -132,7 +132,8 @@ public class PlaylistServiceImpl {
         Playlist playlist = getPlaylistById(playlistId);
 
         if (!user.getLikes().contains(playlist)) {
-            throw new BadRequestException("playlist with id " + playlistId + " is not liked by user with username " + user.getUsername());
+            log.debug("Playlist with id " + playlistId + " is not liked by user with username " + user.getUsername());
+            throw new BadRequestException("Playlist is not liked by user");
         }
 
         user.getLikes().remove(playlist);

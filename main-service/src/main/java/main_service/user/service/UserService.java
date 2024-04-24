@@ -64,10 +64,14 @@ public class UserService {
      * @return created user
      */
     public User create(User user) {
-        if (repository.existsByUsernameIgnoreCaseAndEnabled(user.getUsername(), true)) {
+        String username = user.getUsername();
+        String email = user.getEmail();
+        if (repository.existsByUsernameIgnoreCaseAndEnabled(username, true)) {
+            log.debug("User with username " + username + " already exists");
             throw new BadRequestException("User with this username already exists");
         }
-        if (repository.existsByEmailIgnoreCaseAndEnabled(user.getEmail(), true)) {
+        if (repository.existsByEmailIgnoreCaseAndEnabled(email, true)) {
+            log.debug("User with email " + email + " already exists");
             throw new BadRequestException("User with this email already exists");
         }
         return save(user);
@@ -109,7 +113,7 @@ public class UserService {
     public User getUserById(int userId) {
         return repository
                 .findById(userId)
-                .orElseThrow(()-> new NotFoundException(String.format("User with id %d not found", userId)));
+                .orElseThrow(()-> new NotFoundException("User not found"));
     }
 
     /**
@@ -149,7 +153,7 @@ public class UserService {
 
             repository.save(user);
 
-            log.info("user with id " + user.getId() + " is verified");
+            log.info("User with id " + user.getId() + " is verified");
 
             return true;
         }
@@ -227,7 +231,7 @@ public class UserService {
 
             log.info("user with email " + email + " is subscribed now");
         } else {
-            throw new NotFoundException("user is not found in subscribers");
+            throw new NotFoundException("User is not present in subscribers list");
         }
     }
 

@@ -26,8 +26,9 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.warn("404 {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage(),
-                "Not found exception",
+        return new ErrorResponse("Not found",
+                e.getMessage(),
+                e.getCause().getMessage(),
                 HttpStatus.NOT_FOUND.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -37,8 +38,9 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectRequest(final BadRequestException e) {
         log.warn("400 {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage(),
-                "Bad request exception",
+        return new ErrorResponse("Bad request",
+                e.getMessage(),
+                e.getCause().getMessage(),
                 HttpStatus.BAD_REQUEST.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -47,8 +49,9 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         log.warn("409 {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage(),
-                "Method argument not valid",
+        return new ErrorResponse("Argument not valid",
+                e.getMessage(),
+                e.getCause().getMessage(),
                 HttpStatus.BAD_REQUEST.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -57,8 +60,9 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
         log.warn("409 {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage(),
-                "Illegal argument exception",
+        return new ErrorResponse("Illegal argument",
+                e.getMessage(),
+                e.getCause().getMessage(),
                 HttpStatus.BAD_REQUEST.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -67,8 +71,9 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleIncorrectRequest(final ConflictRequestException e) {
         log.warn("409 {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage(),
-                "Conflict request exception",
+        return new ErrorResponse("Conflict",
+                e.getMessage(),
+                e.getCause().getMessage(),
                 HttpStatus.CONFLICT.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -77,8 +82,9 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(final Exception e) {
         log.warn("500 {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage(),
-                "Undefined exception",
+        return new ErrorResponse("Internal server error",
+                e.getMessage(),
+                e.getCause().getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                 LocalDateTime.now().format(formatter));
     }

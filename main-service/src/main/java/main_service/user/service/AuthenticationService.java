@@ -31,16 +31,15 @@ public class AuthenticationService {
     private final JavaMailSender mailSender;
 
     /**
-     * Регистрация пользователя
+     * User registration
      *
-     * @param request данные пользователя
+     * @param request user's data
      * @param siteURL
-     * @return токен
+     * @return token
      */
     public void signUp(SignUpRequest request, String siteURL)
             throws MessagingException, UnsupportedEncodingException {
         String verificationCode = RandomStringUtils.random(64);
-        String generationCode = RandomStringUtils.random(32);
 
         var user = User.builder()
                 .username(request.getUsername().toLowerCase())
@@ -88,10 +87,10 @@ public class AuthenticationService {
 
 
         /**
-         * Аутентификация пользователя
+         * User authentication
          *
-         * @param request данные пользователя
-         * @return токен
+         * @param request user's data
+         * @return token
          */
     public JwtAuthenticationResponse signIn(SignInRequest request) {
         var user = userService
@@ -104,10 +103,11 @@ public class AuthenticationService {
 
         if (user.isEnabled()) {
             var jwt = jwtService.generateToken(user);
-            log.info("user with id " + user.getId() + " has been signed in successfully");
+            log.info("User with id " + user.getId() + " has been signed in successfully");
             return new JwtAuthenticationResponse(jwt);
         } else {
-            throw new BadRequestException("user with id " + user.getId() + "is not enabled");
+            log.debug("User with id " + user.getId() + "is not enabled");
+            throw new BadRequestException("User is not enabled");
         }
     }
 }
