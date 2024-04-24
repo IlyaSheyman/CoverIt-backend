@@ -22,7 +22,7 @@ import static coverit.image_client.constants.Constants.GPT_SETTINGS_AVOID;
 @RequiredArgsConstructor
 public class ImageClient {
 
-    private final SpotifyClient spotifyClient;
+    private final SpotifyClientStraight spotifyClient;
     private final AiClient aiClient;
     private final DalleClient dalleClient;
 
