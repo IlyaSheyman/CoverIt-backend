@@ -141,11 +141,11 @@ public class UserService {
                 .toList();
     }
 
-    public boolean verify(String verificationCode) {
+    public void verify(String verificationCode) {
         User user = repository.findByVerificationCode(verificationCode);
 
         if (user == null || user.isEnabled()) {
-            return false;
+            throw new ConflictRequestException("Verification fail");
         } else {
             user.setEnabledAt(LocalDateTime.now());
             user.setVerificationCode(null);
@@ -154,8 +154,6 @@ public class UserService {
             repository.save(user);
 
             log.info("User with id " + user.getId() + " is verified");
-
-            return true;
         }
     }
 

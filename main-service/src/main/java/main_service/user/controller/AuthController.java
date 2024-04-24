@@ -38,13 +38,10 @@ public class AuthController {
         authenticationService.signUp(userDto, getSiteURL(request));
     }
     @Operation(summary = "User's email verification. Used as a link sent to email")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @GetMapping("/verify")
-    public String verifyUser(@Param("code") String code) {
-        if (userService.verify(code)) {
-            return "verify_success";
-        } else {
-            return "verify_fail";
-        }
+    public void verifyUser(@Param("code") String code) {
+        userService.verify(code);
     }
 
     @Operation(summary = "User's authorization")
