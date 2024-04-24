@@ -39,6 +39,7 @@ public class AuthController {
     }
     @Operation(summary = "User's email verification. Used as a link sent to email")
     @ResponseStatus(HttpStatus.ACCEPTED)
+    @Transactional
     @GetMapping("/verify")
     public void verifyUser(@Param("code") String code) {
         userService.verify(code);

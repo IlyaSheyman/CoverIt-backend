@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.user.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ public class UserPublicController {
     @Operation(summary = "verify subscription")
     @GetMapping("/verify/subscription")
     @ResponseStatus(HttpStatus.ACCEPTED)
+    @Transactional
     public void verifySubscription(@RequestParam(value = "code") String code) {
         log.info("[USER_CONTROLLER] subscribe user");
 

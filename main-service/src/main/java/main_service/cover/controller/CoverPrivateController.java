@@ -24,6 +24,7 @@ public class CoverPrivateController {
     private final CoverService service;
 
     @Operation(summary = "save generated playlist using playlistId and boolean isPrivate")
+    @Transactional
     @PatchMapping("/playlist/save")
     public PlaylistSaveDto savePlaylist(@RequestHeader(value = "Playlist_Id") int playlistId,
                                         @RequestHeader(value = "Cover_Id") int coverId,
