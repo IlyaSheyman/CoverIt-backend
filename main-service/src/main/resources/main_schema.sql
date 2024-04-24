@@ -57,8 +57,7 @@ CREATE TABLE IF NOT EXISTS playlist_track
     playlist_id BIGINT,
     track_id    BIGINT,
     FOREIGN KEY (playlist_id) REFERENCES playlist (id),
-    FOREIGN KEY (track_id) REFERENCES track (id),
-    PRIMARY KEY (playlist_id, track_id)
+    FOREIGN KEY (track_id) REFERENCES track (id)
 );
 
 CREATE TABLE IF NOT EXISTS likes

@@ -43,7 +43,7 @@ Result:
 - `docker build -t image-server ./image-service/image-server && docker build -t main-service ./main-service && docker compose up`
 
 6. After successful launch, you will be able to access your application at:
-- http://localhost:8080 for Main Service
+- http://localhost:80 for Main Service
 
 ### Environment Variables
 
