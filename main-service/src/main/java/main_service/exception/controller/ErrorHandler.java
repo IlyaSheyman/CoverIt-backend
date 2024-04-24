@@ -84,7 +84,7 @@ public class ErrorHandler {
         log.warn("500 {}", e.getMessage(), e);
         return new ErrorResponse("Internal server error",
                 e.getMessage(),
-                e.getCause().getMessage(),
+                "Internal server error",
                 HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                 LocalDateTime.now().format(formatter));
     }
