@@ -26,8 +26,8 @@ public class CoverPrivateController {
     @Operation(summary = "save generated playlist using playlistId and boolean isPrivate")
     @Transactional
     @PatchMapping("/playlist/save")
-    public PlaylistSaveDto savePlaylist(@RequestHeader(value = "Playlist_Id") int playlistId,
-                                        @RequestHeader(value = "Cover_Id") int coverId,
+    public PlaylistSaveDto savePlaylist(@RequestParam(name = "playlist_id") int playlistId,
+                                        @RequestParam(name = "cover_id") int coverId,
                                         @RequestParam(name = "is_private") @NotNull Boolean isPrivate,
                                         @RequestHeader(name = "Authorization") String userToken) {
         log.info("[MAIN_SERVER] save playlist with id {}", playlistId);

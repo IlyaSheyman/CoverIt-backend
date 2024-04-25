@@ -134,6 +134,9 @@ public class CoverServiceImpl implements CoverService {
 
         PlaylistDto dto = client.getPlaylist(url);
 
+        if (dto == null) {
+            throw new RuntimeException("Incorrect response from image generator");
+        }
         Playlist newPlaylist = Playlist.builder()
                 .url(url)
                 .title(dto.getTitle())
@@ -152,15 +155,8 @@ public class CoverServiceImpl implements CoverService {
 
         }
 
-        if (newPlaylist.getAuthor() != null && (!newPlaylist.getAuthor().isSubscribed())) {
-            newPlaylist.setLoFiGenerationsLeft(LOFI_LIMIT_PLAYLIST);
-            newPlaylist.setHiFiGenerationsLeft(HIFI_LIMIT_PLAYLIST);
-
-            if (isLoFi) {
-                newPlaylist.setLoFiGenerationsLeft(newPlaylist.getLoFiGenerationsLeft() - 1);
-            } else {
-                newPlaylist.setHiFiGenerationsLeft(newPlaylist.getHiFiGenerationsLeft() - 1);
-            }
+        if (newPlaylist.getAuthor() == null || !newPlaylist.getAuthor().isSubscribed()) {
+            setGenerationsLeft(isLoFi, newPlaylist);
         }
 
         CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, isLoFi);
@@ -177,6 +173,17 @@ public class CoverServiceImpl implements CoverService {
         newPlaylist.setCover(cover);
 
         return playlistMapper.toPlaylistNewDto(playlistRepository.save(newPlaylist));
+    }
+
+    private void setGenerationsLeft(Boolean isLoFi, Playlist newPlaylist) {
+        newPlaylist.setLoFiGenerationsLeft(LOFI_LIMIT_PLAYLIST);
+        newPlaylist.setHiFiGenerationsLeft(HIFI_LIMIT_PLAYLIST);
+
+        if (isLoFi) {
+            newPlaylist.setLoFiGenerationsLeft(newPlaylist.getLoFiGenerationsLeft() - 1);
+        } else {
+            newPlaylist.setHiFiGenerationsLeft(newPlaylist.getHiFiGenerationsLeft() - 1);
+        }
     }
 
     @Override

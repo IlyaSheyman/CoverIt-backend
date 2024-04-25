@@ -26,7 +26,7 @@ public class PlaylistPrivateController {
     @PatchMapping("/like")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void likePlaylist(@RequestHeader(name = "Authorization") String userToken,
-                             @RequestHeader(value = "Playlist_Id") int playlistId) {
+                             @RequestParam(name = "playlist_id") int playlistId) {
         log.info("[MAIN_SERVER] like playlist " + playlistId);
         service.like(userToken, playlistId);
     }
@@ -35,7 +35,7 @@ public class PlaylistPrivateController {
     @PatchMapping("/unlike")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void unlikePlaylist(@RequestHeader(name = "Authorization") String userToken,
-                               @RequestHeader(value = "Playlist_Id") int playlistId) {
+                               @RequestParam(name = "playlist_id") int playlistId) {
         log.info("[MAIN_SERVER] unlike playlist " + playlistId);
         service.unlikePlaylist(userToken, playlistId);
     }
@@ -54,7 +54,7 @@ public class PlaylistPrivateController {
     @Operation(summary = "get user's playlists by searching his name in 'find users'")
     @GetMapping("/user_collection")
     public List<PlaylistUserCollectionDto> getUserPlaylists(@RequestHeader(name = "Authorization") String userToken,
-                                                            @RequestHeader(name = "User_Id") int userId,
+                                                            @RequestParam(name = "user_id") int userId,
                                                             @RequestParam(name = "page", defaultValue = "0") int page,
                                                             @RequestParam(name = "size", defaultValue = "10") int size,
                                                             @RequestParam(name = "filter", required = false) Constants.Filters filters) {

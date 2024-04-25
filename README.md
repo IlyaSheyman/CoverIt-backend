@@ -40,7 +40,7 @@ Result:
 - `mvn clean package`
 
 5. Run Docker Compose:
-- `docker build -t image-server ./image-service/image-server && docker build -t main-service ./main-service && docker compose up`
+- `docker-compose -f docker-compose_prod.yml up -d --build`
 
 6. After successful launch, you will be able to access your application at:
 - http://localhost:80 for Main Service

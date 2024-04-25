@@ -1,0 +1,44 @@
+services:
+  image-server:
+    build: image-service/image-server
+    image: image-server
+    container_name: image-server
+    env_file: .env_dev
+    ports:
+      - "9090:9090"
+    environment:
+      - OPENAI_SECRET_KEY=${OPENAI_SECRET_KEY}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - CLOUD_NAME=${CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+
+  main-service:
+    build: main-service
+    image: main-service
+    container_name: main-service
+    env_file: .env_dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - coverit-db
+      - image-server
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://coverit-db:5432/coverit
+      - SPRING_DATASOURCE_USER=${SPRING_DATASOURCE_USER}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - EMAIL_APP_PASSWORD=${EMAIL_APP_PASSWORD}
+      - TOKEN_SIGNING_KEY=${TOKEN_SIGNING_KEY}
+
+  coverit-db:
+    image: postgres:14-alpine
+    container_name: postgres-coverit
+    env_file: .env_dev
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=coverit
+      - POSTGRES_USER=${SPRING_DATASOURCE_USER}
+      - POSTGRES_PASSWORD=${SPRING_DATASOURCE_PASSWORD}

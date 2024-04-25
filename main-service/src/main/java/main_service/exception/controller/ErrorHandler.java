@@ -28,7 +28,7 @@ public class ErrorHandler {
         log.warn("404 {}", e.getMessage(), e);
         return new ErrorResponse("Not found",
                 e.getMessage(),
-                e.getCause().getMessage(),
+                "Not found",
                 HttpStatus.NOT_FOUND.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -40,7 +40,7 @@ public class ErrorHandler {
         log.warn("400 {}", e.getMessage(), e);
         return new ErrorResponse("Bad request",
                 e.getMessage(),
-                e.getCause().getMessage(),
+                "Bad request",
                 HttpStatus.BAD_REQUEST.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -51,7 +51,7 @@ public class ErrorHandler {
         log.warn("409 {}", e.getMessage(), e);
         return new ErrorResponse("Argument not valid",
                 e.getMessage(),
-                e.getCause().getMessage(),
+                "Argument not valid",
                 HttpStatus.BAD_REQUEST.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -62,7 +62,7 @@ public class ErrorHandler {
         log.warn("409 {}", e.getMessage(), e);
         return new ErrorResponse("Illegal argument",
                 e.getMessage(),
-                e.getCause().getMessage(),
+                "Illegal argument",
                 HttpStatus.BAD_REQUEST.toString(),
                 LocalDateTime.now().format(formatter));
     }
@@ -73,7 +73,7 @@ public class ErrorHandler {
         log.warn("409 {}", e.getMessage(), e);
         return new ErrorResponse("Conflict",
                 e.getMessage(),
-                e.getCause().getMessage(),
+                "Conflict",
                 HttpStatus.CONFLICT.toString(),
                 LocalDateTime.now().format(formatter));
     }
