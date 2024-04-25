@@ -10,6 +10,7 @@ import lombok.Setter;
 @Builder
 @RequiredArgsConstructor
 public class ErrorResponse {
+    private final String header;
     private final String message;
     private final String reason;
     private final String status;

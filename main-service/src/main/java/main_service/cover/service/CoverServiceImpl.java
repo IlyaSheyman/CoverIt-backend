@@ -100,8 +100,8 @@ public class CoverServiceImpl implements CoverService {
         } else {
             int hiFiLeft = HIFI_LIMIT_RELEASE - user.getHiFiReleaseGenerations();
             int loFiLeft = LOFI_LIMIT_RELEASE - user.getLoFiReleaseGenerations();
-
-            throw new ConflictRequestException("User with id " + user.getId() + " has reached generations limit. " +
+            log.debug("User with id " + user.getId() + " has reached generations limit.");
+            throw new ConflictRequestException("You have reached generations limit. " +
                     "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
         }
         userRepository.save(user);
@@ -134,6 +134,9 @@ public class CoverServiceImpl implements CoverService {
 
         PlaylistDto dto = client.getPlaylist(url);
 
+        if (dto == null) {
+            throw new RuntimeException("Incorrect response from image generator");
+        }
         Playlist newPlaylist = Playlist.builder()
                 .url(url)
                 .title(dto.getTitle())
@@ -152,15 +155,8 @@ public class CoverServiceImpl implements CoverService {
 
         }
 
-        if (newPlaylist.getAuthor() != null && (!newPlaylist.getAuthor().isSubscribed())) {
-            newPlaylist.setLoFiGenerationsLeft(LOFI_LIMIT_PLAYLIST);
-            newPlaylist.setHiFiGenerationsLeft(HIFI_LIMIT_PLAYLIST);
-
-            if (isLoFi) {
-                newPlaylist.setLoFiGenerationsLeft(newPlaylist.getLoFiGenerationsLeft() - 1);
-            } else {
-                newPlaylist.setHiFiGenerationsLeft(newPlaylist.getHiFiGenerationsLeft() - 1);
-            }
+        if (newPlaylist.getAuthor() == null || !newPlaylist.getAuthor().isSubscribed()) {
+            setGenerationsLeft(isLoFi, newPlaylist);
         }
 
         CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, isLoFi);
@@ -179,6 +175,17 @@ public class CoverServiceImpl implements CoverService {
         return playlistMapper.toPlaylistNewDto(playlistRepository.save(newPlaylist));
     }
 
+    private void setGenerationsLeft(Boolean isLoFi, Playlist newPlaylist) {
+        newPlaylist.setLoFiGenerationsLeft(LOFI_LIMIT_PLAYLIST);
+        newPlaylist.setHiFiGenerationsLeft(HIFI_LIMIT_PLAYLIST);
+
+        if (isLoFi) {
+            newPlaylist.setLoFiGenerationsLeft(newPlaylist.getLoFiGenerationsLeft() - 1);
+        } else {
+            newPlaylist.setHiFiGenerationsLeft(newPlaylist.getHiFiGenerationsLeft() - 1);
+        }
+    }
+
     @Override
     public PlaylistUpdateDto updatePlaylistCover(Constants.Vibe vibe,
                                                  Boolean isAbstract,
@@ -195,7 +202,7 @@ public class CoverServiceImpl implements CoverService {
             User user = extractUser(userToken);
 
             if (user.getId() != author.getId()) {
-                throw new ConflictRequestException("only author of playlist can change its cover");
+                throw new ConflictRequestException("Only author of playlist can change its cover");
             }
 
             return updateForSubscribed(author, isLoFi, playlist, urlDto, vibe, isAbstract);
@@ -243,7 +250,7 @@ public class CoverServiceImpl implements CoverService {
                 playlist.setLoFiGenerationsLeft(loFiLeft - 1);
                 return getPlaylistUpdateDto(vibe, isAbstract, true, playlist, urlDto);
             } else {
-                throw new ConflictRequestException("User has reached generations limit. " +
+                throw new ConflictRequestException("You have reached generations limit. " +
                         "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
             }
         } else {
@@ -251,7 +258,7 @@ public class CoverServiceImpl implements CoverService {
                 playlist.setHiFiGenerationsLeft(hiFiLeft - 1);
                 return getPlaylistUpdateDto(vibe, isAbstract, false, playlist, urlDto);
             } else {
-                throw new ConflictRequestException("User has reached generations limit. " +
+                throw new ConflictRequestException("You have reached generations limit. " +
                         "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
             }
         }
@@ -273,6 +280,7 @@ public class CoverServiceImpl implements CoverService {
                 .build();
 
         coverRepository.save(cover);
+        playlist.setVibe(vibe);
         playlist.setCover(cover);
 
         return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
@@ -286,7 +294,7 @@ public class CoverServiceImpl implements CoverService {
         User user = extractUser(userToken);
 
         if (user.getId() != author.getId()) {
-            throw new ConflictRequestException("only author of playlist can save it");
+            throw new ConflictRequestException("Only author of playlist can save it");
         }
         playlist.setCover(getCoverById(coverId));
         playlist.setIsPrivate(isPrivate);
@@ -391,7 +399,7 @@ public class CoverServiceImpl implements CoverService {
 
     private void validateAlreadySaved(String url) {
         if (playlistRepository.existsByUrl(url)) {
-            throw new BadRequestException(String.format("playlist with url %s is already covered", url));
+            throw new BadRequestException(String.format("Playlist %s is already covered", url));
         }
     }
 }

@@ -1,8 +1,15 @@
 version: '3.1'
 
 services:
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - main-service
+
   image-server:
-    build: image-server
+    build: image-service/image-server
     image: image-server
     container_name: image-server
     env_file: .env
@@ -28,6 +35,8 @@ services:
       - image-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://coverit-db:5432/coverit
+      - SPRING_DATASOURCE_USER=${SPRING_DATASOURCE_USER}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
       - EMAIL_APP_PASSWORD=${EMAIL_APP_PASSWORD}
       - TOKEN_SIGNING_KEY=${TOKEN_SIGNING_KEY}
@@ -35,9 +44,10 @@ services:
   coverit-db:
     image: postgres:14-alpine
     container_name: postgres-coverit
+    env_file: .env
     ports:
       - "6541:5432"
     environment:
       - POSTGRES_DB=coverit
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=${SPRING_DATASOURCE_USER}
+      - POSTGRES_PASSWORD=${SPRING_DATASOURCE_PASSWORD}

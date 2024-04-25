@@ -7,12 +7,12 @@ import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.user.client.PatreonClient;
-import main_service.user.dto.PatronDto;
-import main_service.user.dto.UserUpdateDto;
+import main_service.user.dto.*;
 import main_service.user.entity.User;
 import main_service.user.mapper.UserMapper;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static main_service.constants.Constants.SUBSCRIPTION_GENERATIONS_LIMIT;
 
 @Slf4j
 @Service
@@ -34,8 +36,7 @@ public class UserService {
     private final PatreonClient patreonClient;
 
     public void updateUsername(String userToken, UserUpdateDto dto) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUserFromToken(userToken);
 
         String newUsername = dto.getUsername();
         
@@ -49,7 +50,7 @@ public class UserService {
     }
 
     /**
-     * Сохранение пользователя
+     * Saving user
      *
      * @return сохраненный пользователь
      */
@@ -63,10 +64,14 @@ public class UserService {
      * @return created user
      */
     public User create(User user) {
-        if (repository.existsByUsernameIgnoreCaseAndEnabled(user.getUsername(), true)) {
+        String username = user.getUsername();
+        String email = user.getEmail();
+        if (repository.existsByUsernameIgnoreCaseAndEnabled(username, true)) {
+            log.debug("User with username " + username + " already exists");
             throw new BadRequestException("User with this username already exists");
         }
-        if (repository.existsByEmailIgnoreCaseAndEnabled(user.getEmail(), true)) {
+        if (repository.existsByEmailIgnoreCaseAndEnabled(email, true)) {
+            log.debug("User with email " + email + " already exists");
             throw new BadRequestException("User with this email already exists");
         }
         return save(user);
@@ -108,7 +113,7 @@ public class UserService {
     public User getUserById(int userId) {
         return repository
                 .findById(userId)
-                .orElseThrow(()-> new NotFoundException(String.format("User with id %d not found", userId)));
+                .orElseThrow(()-> new NotFoundException("User not found"));
     }
 
     /**
@@ -129,15 +134,18 @@ public class UserService {
         return userDetailsService;
     }
 
-    public void search(String userToken, String search, UserUpdateDto dto, int page, int size) {
-        //TODO
+    public List<UserSmallDto> search(String search, int page, int size) {
+        return repository.findByUsernameContaining(search, PageRequest.of(page, size))
+                .stream()
+                .map(mapper::toUserSmallDto)
+                .toList();
     }
 
-    public boolean verify(String verificationCode) {
+    public void verify(String verificationCode) {
         User user = repository.findByVerificationCode(verificationCode);
 
         if (user == null || user.isEnabled()) {
-            return false;
+            throw new ConflictRequestException("Verification fail");
         } else {
             user.setEnabledAt(LocalDateTime.now());
             user.setVerificationCode(null);
@@ -145,9 +153,41 @@ public class UserService {
 
             repository.save(user);
 
-            log.info("user with id " + user.getId() + " is verified");
+            log.info("User with id " + user.getId() + " is verified");
+        }
+    }
 
-            return true;
+    public UserProfileDto getCurrentUserProfile(String userToken) {
+        User current = extractUserFromToken(userToken);
+        return mapper.toUserProfileDto(current);
+    }
+
+    public UserSubscriptionDto getUserSubscription(String userToken) {
+        User current = extractUserFromToken(userToken);
+        if (current.isSubscribed()) {
+            LocalDateTime updateAt = LocalDateTime.of(LocalDateTime.now().getYear(),
+                    LocalDateTime.now().getMonthValue(),
+                    current.getSubscribedAt().getDayOfMonth(),
+                    LocalDateTime.now().getHour(),
+                    LocalDateTime.now().getMinute(),
+                    LocalDateTime.now().getSecond());
+
+            int generationsLeft = SUBSCRIPTION_GENERATIONS_LIMIT -
+                    (current.getHiFiPlaylistGenerations()
+                            + current.getLoFiPlaylistGenerations()
+                            + current.getLoFiReleaseGenerations()
+                            + current.getHiFiReleaseGenerations());
+
+            return UserSubscriptionDto.builder()
+                    .subscribed(current.isSubscribed())
+                    .generationsUpdateAt(updateAt)
+                    .generationsLeft(generationsLeft)
+                    .email(current.getEmail())
+                    .build();
+        } else {
+            return UserSubscriptionDto.builder()
+                    .email(current.getEmail())
+                    .build();
         }
     }
 
@@ -189,7 +229,7 @@ public class UserService {
 
             log.info("user with email " + email + " is subscribed now");
         } else {
-            throw new NotFoundException("user is not found in subscribers");
+            throw new NotFoundException("User is not present in subscribers list");
         }
     }
 
@@ -198,5 +238,10 @@ public class UserService {
         user.setLoFiReleaseGenerations(0);
         user.setLoFiPlaylistGenerations(0);
         user.setHiFiPlaylistGenerations(0);
+    }
+
+    private User extractUserFromToken(String userToken) {
+        userToken = userToken.substring(7);
+        return getUserById(jwtService.extractUserId(userToken));
     }
 }

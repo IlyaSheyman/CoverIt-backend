@@ -13,8 +13,6 @@ import main_service.playlist.dto.PlaylistUpdateDto;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -43,7 +41,7 @@ public class CoverController {
     @Operation(summary = "Request to regenerate cover by playlist id")
     public PlaylistUpdateDto updatePlaylistsCover(@RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
                                                   @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
-                                                  @RequestHeader(name = "Playlist_Id") int playlistId,
+                                                  @RequestParam(name = "playlist_id") int playlistId,
                                                   @RequestHeader(name = "Authorization", required = false) String userToken,
                                                   @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi) {
         log.info("[COVERCONTROLLER] update cover by playlist Id {}", playlistId);

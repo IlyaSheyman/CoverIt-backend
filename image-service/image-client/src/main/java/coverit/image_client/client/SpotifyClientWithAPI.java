@@ -16,21 +16,18 @@ import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class SpotifyClient {
+public class SpotifyClientWithAPI {
     private final String clientId;
     private final String clientSecret;
     private SpotifyApi spotifyApi;
     private ClientCredentialsRequest clientCredentialsRequest;
 
     @Autowired
-    public SpotifyClient(@Value(value = "${spotify_clientId}") String clientId,
-                         @Value(value = "${spotify_clientSecret}") String clientSecret) {
+    public SpotifyClientWithAPI(@Value(value = "${spotify_clientId}") String clientId,
+                                @Value(value = "${spotify_clientSecret}") String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
     }
@@ -53,34 +50,20 @@ public class SpotifyClient {
                     return clientCredentials;
                 });
 
-        CompletableFuture<PlaylistDto> delayedFuture = CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(7));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new CompletionException(e);
-            }
-            return null;
-        });
-
         return credentialsFuture.thenCompose(__ -> {
-            return delayedFuture.thenApplyAsync(__1 -> {
-                String playlistId = extractPlaylistIdFromUrl(url);
-                GetPlaylistRequest getPlaylistRequest = spotifyApi.getPlaylist(playlistId).build();
-                try {
-                    Playlist playlist = getPlaylistRequest.executeAsync().get();
-                    return PlaylistDto.builder()
-                            .title(playlist.getName())
-                            .tracks(getTracksFromPlaylist(playlist))
-                            .build();
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+            String playlistId = extractPlaylistIdFromUrl(url);
+            GetPlaylistRequest getPlaylistRequest = spotifyApi.getPlaylist(playlistId).build();
+
+            return getPlaylistRequest.executeAsync().thenApplyAsync(playlist -> {
+                return PlaylistDto.builder()
+                        .title(playlist.getName())
+                        .tracks(getTracksFromPlaylist(playlist))
+                        .build();
             });
         });
     }
-    private ArrayList<TrackDto> getTracksFromPlaylist(Playlist playlist) {
 
+    private ArrayList<TrackDto> getTracksFromPlaylist(Playlist playlist) {
         ArrayList<TrackDto> tracksDto = new ArrayList<>();
         Paging<PlaylistTrack> playlistTrackPaging = playlist.getTracks();
 

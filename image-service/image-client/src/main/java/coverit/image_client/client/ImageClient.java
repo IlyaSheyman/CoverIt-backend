@@ -11,15 +11,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.client.AiClient;
 import org.springframework.stereotype.Component;
+import se.michaelthelin.spotify.model_objects.specification.Playlist;
 
 import java.util.concurrent.ExecutionException;
+
+import static coverit.image_client.constants.Constants.GPT_ENDLESS_JOY;
+import static coverit.image_client.constants.Constants.GPT_SETTINGS_AVOID;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ImageClient {
 
-    private final SpotifyClient spotifyClient;
+    private final SpotifyClientStraight spotifyClient;
     private final AiClient aiClient;
     private final DalleClient dalleClient;
 
@@ -68,7 +72,9 @@ public class ImageClient {
     public PlaylistDto getPlayListByUrl(String url) throws ExecutionException, InterruptedException {
         //на долгий срок: TODO добавить получение плейлиста из Яндекс Музыки, отдельный клиент
         if (url.matches(Constants.SPOTIFY_REGEX)) {
-            return spotifyClient.getPlaylistByUrlAsync(url).get();
+            PlaylistDto playlistDto = spotifyClient.getPlaylistByUrlAsync(url).get();
+            log.info(playlistDto.toString());
+            return playlistDto;
         } else if (url.matches(Constants.YANDEX_MUSIC_REGEX)) {
             throw new UnsupportedRequestException("yandex music playlist is not supported yet");
         } else {
@@ -106,17 +112,21 @@ public class ImageClient {
                     request.append(Constants.GPT_BREAKING_DOWN);
                     break;
                 case CAMPFIRE_CALMNESS:
-                    request.append(Constants.CAMPFIRE_CALMNESS_PROMPT);
+                    request.append(Constants.GPT_CAMPFIRE_CALMNESS);
                     break;
                 case TOUGH_AND_STRAIGHT:
-                    request.append(Constants.TOUGH_AND_STRAIGHT_PROMPT);
+                    request.append(Constants.GPT_TOUGH_AND_STRAIGHT);
+                    break;
+                case ENDLESS_JOY:
+                    request.append(GPT_ENDLESS_JOY);
                     break;
                 default:
                     throw new BadRequestException("this vibe is not present");
             }
         }
 
-        request.append(Constants.GPT_REQUEST_SETTINGS);
+        request.append(GPT_SETTINGS_AVOID);
+        request.append(Constants.GPT_SETTINGS_LENGTH);
         log.info("request to ChatGPT: " + request);
 
         return aiClient.generate(request.toString());

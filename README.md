@@ -22,7 +22,7 @@ Result:
 ![result for track.jpg](images%2Fresult%20for%20track.jpg)
 <br>
 <br>
-## 🔧Configuration: [swagger](swagger.json)
+## 🔧Configuration: [swagger](swagger%20%28v.2%29.json)
 ## 🚀Setup
 ### 1. Install Docker & Maven 
 - [Download Docker Desktop](https://www.docker.com/products/docker-desktop/) and follow the installation instructions.
@@ -40,10 +40,10 @@ Result:
 - `mvn clean package`
 
 5. Run Docker Compose:
-- `docker build -t image-server ./image-service/image-server && docker build -t main-service ./main-service && docker compose up`
+- `docker-compose -f docker-compose_prod.yml up -d --build`
 
 6. After successful launch, you will be able to access your application at:
-- http://localhost:8080 for Main Service
+- http://localhost:80 for Main Service
 
 ### Environment Variables
 

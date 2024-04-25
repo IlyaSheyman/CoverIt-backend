@@ -27,11 +27,12 @@ import static coverit.image_client.constants.Constants.*;
 @Slf4j
 @RequiredArgsConstructor
 @ComponentScan("coverit.image_client.client")
-public class ImageServerService {
+public class ImageServiceImpl implements ImageService {
 
     private final ImageClient client;
     private final CloudinaryConfig cloudinary;
 
+    @Override
     public CoverResponse getPlaylistCoverUrl(String url, Vibe vibe, Boolean isAbstract, Boolean isLoFi) throws ExecutionException, InterruptedException {
         PlaylistDto playlistDto = getPlayListByUrl(url);
         log.info("playlist name: " + playlistDto.getTitle());
@@ -44,28 +45,26 @@ public class ImageServerService {
         String cloudUrl = uploadImage(imageUrl);
         log.info("cloud url: " + cloudUrl);
 
-        CoverResponse response = CoverResponse.builder()
+        return CoverResponse.builder()
                 .prompt(prompt)
                 .url(cloudUrl)
                 .build();
-
-        return response;
     }
 
-    private String uploadImage(String imageUrl) {
+    @Override
+    public String uploadImage(String imageUrl) {
         try {
             Cloudinary cloud = cloudinary.cloudinaryConfig();
             Map uploadResult = cloud.uploader().upload(imageUrl, ObjectUtils.emptyMap());
 
-            String url = (String) uploadResult.get("url");
-
-            return url;
+            return (String) uploadResult.get("url");
         } catch (IOException e) {
             throw new RuntimeException("exception while uploading image: " + e.getMessage());
         }
     }
 
-    private String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe, Boolean isAbstract) {
+    @Override
+    public String getPromptByPlaylist(PlaylistDto playlistDto, Constants.Vibe vibe, Boolean isAbstract) {
         if (isAbstract == null) {
             throw new BadRequestException("parameter isAbstract is not present");
         }
@@ -77,7 +76,7 @@ public class ImageServerService {
 
         StringBuilder prompt = new StringBuilder();
         prompt.append("An image depicting: ");
-        prompt.append(gptResult + " ");
+        prompt.append(gptResult).append(" ");
 
         if (vibe == null) {
             prompt.append(NONE_VIBE_DALLE_INSTRUCTION);
@@ -90,13 +89,16 @@ public class ImageServerService {
                     prompt.append(NATURE_INSTRUCTION);
                     break;
                 case BREAKING_DOWN:
-                    prompt.append(GPT_BREAKING_DOWN);
+                    prompt.append(BREAKING_DOWN_INSTRUCTION);
                     break;
                 case CAMPFIRE_CALMNESS:
-                    prompt.append(CAMPFIRE_CALMNESS_PROMPT);
+                    prompt.append(CAMPFIRE_CALMNESS_INSTRUCTION);
                     break;
                 case TOUGH_AND_STRAIGHT:
-                    prompt.append(TOUGH_AND_STRAIGHT_PROMPT);
+                    prompt.append(TOUGH_AND_STRAIGHT_INSTRUCTION);
+                    break;
+                case ENDLESS_JOY:
+                    prompt.append(ENDLESS_JOY_INSTRUCTION);
                     break;
                 default:
                     throw new BadRequestException("this vibe is not present");
@@ -108,7 +110,8 @@ public class ImageServerService {
         return prompt.toString();
     }
 
-    private void selectTracksFromPlaylist(PlaylistDto playlistDto) {
+    @Override
+    public void selectTracksFromPlaylist(PlaylistDto playlistDto) {
         List<TrackDto> tracks = playlistDto.getTracks();
         ArrayList<TrackDto> selectedTracks = new ArrayList<>();
 
@@ -125,6 +128,7 @@ public class ImageServerService {
                 + playlistDto.getTracks().size());
     }
 
+    @Override
     public CoverResponse getReleaseCoverUrl(ReleaseRequestDto request) {
         CoverResponse response = client.getReleaseCoverUrl(request);
 
@@ -136,18 +140,22 @@ public class ImageServerService {
         return response;
     }
 
+    @Override
     public PlaylistDto getPlayListByUrl(String url) throws ExecutionException, InterruptedException {
         return client.getPlayListByUrl(url);
     }
 
+    @Override
     public String getCoverByPrompt(String prompt, Boolean isLoFi) {
         return client.getCoverByPrompt(prompt, isLoFi);
     }
 
+    @Override
     public String generateImage(String prompt) {
         return client.generateImage(prompt);
     }
 
+    @Override
     public String chatGpt(String text) {
         return client.chatGpt(text);
     }
