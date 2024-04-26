@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static main_service.constants.Constants.SUBSCRIPTION_GENERATIONS_LIMIT;
@@ -75,20 +76,6 @@ public class UserService {
             throw new BadRequestException("User with this email already exists");
         }
         return save(user);
-    }
-
-    /**
-     * Getting user by username
-     *
-     * @return user
-     */
-    public User getByUsername(String username) {
-        User user = repository.getByUsername(username);
-        if (user != null) {
-            return user;
-        } else {
-            throw new NotFoundException("User with username " + username + " not found");
-        }
     }
 
     /**
@@ -193,7 +180,7 @@ public class UserService {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void updateGenerationsCountForAllUsers() {
-        List<User> users = repository.findAll(); //TODO сделать разные статусы в зависимости от подписок, сделать обновление через сутки после created_at юзера
+        List<User> users = repository.findAll();
         for (User user : users) {
             if (!user.isSubscribed()) {
                 user.setLoFiReleaseGenerations(0);
@@ -210,6 +197,33 @@ public class UserService {
         log.info("hi-fi and lo-fi generations updated for all users");
     }
 
+    @Scheduled(cron = "0 0 23 * * *")
+    public void verifySubscribersList() {
+        List<String> dbPatronsNames = repository.findBySubscribedTrue().stream()
+                .map(User::getPatronName)
+                .toList();
+
+        List<String> patreonPatronsNames = patreonClient.getPatronsNames();
+
+        List<String> missingPatronNames = new ArrayList<>(dbPatronsNames);
+        missingPatronNames.removeAll(patreonPatronsNames);
+
+        if (!missingPatronNames.isEmpty()) {
+            for (String name : missingPatronNames) {
+                User unsubscribed = repository.findByPatronName(name);
+
+                unsubscribed.setSubscribed(false);
+                unsubscribed.setSubscribedAt(null);
+                unsubscribed.setPatronName(null);
+
+                repository.save(unsubscribed);
+                log.info("user with email " + unsubscribed.getEmail() + " is unsubscribed now");
+            }
+        } else {
+            log.info("no changes in subscribers list");
+        }
+    }
+
     public void verifySubscription(String code) {
         String accessToken = patreonClient.getAccessToken(code);
         PatronDto patron = patreonClient.getPatron(accessToken);
@@ -220,16 +234,21 @@ public class UserService {
 
         if (patreonClient.getPatronsNames().contains(patronName)) {
             User user = getByEmail(email);
-            user.setSubscribed(true);
-            user.setSubscribedAt(LocalDateTime.now());
-            user.setPatronName(patronName);
-            renewCountersForSubscribed(user);
 
-            repository.save(user);
+            if (!user.isSubscribed()) {
+                renewCountersForSubscribed(user);
+                user.setSubscribed(true);
+                user.setSubscribedAt(LocalDateTime.now());
+                user.setPatronName(patronName);
 
-            log.info("user with email " + email + " is subscribed now");
+                repository.save(user);
+
+                log.info("user with email " + email + " is subscribed now");
+            } else {
+                throw new ConflictRequestException("You are already subscribed");
+            }
         } else {
-            throw new NotFoundException("User is not present in subscribers list");
+            throw new NotFoundException("You are not present in subscribers list");
         }
     }
 
