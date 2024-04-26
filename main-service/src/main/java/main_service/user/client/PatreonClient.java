@@ -1,5 +1,6 @@
 package main_service.user.client;
 
+import lombok.extern.slf4j.Slf4j;
 import main_service.user.dto.PatronDto;
 import main_service.user.dto.PatronSmallDto;
 import main_service.user.patreon_response.*;
@@ -14,6 +15,7 @@ import java.util.List;
 
 
 @Component
+@Slf4j
 public class PatreonClient {
     private final String campaignId;
     private final String accessToken;
@@ -93,6 +95,7 @@ public class PatreonClient {
         headers.setBearerAuth(accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<PatreonMembersResponse> responseEntity = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, PatreonMembersResponse.class);
         PatreonMembersResponse response = responseEntity.getBody();
 
