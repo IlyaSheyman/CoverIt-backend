@@ -7,6 +7,7 @@ import coverit.image_client.constants.Constants;
 import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.TrackDto;
+import coverit.image_client.dto.UrlDto;
 import coverit.image_client.exception.BadRequestException;
 import coverit.image_client.response.CoverResponse;
 import coverit.image_service.storage.config.CloudinaryConfig;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static coverit.image_client.constants.Constants.*;
 
@@ -158,5 +161,33 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public String chatGpt(String text) {
         return client.chatGpt(text);
+    }
+
+    @Override
+    public void deleteImage(UrlDto urlDto) {
+        String imageId = extractImageId(urlDto);
+        deleteById(imageId);
+        log.info("image was deleted from storage successfully");
+    }
+
+    private void deleteById(String imageId) {
+        Cloudinary cloud = cloudinary.cloudinaryConfig();
+        try {
+            cloud.uploader().destroy(imageId, ObjectUtils.emptyMap());
+        } catch (Exception e) {
+            throw new RuntimeException("error while deleting image: " + e.getMessage());
+        }
+    }
+
+    private String extractImageId(UrlDto urlDto) {
+        Pattern PUBLIC_ID_PATTERN = Pattern.compile("/v(\\d+)/([^\\.]+)\\.");
+        String link = urlDto.getLink();
+
+        Matcher matcher = PUBLIC_ID_PATTERN.matcher(link);
+        if (matcher.find()) {
+            return matcher.group(2);
+        } else {
+            throw new BadRequestException("image id is not found in the url");
+        }
     }
 }

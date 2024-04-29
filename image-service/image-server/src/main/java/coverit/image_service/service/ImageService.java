@@ -3,6 +3,7 @@ package coverit.image_service.service;
 import coverit.image_client.constants.Constants;
 import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.ReleaseRequestDto;
+import coverit.image_client.dto.UrlDto;
 import coverit.image_client.response.CoverResponse;
 
 import java.util.concurrent.ExecutionException;
@@ -25,4 +26,6 @@ public interface ImageService {
     String generateImage(String prompt);
 
     String chatGpt(String text);
+
+    void deleteImage(UrlDto urlDto);
 }

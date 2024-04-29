@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS playlist
     hifi_generations_left BIGINT,
     lofi_generations_left BIGINT,
     saved_at              TIMESTAMP WITHOUT TIME ZONE,
+    created_at            TIMESTAMP WITHOUT TIME ZONE,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (cover_id) REFERENCES cover (id)
 );

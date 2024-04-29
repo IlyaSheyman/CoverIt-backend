@@ -106,4 +106,12 @@ public class ImageServerController {
 
         return service.generateImage(prompt);
     }
+
+    @DeleteMapping("/delete_image")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String deleteImage(@RequestBody UrlDto urlDto) {
+        log.info("[IMAGE_SERVER] delete cover request accepted");
+        service.deleteImage(urlDto);
+        return "image was deleted successfully";
+    }
 }
