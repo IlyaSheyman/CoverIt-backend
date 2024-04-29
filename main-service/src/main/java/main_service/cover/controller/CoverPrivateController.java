@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.cover.service.CoverService;
+import main_service.cover.service.UrlDto;
 import main_service.playlist.dto.PlaylistSaveDto;
 import main_service.release.dto.ReleaseNewDto;
 import main_service.release.request.ReleaseRequest;
@@ -58,5 +59,10 @@ public class CoverPrivateController {
     public List<String> getCoverStyles(@RequestHeader(name = "Authorization") String userToken) {
         log.info("[COVERCONTROLLER] get music styles for release cover");
         return service.getMusicData("styles");
+    }
+
+    @DeleteMapping("/delete")
+    public void deleteCover(@RequestBody UrlDto urlDto) {
+        service.deleteCover(urlDto);
     }
 }

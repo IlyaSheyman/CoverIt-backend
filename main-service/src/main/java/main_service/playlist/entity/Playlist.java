@@ -63,6 +63,10 @@ public class Playlist {
     @JsonFormat(pattern = DATE_FORMAT)
     private LocalDateTime savedAt;
 
+    @Column(name = "created_at")
+    @JsonFormat(pattern = DATE_FORMAT)
+    private LocalDateTime createdAt;
+
     @Column(name = "hifi_generations_left")
     private Integer hiFiGenerationsLeft;
 

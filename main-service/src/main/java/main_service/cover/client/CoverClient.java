@@ -16,6 +16,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import static org.springframework.http.HttpMethod.DELETE;
+
 @Service
 @Slf4j
 public class CoverClient extends HttpClient {
@@ -79,5 +81,13 @@ public class CoverClient extends HttpClient {
             }
         }
         return null;
+    }
+
+    public void deleteCover(UrlDto dto) {
+        try {
+            this.deleteImage(dto, new String());
+        } catch (Exception e) {
+            throw new RuntimeException("exception while deleting cover on image-service: " + e.getMessage());
+        }
     }
 }

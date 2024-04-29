@@ -9,13 +9,13 @@ import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import retrofit2.http.Url;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 
 public class HttpClient {
     protected final RestTemplate rest;
@@ -72,6 +72,10 @@ public class HttpClient {
                 urlDto,
                 response
         );
+    }
+
+    protected void deleteImage(UrlDto url, String response) {
+        makeAndSendRequest(DELETE, "/delete_image", null, url, response);
     }
 
     private <T, K> ResponseEntity<K> makeAndSendRequest(

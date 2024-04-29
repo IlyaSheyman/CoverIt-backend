@@ -25,6 +25,7 @@ import main_service.release.request.ReleaseRequest;
 import main_service.release.storage.ReleaseRepository;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -138,6 +139,7 @@ public class CoverServiceImpl implements CoverService {
             throw new RuntimeException("Incorrect response from image generator");
         }
         Playlist newPlaylist = Playlist.builder()
+                .createdAt(LocalDateTime.now())
                 .url(url)
                 .title(dto.getTitle())
                 .vibe(vibe)
@@ -401,5 +403,35 @@ public class CoverServiceImpl implements CoverService {
         if (playlistRepository.existsByUrl(url)) {
             throw new BadRequestException(String.format("Playlist %s is already covered", url));
         }
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    private void deleteUnusedCovers() {
+        LocalDateTime expiration = LocalDateTime.now().minusWeeks(SHELF_LIFE);
+        List<Release> expiredReleases = releaseRepository.findAllByCreatedAtBefore(expiration);
+        List<Playlist> expiredPlaylists = playlistRepository.findAllByIsSavedFalseAndCreatedAtBefore(expiration);
+
+        if (expiredReleases != null && !expiredReleases.isEmpty()) {
+            for (Release release : expiredReleases) {
+                String coverUrl = release.getCover().getLink();
+                UrlDto dto = UrlDto.builder().link(coverUrl).build();
+                deleteCover(dto);
+            }
+        }
+
+        if (expiredPlaylists != null && !expiredPlaylists.isEmpty()) {
+            for (Playlist playlist : expiredPlaylists) {
+                String coverUrl = playlist.getCover().getLink();
+                UrlDto dto = UrlDto.builder().link(coverUrl).build();
+                deleteCover(dto);
+            }
+        }
+
+        log.info("unused covers were deleted successfully");
+    }
+
+    @Override
+    public void deleteCover(UrlDto url) {
+        client.deleteCover(url);
     }
 }

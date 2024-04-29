@@ -19,4 +19,6 @@ public interface CoverService {
     ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request);
 
     List<String> getMusicData(String dataType);
+
+    void deleteCover(UrlDto url);
 }
