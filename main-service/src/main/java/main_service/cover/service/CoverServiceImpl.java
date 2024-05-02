@@ -27,6 +27,7 @@ import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -406,7 +407,8 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Scheduled(cron = "0 0 1 * * *")
-    private void deleteUnusedCovers() {
+    @Transactional //TODO test on server
+    protected void deleteUnusedCovers() {
         LocalDateTime expiration = LocalDateTime.now().minusWeeks(SHELF_LIFE);
         List<Release> expiredReleases = releaseRepository.findAllByCreatedAtBefore(expiration);
         List<Playlist> expiredPlaylists = playlistRepository.findAllByIsSavedFalseAndCreatedAtBefore(expiration);
@@ -432,6 +434,8 @@ public class CoverServiceImpl implements CoverService {
 
     @Override
     public void deleteCover(UrlDto url) {
+        Cover cover = coverRepository.findByLink(url.getLink());
+        coverRepository.delete(cover);
         client.deleteCover(url);
     }
 }

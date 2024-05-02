@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -179,6 +180,7 @@ public class UserService {
     }
 
     @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
     public void updateGenerationsCountForAllUsers() {
         List<User> users = repository.findAll();
         for (User user : users) {
@@ -198,6 +200,7 @@ public class UserService {
     }
 
     @Scheduled(cron = "0 0 23 * * *")
+    @Transactional //TODO test on server
     public void verifySubscribersList() {
         List<String> dbPatronsNames = repository.findBySubscribedTrue().stream()
                 .map(User::getPatronName)
