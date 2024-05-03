@@ -6,6 +6,7 @@ import main_service.config.security.JwtService;
 import main_service.constants.Constants;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
+import main_service.logs.client.TelegramLogsClient;
 import main_service.playlist.dto.PlaylistArchiveDto;
 import main_service.playlist.dto.PlaylistMyCollectionDto;
 import main_service.playlist.dto.PlaylistUserCollectionDto;
@@ -30,6 +31,7 @@ public class PlaylistServiceImpl {
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
     private final JwtService jwtService;
+    private final TelegramLogsClient logsClient;
 
     private final PlaylistMapper playlistMapper;
 

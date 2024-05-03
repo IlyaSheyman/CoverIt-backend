@@ -19,7 +19,7 @@ public interface Constants {
 
     //Constants for all playlists
     String GPT_REQUEST_MAIN = "Create a short fictional image description based on all words from words list without using them. ";
-    String ABSTRACT_GPT_CONSTRAINT = "It must describe an abstract, visual phenomenon. ";
+    String ABSTRACT_GPT_CONSTRAINT = "It must describe an abstract, visual phenomenon: for example, how the sun's rays cut through a rainy sky, or the relief of water on a windy day, or strange non-existent creatures.";
 
     String GPT_SETTINGS_AVOID = "Do not use interrogative sentences, provide only a description. Do not use words that could violate copyright. ";
     String GPT_SETTINGS_LENGTH = "Your answer should consist of 1-2 sentences. Words list: ";

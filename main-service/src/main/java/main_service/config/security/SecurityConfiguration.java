@@ -36,7 +36,7 @@ public class SecurityConfiguration {
                 // Turning off CORS (requests from all domens approval)
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfiguration = new CorsConfiguration();
-                    corsConfiguration.addAllowedOrigin("http://localhost:3000"); //TODO change to frontend endpoint
+                    corsConfiguration.addAllowedOrigin("http://localhost:3000"); //TODO change to frontend
                     corsConfiguration.setAllowedOriginPatterns(List.of("*"));
                     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfiguration.setAllowedHeaders(List.of("*"));
