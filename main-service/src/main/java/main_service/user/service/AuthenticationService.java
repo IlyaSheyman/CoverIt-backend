@@ -30,7 +30,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JavaMailSender mailSender;
-    @Value("${frontend.base.url}")
+    @Value("${email.verify.base.url}")
     private String siteURL;
     @Value("${spring.mail.username}")
     private String email;
