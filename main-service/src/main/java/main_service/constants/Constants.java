@@ -30,7 +30,7 @@ public interface Constants {
     int MAX_RELEASE_TITLE_LENGTH = 50;
 
     int MIN_MOOD_SIZE = 1;
-    int MAX_MOOD_SIZE = 3;
+    int MAX_MOOD_SIZE = 5;
 
     int MIN_OBJECT_SIZE = 2;
     int MAX_OBJECT_SIZE = 255;
@@ -39,7 +39,7 @@ public interface Constants {
     int MAX_SURROUNDING_SIZE = 255;
 
     int MIN_COVER_DESCRIPTION_SIZE = 1;
-    int MAX_COVER_DESCRIPTION_SIZE = 3;
+    int MAX_COVER_DESCRIPTION_SIZE = 5;
 
     int SUBSCRIPTION_GENERATIONS_LIMIT = 100;
     int HIFI_LIMIT_RELEASE = 2;
