@@ -128,7 +128,7 @@ public class CoverServiceImpl implements CoverService {
     @Override
     public PlaylistNewDto createPlaylistCover(String userToken,
                                               UrlDto urlDto,
-                                              Constants.Vibe vibe,
+                                              Vibe vibe,
                                               Boolean isAbstract,
                                               Boolean isLoFi) {
         String url = urlDto.getLink();
@@ -190,7 +190,7 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Override
-    public PlaylistUpdateDto updatePlaylistCover(Constants.Vibe vibe,
+    public PlaylistUpdateDto updatePlaylistCover(Vibe vibe,
                                                  Boolean isAbstract,
                                                  int playlistId,
                                                  String userToken,
@@ -226,7 +226,7 @@ public class CoverServiceImpl implements CoverService {
                                                   Boolean isLoFi,
                                                   Playlist playlist,
                                                   UrlDto urlDto,
-                                                  Constants.Vibe vibe,
+                                                  Vibe vibe,
                                                   Boolean isAbstract) {
         setCounter(isLoFi, author);
         playlist.setAuthor(author);
@@ -245,7 +245,7 @@ public class CoverServiceImpl implements CoverService {
                                                               UrlDto urlDto,
                                                               Integer loFiLeft,
                                                               Integer hiFiLeft,
-                                                              Constants.Vibe vibe,
+                                                              Vibe vibe,
                                                               Boolean isLoFi,
                                                               Boolean isAbstract) {
         if (isLoFi) {
