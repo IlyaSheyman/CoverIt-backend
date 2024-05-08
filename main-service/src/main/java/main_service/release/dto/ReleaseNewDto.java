@@ -17,4 +17,5 @@ public class ReleaseNewDto {
     private UserReleaseDto author;
     private CoverReleaseDto cover;
     private LocalDateTime createdAt;
+    private String prompt;
 }

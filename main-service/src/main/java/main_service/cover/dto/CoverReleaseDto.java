@@ -10,4 +10,5 @@ import lombok.*;
 public class CoverReleaseDto {
     private String link;
     private Boolean isLoFi;
+    private String prompt;
 }

@@ -13,7 +13,7 @@ VALUES (CURRENT_TIMESTAMP, 'https://res.cloudinary.com/dsfopuxjf/image/upload/v1
         false, true),
        (CURRENT_TIMESTAMP, 'https://res.cloudinary.com/dsfopuxjf/image/upload/v1714059426/srm7mhfivkluwdz44k1n.png', 'prompt',
         false, true),
-       (CURRENT_TIMESTAMP, 'https://res.cloudinary.com/dsfopuxjf/image/upload/v1714059426/srm7mhfivkluwdz44k1n.png', 'prompt',
+       (CURRENT_TIMESTAMP, 'https://res.cloudinary.com/dsfopuxjf/image/upload/v1714059426/srm7mhfivkluwdz44k1n.png', 'prompt for DALLE: An image depicting: A golden voyage through multicolored skies, where light and shade dance among the constellation dust. The landscape shows floating duvet over tropic waters, surrounded by murmuration of warm dappled light. The picture should include natural landscape, be organic, fantasy',
         false, true),
        (CURRENT_TIMESTAMP, 'https://res.cloudinary.com/dsfopuxjf/image/upload/v1714059426/srm7mhfivkluwdz44k1n.png', 'prompt',
         false, true),

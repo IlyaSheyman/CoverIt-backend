@@ -2,6 +2,8 @@ package coverit.image_client.constants;
 
 public interface Constants {
     String SPOTIFY_REGEX = "^(https?://)?(www\\.)?(open\\.spotify\\.com/playlist/)[a-zA-Z0-9]+.*$";
+    String APPLE_MUSIC_REGEX = "^(https?://)?(music\\.apple\\.com/[a-z]{2}/playlist/)[^\\s]+$";
+
     String YANDEX_MUSIC_REGEX = "^(https?://)?(music\\.yandex\\.ru/album/)[0-9]+.*$";
 
     int MIN_PLAYLIST_TITLE_LENGTH = 1;
@@ -49,6 +51,6 @@ public interface Constants {
     String TOUGH_AND_STRAIGHT_INSTRUCTION = "The picture should be fuzzy, haunting, gloomy, brutal and minimalistic. ";
 
     //Endless joy vibe settings
-    String GPT_ENDLESS_JOY = "You must describe [what is shown in 2-3 words], [description of bright and joyful surrounding in 3-5 words]. The final description should be vibrant, expressive and elegant. ";;
+    String GPT_ENDLESS_JOY = "You must describe [what is shown in 2-3 words], [description of bright and joyful surrounding in 3-5 words]. The final description should be vibrant, expressive and elegant. ";
     String ENDLESS_JOY_INSTRUCTION = "The surrounding should be dreamy autochrome, saturated, exciting, and minimalistic. ";
 }

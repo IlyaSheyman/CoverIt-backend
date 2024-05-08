@@ -3,7 +3,6 @@ package main_service.cover.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.config.security.JwtService;
-import main_service.constants.Constants;
 import main_service.cover.client.CoverClient;
 import main_service.cover.entity.Cover;
 import main_service.cover.storage.CoverRepository;
@@ -25,15 +24,13 @@ import main_service.release.request.ReleaseRequest;
 import main_service.release.storage.ReleaseRepository;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static main_service.constants.Constants.*;
 
@@ -337,27 +334,27 @@ public class CoverServiceImpl implements CoverService {
 
     @Override
     public List<String> getMusicData(String dataType) {
-        List<String> data = new ArrayList<>();
         Random random = new Random();
+
+        Set<String> uniqueData = new HashSet<>();
 
         if ("moods".equals(dataType)) {
             Mood[] allMoods = Mood.values();
-            for (int i = 0; i < 8; i++) {
+            while (uniqueData.size() < 8) {
                 int randomIndex = random.nextInt(allMoods.length);
                 String moodAdjective = allMoods[randomIndex].toString().toLowerCase();
-                data.add(moodAdjective);
+                uniqueData.add(moodAdjective);
             }
         } else if ("styles".equals(dataType)) {
             Style[] allStyles = Style.values();
-            for (int i = 0; i < 8; i++) {
+            while (uniqueData.size() < 8) {
                 int randomIndex = random.nextInt(allStyles.length);
                 String styleName = allStyles[randomIndex].toString().toLowerCase();
-                data.add(styleName);
+                uniqueData.add(styleName);
             }
         }
 
-        Collections.shuffle(data);
-        return data;
+        return new ArrayList<>(uniqueData);
     }
 
     private User extractUser(String userToken) {
@@ -402,12 +399,13 @@ public class CoverServiceImpl implements CoverService {
 
     private void validateAlreadySaved(String url) {
         if (playlistRepository.existsByUrl(url)) {
-            throw new BadRequestException(String.format("Playlist %s is already covered", url));
+            throw new BadRequestException("Playlist is already covered");
         }
     }
 
     @Scheduled(cron = "0 0 1 * * *")
-    @Transactional //TODO test on server
+    @Transactional
+    @Async
     protected void deleteUnusedCovers() {
         LocalDateTime expiration = LocalDateTime.now().minusWeeks(SHELF_LIFE);
         List<Release> expiredReleases = releaseRepository.findAllByCreatedAtBefore(expiration);

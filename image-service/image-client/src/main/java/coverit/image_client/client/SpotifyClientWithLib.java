@@ -19,14 +19,14 @@ import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
-public class SpotifyClientWithAPI {
+public class SpotifyClientWithLib {
     private final String clientId;
     private final String clientSecret;
     private SpotifyApi spotifyApi;
     private ClientCredentialsRequest clientCredentialsRequest;
 
     @Autowired
-    public SpotifyClientWithAPI(@Value(value = "${spotify_clientId}") String clientId,
+    public SpotifyClientWithLib(@Value(value = "${spotify_clientId}") String clientId,
                                 @Value(value = "${spotify_clientSecret}") String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
