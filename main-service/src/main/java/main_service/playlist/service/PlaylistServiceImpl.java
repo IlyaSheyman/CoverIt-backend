@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.config.security.JwtService;
 import main_service.constants.Constants;
+import main_service.cover.entity.Cover;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.logs.client.TelegramLogsClient;
@@ -58,11 +59,7 @@ public class PlaylistServiceImpl {
         for (Playlist playlist : collection) {
             PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
 
-            if (liked.contains(playlist)) {
-                dto.setIsLiked(true);
-            } else {
-                dto.setIsLiked(false);
-            }
+            dto.setIsLiked(liked.contains(playlist));
 
             collectionDto.add(dto);
         }
@@ -94,11 +91,7 @@ public class PlaylistServiceImpl {
             for (Playlist playlist : archive) {
                 PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);
 
-                if (likedByRequester.contains(playlist)) {
-                    dto.setIsLiked(true);
-                } else {
-                    dto.setIsLiked(false);
-                }
+                dto.setIsLiked(likedByRequester.contains(playlist));
 
                 collectionDto.add(dto);
             }
@@ -171,11 +164,7 @@ public class PlaylistServiceImpl {
         for (Playlist playlist : userCollection) {
             PlaylistUserCollectionDto dto = playlistMapper.toPlaylistUserCollectionDto(playlist);
 
-            if (likedByRequester.contains(playlist)) {
-                dto.setIsLiked(true);
-            } else {
-                dto.setIsLiked(false);
-            }
+            dto.setIsLiked(likedByRequester.contains(playlist));
 
             collectionDto.add(dto);
         }
@@ -198,13 +187,13 @@ public class PlaylistServiceImpl {
         return archive.stream()
                 .filter(playlist -> {
                     if (filter.equals(Constants.Filters.ABSTRACT)) {
-                        return playlist.getCover().getIsAbstract();
+                        return playlist.getCovers().stream().anyMatch(Cover::getIsAbstract);
                     } else if (filter.equals(Constants.Filters.NOT_ABSTRACT)) {
-                        return !playlist.getCover().getIsAbstract();
+                        return playlist.getCovers().stream().anyMatch(cover -> !cover.getIsAbstract());
                     } else if (filter.equals(Constants.Filters.HI_FI)) {
-                        return !playlist.getCover().getIsLoFi();
+                        return playlist.getCovers().stream().anyMatch(cover -> !cover.getIsLoFi());
                     } else if (filter.equals(Constants.Filters.LO_FI)) {
-                        return playlist.getCover().getIsLoFi();
+                        return playlist.getCovers().stream().anyMatch(Cover::getIsAbstract);
                     } else {
                         Constants.Vibe vibe = playlist.getVibe();
                         return vibe != null && vibe.toString().equals(filter.toString());

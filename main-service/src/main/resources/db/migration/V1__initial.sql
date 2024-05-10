@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS cover
     link        VARCHAR(1000) NOT NULL,
     prompt      VARCHAR(1000) NOT NULL,
     is_abstract BOOLEAN,
-    is_lofi     BOOLEAN       NOT NULL
+    is_lofi     BOOLEAN       NOT NULL,
+    is_saved    BOOLEAN       NOT NULL
 );
 
 
@@ -44,13 +45,11 @@ CREATE TABLE IF NOT EXISTS playlist
     is_private            BOOLEAN,
     is_saved              BOOLEAN,
     user_id               BIGINT,
-    cover_id              BIGINT,
     hifi_generations_left BIGINT,
     lofi_generations_left BIGINT,
     saved_at              TIMESTAMP WITHOUT TIME ZONE,
     created_at            TIMESTAMP WITHOUT TIME ZONE,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (cover_id) REFERENCES cover (id)
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE TABLE IF NOT EXISTS playlist_track
@@ -79,5 +78,14 @@ CREATE TABLE IF NOT EXISTS release
     cover_id   BIGINT,
     created_at TIMESTAMP WITHOUT TIME ZONE,
     FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (cover_id) REFERENCES cover (id)
+);
+
+CREATE TABLE IF NOT EXISTS playlist_cover
+(
+    playlist_id BIGINT,
+    cover_id    BIGINT,
+    PRIMARY KEY (playlist_id, cover_id),
+    FOREIGN KEY (playlist_id) REFERENCES playlist (id),
     FOREIGN KEY (cover_id) REFERENCES cover (id)
 );

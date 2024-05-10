@@ -28,6 +28,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import retrofit2.http.Url;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -165,12 +166,16 @@ public class CoverServiceImpl implements CoverService {
                 .created(LocalDateTime.now())
                 .isAbstract(isAbstract)
                 .isLoFi(isLoFi)
+                .isSaved(false)
                 .prompt(response.getPrompt())
                 .link(response.getUrl())
                 .build();
 
         coverRepository.save(cover);
-        newPlaylist.setCover(cover);
+
+        List<Cover> covers = new ArrayList<>();
+        covers.add(cover);
+        newPlaylist.setCovers(covers);
 
         return playlistMapper.toPlaylistNewDto(playlistRepository.save(newPlaylist));
     }
@@ -281,7 +286,9 @@ public class CoverServiceImpl implements CoverService {
 
         coverRepository.save(cover);
         playlist.setVibe(vibe);
-        playlist.setCover(cover);
+
+        List<Cover> covers = playlist.getCovers();
+        covers.add(cover);
 
         return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
     }
@@ -296,7 +303,12 @@ public class CoverServiceImpl implements CoverService {
         if (user.getId() != author.getId()) {
             throw new ConflictRequestException("Only author of playlist can save it");
         }
-        playlist.setCover(getCoverById(coverId));
+        Cover chosen = getCoverById(coverId);
+
+        if (playlist.getCovers().contains(chosen)) {
+
+        }
+
         playlist.setIsPrivate(isPrivate);
         playlist.setIsSaved(true);
 
@@ -410,20 +422,26 @@ public class CoverServiceImpl implements CoverService {
         LocalDateTime expiration = LocalDateTime.now().minusWeeks(SHELF_LIFE);
         List<Release> expiredReleases = releaseRepository.findAllByCreatedAtBefore(expiration);
         List<Playlist> expiredPlaylists = playlistRepository.findAllByIsSavedFalseAndCreatedAtBefore(expiration);
+        List<Cover> expiredCovers = coverRepository.findAllByIsSavedFalseAndCreatedBefore(expiration);
 
         if (expiredReleases != null && !expiredReleases.isEmpty()) {
             for (Release release : expiredReleases) {
-                String coverUrl = release.getCover().getLink();
-                UrlDto dto = UrlDto.builder().link(coverUrl).build();
-                deleteCover(dto);
+                deleteCover(release.getCover());
             }
         }
 
         if (expiredPlaylists != null && !expiredPlaylists.isEmpty()) {
             for (Playlist playlist : expiredPlaylists) {
-                String coverUrl = playlist.getCover().getLink();
-                UrlDto dto = UrlDto.builder().link(coverUrl).build();
-                deleteCover(dto);
+                List<Cover> covers = playlist.getCovers();
+                for (Cover cover : covers) {
+                    deleteCover(cover);
+                }
+            }
+        }
+
+        if (expiredCovers != null && !expiredCovers.isEmpty()) {
+            for (Cover cover : expiredCovers) {
+                deleteCover(cover);
             }
         }
 
@@ -431,9 +449,11 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Override
-    public void deleteCover(UrlDto url) {
-        Cover cover = coverRepository.findByLink(url.getLink());
+    public void deleteCover(Cover cover) {
         coverRepository.delete(cover);
-        client.deleteCover(url);
+        client.deleteCover(UrlDto
+                .builder()
+                .link(cover.getLink())
+                .build());
     }
 }

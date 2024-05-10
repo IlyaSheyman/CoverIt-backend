@@ -1,6 +1,7 @@
 package main_service.cover.service;
 
 import main_service.constants.Constants;
+import main_service.cover.entity.Cover;
 import main_service.playlist.dto.PlaylistNewDto;
 import main_service.playlist.dto.PlaylistSaveDto;
 import main_service.playlist.dto.PlaylistUpdateDto;
@@ -20,5 +21,5 @@ public interface CoverService {
 
     List<String> getMusicData(String dataType);
 
-    void deleteCover(UrlDto url);
+    void deleteCover(Cover cover);
 }
