@@ -8,12 +8,11 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = "spring")
 @Component
 public interface PlaylistMapper {
-
     PlaylistNewDto toPlaylistNewDto(Playlist playlist);
     PlaylistUpdateDto toPlaylistUpdateDto(Playlist playlist);
     PlaylistSaveDto toPlaylistSaveDto(Playlist playlist);
     PlaylistMyCollectionDto toPlaylistMyCollectionDto(Playlist playlist);
     PlaylistUserCollectionDto toPlaylistUserCollectionDto(Playlist playlist);
-
     PlaylistArchiveDto toPlaylistArchiveDto(Playlist playlist);
+
 }

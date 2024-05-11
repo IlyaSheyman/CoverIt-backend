@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import main_service.constants.Constants;
 
 import java.time.LocalDateTime;
 
@@ -38,4 +39,8 @@ public class Cover {
 
     @Column(name = "is_saved")
     private Boolean isSaved;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "vibe")
+    private Constants.Vibe vibe;
 }

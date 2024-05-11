@@ -4,8 +4,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
 import main_service.constants.Constants;
-import main_service.cover.entity.Cover;
+import main_service.cover.dto.CoverPlaylistDto;
 import main_service.user.dto.UserSmallDto;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,7 +16,7 @@ import main_service.user.dto.UserSmallDto;
 @Builder
 public class PlaylistUpdateDto {
     private int id;
-    private Cover cover;
+    private List<CoverPlaylistDto> covers;
     @Enumerated(EnumType.STRING)
     private Constants.Vibe vibe;
     private UserSmallDto author;

@@ -28,7 +28,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import retrofit2.http.Url;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -166,6 +165,7 @@ public class CoverServiceImpl implements CoverService {
                 .created(LocalDateTime.now())
                 .isAbstract(isAbstract)
                 .isLoFi(isLoFi)
+                .vibe(vibe)
                 .isSaved(false)
                 .prompt(response.getPrompt())
                 .link(response.getUrl())
@@ -282,6 +282,8 @@ public class CoverServiceImpl implements CoverService {
                 .link(response.getUrl())
                 .prompt(response.getPrompt())
                 .isLoFi(isLofi)
+                .vibe(vibe)
+                .isSaved(false)
                 .build();
 
         coverRepository.save(cover);
@@ -303,10 +305,14 @@ public class CoverServiceImpl implements CoverService {
         if (user.getId() != author.getId()) {
             throw new ConflictRequestException("Only author of playlist can save it");
         }
+
         Cover chosen = getCoverById(coverId);
+        List<Cover> covers = playlist.getCovers();
 
-        if (playlist.getCovers().contains(chosen)) {
-
+        if (covers.contains(chosen)) {
+            chosen.setIsSaved(true);
+            coverRepository.save(chosen);
+            playlist.setVibe(chosen.getVibe());
         }
 
         playlist.setIsPrivate(isPrivate);

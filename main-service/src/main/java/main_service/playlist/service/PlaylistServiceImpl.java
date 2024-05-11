@@ -165,6 +165,7 @@ public class PlaylistServiceImpl {
             PlaylistUserCollectionDto dto = playlistMapper.toPlaylistUserCollectionDto(playlist);
 
             dto.setIsLiked(likedByRequester.contains(playlist));
+            //TODO dto.отобрать сохраненную обложку
 
             collectionDto.add(dto);
         }
