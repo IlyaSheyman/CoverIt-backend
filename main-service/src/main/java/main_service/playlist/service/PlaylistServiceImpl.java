@@ -16,7 +16,6 @@ import main_service.playlist.mapper.PlaylistMapper;
 import main_service.playlist.storage.PlaylistRepository;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class PlaylistServiceImpl {
         List<Playlist> liked = user.getLikes();
 
         List<Playlist> collection = playlistRepository
-                .findByAuthor(user, PageRequest.of(page, size))
+                .findByAuthor(user)
                 .stream()
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .toList();
@@ -64,7 +63,10 @@ public class PlaylistServiceImpl {
             collectionDto.add(dto);
         }
 
-        return collectionDto;
+        int start = page * size;
+        int end = Math.min((page + 1) * size, collectionDto.size());
+
+        return collectionDto.subList(start, end);
     }
 
     public List<PlaylistArchiveDto> getArchive(int page,
@@ -153,7 +155,7 @@ public class PlaylistServiceImpl {
         List<Playlist> likedByRequester = requester.getLikes();
 
         List<Playlist> userCollection = playlistRepository
-                .findByAuthor(user, PageRequest.of(page, size))
+                .findByAuthor(user)
                 .stream()
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .filter(playlist -> playlist.getIsPrivate().equals(false))
@@ -167,14 +169,15 @@ public class PlaylistServiceImpl {
 
         for (Playlist playlist : userCollection) {
             PlaylistUserCollectionDto dto = playlistMapper.toPlaylistUserCollectionDto(playlist);
-
             dto.setIsLiked(likedByRequester.contains(playlist));
-            //TODO dto.отобрать сохраненную обложку
 
             collectionDto.add(dto);
         }
 
-        return collectionDto;
+        int start = page * size;
+        int end = Math.min((page + 1) * size, collectionDto.size());
+
+        return collectionDto.subList(start, end);
     }
 
     private User getUserById(int id) {

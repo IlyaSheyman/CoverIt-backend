@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface PlaylistRepository extends JpaRepository<Playlist, Integer> {
     boolean existsByUrl(String url);
-    List<Playlist> findByAuthor(User user, PageRequest pageRequest);
+    List<Playlist> findByAuthor(User user);
 
     List<Playlist> findAllByIsSavedFalseAndCreatedAtBefore(LocalDateTime expiration);
 }
