@@ -72,7 +72,7 @@ public class PlaylistServiceImpl {
                                                Constants.Filters filters,
                                                String userToken) {
         List<Playlist> archive = playlistRepository
-                .findAll(PageRequest.of(page, size))
+                .findAll()
                 .stream()
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .filter(playlist -> playlist.getIsPrivate().equals(false))
@@ -82,26 +82,30 @@ public class PlaylistServiceImpl {
             archive = sort(filters, archive);
         }
 
+        List<PlaylistArchiveDto> playlistArchiveDtos;
+
         if (userToken != null) {
-            List<PlaylistArchiveDto> collectionDto = new ArrayList<>();
             String requesterToken = userToken.substring(7);
             User requester = getUserById(jwtService.extractUserId(requesterToken));
             List<Playlist> likedByRequester = requester.getLikes();
 
+            playlistArchiveDtos = new ArrayList<>();
+
             for (Playlist playlist : archive) {
                 PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);
-
                 dto.setIsLiked(likedByRequester.contains(playlist));
-
-                collectionDto.add(dto);
+                playlistArchiveDtos.add(dto);
             }
-
-            return collectionDto;
         } else {
-            return archive.stream()
+            playlistArchiveDtos = archive.stream()
                     .map(playlistMapper::toPlaylistArchiveDto)
                     .collect(Collectors.toList());
         }
+
+        int start = page * size;
+        int end = Math.min((page + 1) * size, playlistArchiveDtos.size());
+
+        return playlistArchiveDtos.subList(start, end);
     }
 
     public void like(String userToken, int playlistId) {

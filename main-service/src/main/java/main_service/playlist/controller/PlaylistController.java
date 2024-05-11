@@ -24,7 +24,7 @@ public class PlaylistController {
     @GetMapping("/archive")
     public List<PlaylistArchiveDto> getArchive(@RequestHeader(name = "Authorization", required = false) String userToken,
                                                @RequestParam(name = "page", defaultValue = "0") int page,
-                                               @RequestParam(name = "size", defaultValue = "10") int size,
+                                               @RequestParam(name = "size", defaultValue = "20") int size,
                                                @RequestParam(name = "filter", required = false) Constants.Filters filters) {
         log.info("[MAIN_SERVER] get playlists archive");
 
