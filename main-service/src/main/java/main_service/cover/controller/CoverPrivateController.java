@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import main_service.cover.service.CoverService;
 import main_service.playlist.dto.PlaylistSaveDto;
 import main_service.release.dto.ReleaseNewDto;
+import main_service.release.dto.ReleaseSaveDto;
+import main_service.release.dto.ReleaseUpdateDto;
 import main_service.release.request.ReleaseRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +38,7 @@ public class CoverPrivateController {
     }
 
     @ResponseBody
-    @PostMapping("/track/generate")
+    @PostMapping("/release/generate")
     @Transactional
     @Operation(summary = "Request to generate cover for release")
     public ReleaseNewDto createReleaseCover(@RequestBody @Valid ReleaseRequest request,
@@ -46,14 +48,36 @@ public class CoverPrivateController {
         return service.createReleaseCover(userToken, request);
     }
 
-    @GetMapping("/track/generate/mood")
+    @PatchMapping("/release/regenerate")
+    @Transactional
+    @Operation(summary = "Request to regenerate cover for release")
+    public ReleaseUpdateDto updateReleaseCover(@RequestHeader(name = "Authorization") String userToken,
+                                               @RequestParam(name = "release_id") int releaseId,
+                                               @RequestBody @Valid ReleaseRequest request) {
+        log.info("[COVERCONTROLLER] update cover for release");
+
+        return service.updateReleaseCover(userToken, releaseId, request);
+    }
+
+    @Operation(summary = "save release with release_id and cover_id (of chosen cover)")
+    @Transactional
+    @PatchMapping("/release/save")
+    public ReleaseSaveDto saveRelease(@RequestParam(name = "release_id") int releaseId,
+                                       @RequestParam(name = "cover_id") int coverId,
+                                       @RequestHeader(name = "Authorization") String userToken) {
+        log.info("[MAIN_SERVER] save release with id {}", releaseId);
+
+        return service.saveRelease(userToken, releaseId, coverId);
+    }
+
+    @GetMapping("/release/generate/mood")
     @Operation(summary = "Request to get list of 8 adjectives that describe mood of music in release")
     public List<String> getMusicMoods(@RequestHeader(name = "Authorization") String userToken) {
         log.info("[COVERCONTROLLER] get music moods for release cover");
         return service.getMusicData("moods");
     }
 
-    @GetMapping("/track/generate/style")
+    @GetMapping("/release/generate/style")
     @Operation(summary = "Request to get list of 8 styles that describe final cover of release")
     public List<String> getCoverStyles(@RequestHeader(name = "Authorization") String userToken) {
         log.info("[COVERCONTROLLER] get music styles for release cover");

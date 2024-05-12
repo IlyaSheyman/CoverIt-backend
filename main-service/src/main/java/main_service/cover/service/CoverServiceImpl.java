@@ -17,6 +17,8 @@ import main_service.playlist.track.dto.TrackDto;
 import main_service.playlist.track.entity.Track;
 import main_service.playlist.track.storage.TrackRepository;
 import main_service.release.dto.ReleaseNewDto;
+import main_service.release.dto.ReleaseSaveDto;
+import main_service.release.dto.ReleaseUpdateDto;
 import main_service.release.entity.Release;
 import main_service.release.mapper.ReleaseMapper;
 import main_service.release.mapper.ReleaseRequestMapper;
@@ -56,6 +58,48 @@ public class CoverServiceImpl implements CoverService {
     public ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request) {
         User user = extractUser(userToken);
 
+        List<Release> usersReleases = releaseRepository.findAllByAuthor(user);
+        if (usersReleases.stream().anyMatch(release -> release.getTitle().equals(request.getTitle()))) {
+            throw new ConflictRequestException("You've already covered release with this title");
+        }
+
+        releaseGenerationsUpdate(request, user);
+
+        CoverResponse coverResponse = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
+        List<Cover> covers = new ArrayList<>();
+
+        Cover newCover = Cover.builder()
+                .created(LocalDateTime.now())
+                .isLoFi(request.getIsLoFi())
+                .link(coverResponse.getUrl())
+                .prompt(coverResponse.getPrompt())
+                .isSaved(false)
+                .build();
+
+        covers.add(newCover);
+
+        Release newRelease = Release.builder()
+                .title(request.getTitle())
+                .createdAt(LocalDateTime.now())
+                .covers(covers)
+                .author(user)
+                .build();
+
+        coverRepository.save(newCover);
+        releaseRepository.save(newRelease);
+
+        return releaseMapper.toReleaseNewDto(newRelease);
+    }
+
+    @Override
+    public ReleaseUpdateDto updateReleaseCover(String userToken, int releaseId, ReleaseRequest request) {
+        User user = extractUser(userToken);
+        Release release = getReleaseById(releaseId);
+
+        if (release.getAuthor().getId() != user.getId()) {
+            throw new BadRequestException("You should be author of release to update cover");
+        }
+
         releaseGenerationsUpdate(request, user);
 
         CoverResponse coverResponse = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
@@ -65,19 +109,39 @@ public class CoverServiceImpl implements CoverService {
                 .isLoFi(request.getIsLoFi())
                 .link(coverResponse.getUrl())
                 .prompt(coverResponse.getPrompt())
+                .isSaved(false)
                 .build();
 
-        Release newRelease = Release.builder()
-                .title(request.getTitle())
-                .createdAt(LocalDateTime.now())
-                .cover(newCover)
-                .author(user)
-                .build();
+        release.getCovers().add(newCover);
 
         coverRepository.save(newCover);
-        releaseRepository.save(newRelease);
+        releaseRepository.save(release);
 
-        return releaseMapper.toReleaseNewDto(newRelease);
+        return releaseMapper.toReleaseUpdateDto(release);
+    }
+
+    @Override
+    public ReleaseSaveDto saveRelease(String userToken, int releaseId, int coverId) {
+        User user = extractUser(userToken);
+        Release release = getReleaseById(releaseId);
+        Cover cover = getCoverById(coverId);
+
+        if (release.getAuthor().getId() != user.getId()) {
+            throw new BadRequestException("You should be author of release to save it");
+        } else if (release.isSaved()) {
+            throw new ConflictRequestException("This release is already saved");
+        } else if (!release.getCovers().contains(cover)) {
+            throw new BadRequestException("There is no such a cover for this release");
+        }
+
+        cover.setIsSaved(true);
+        release.setSaved(true);
+        release.setSavedAt(LocalDateTime.now());
+
+        coverRepository.save(cover);
+        releaseRepository.save(release);
+
+        return releaseMapper.toReleaseSaveDto(release);
     }
 
     private void releaseGenerationsUpdate(ReleaseRequest request, User user) {
@@ -99,6 +163,7 @@ public class CoverServiceImpl implements CoverService {
         } else {
             int hiFiLeft = HIFI_LIMIT_RELEASE - user.getHiFiReleaseGenerations();
             int loFiLeft = LOFI_LIMIT_RELEASE - user.getLoFiReleaseGenerations();
+
             log.debug("User with id " + user.getId() + " has reached generations limit.");
             throw new ConflictRequestException("You have reached generations limit. " +
                     "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
@@ -136,6 +201,7 @@ public class CoverServiceImpl implements CoverService {
         if (dto == null) {
             throw new RuntimeException("Incorrect response from image generator");
         }
+
         Playlist newPlaylist = Playlist.builder()
                 .createdAt(LocalDateTime.now())
                 .url(url)
@@ -304,6 +370,8 @@ public class CoverServiceImpl implements CoverService {
 
         if (user.getId() != author.getId()) {
             throw new ConflictRequestException("Only author of playlist can save it");
+        } else if (playlist.getIsSaved()) {
+            throw new ConflictRequestException("This playlist is already saved");
         }
 
         Cover chosen = getCoverById(coverId);
@@ -317,10 +385,7 @@ public class CoverServiceImpl implements CoverService {
 
         playlist.setIsPrivate(isPrivate);
         playlist.setIsSaved(true);
-
-        if (playlist.getSavedAt() == null) {
-            playlist.setSavedAt(LocalDateTime.now());
-        }
+        playlist.setSavedAt(LocalDateTime.now());
 
         playlistRepository.save(playlist);
 
@@ -415,6 +480,11 @@ public class CoverServiceImpl implements CoverService {
                 .orElseThrow(() -> new NotFoundException("Cover with id " + coverId + " not found"));
     }
 
+    private Release getReleaseById(int releaseId) {
+        return releaseRepository.findById(releaseId)
+                .orElseThrow(() -> new NotFoundException("Release with id " + releaseId + " not found"));
+    }
+
     private void validateAlreadySaved(String url) {
         if (playlistRepository.existsByUrl(url)) {
             throw new BadRequestException("Playlist is already covered");
@@ -426,13 +496,16 @@ public class CoverServiceImpl implements CoverService {
     @Async
     protected void deleteUnusedCovers() {
         LocalDateTime expiration = LocalDateTime.now().minusWeeks(SHELF_LIFE);
-        List<Release> expiredReleases = releaseRepository.findAllByCreatedAtBefore(expiration);
+        List<Release> expiredReleases = releaseRepository.findAllBySavedFalseAndCreatedAtBefore(expiration);
         List<Playlist> expiredPlaylists = playlistRepository.findAllByIsSavedFalseAndCreatedAtBefore(expiration);
         List<Cover> expiredCovers = coverRepository.findAllByIsSavedFalseAndCreatedBefore(expiration);
 
         if (expiredReleases != null && !expiredReleases.isEmpty()) {
             for (Release release : expiredReleases) {
-                deleteCover(release.getCover());
+                List<Cover> covers = release.getCovers();
+                for (Cover cover : covers) {
+                    deleteCover(cover);
+                }
             }
         }
 
