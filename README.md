@@ -22,7 +22,7 @@ Result:
 ![result for track.jpg](images%2Fresult%20for%20track.jpg)
 <br>
 <br>
-## 🔧Configuration: [swagger](swagger%20%28v.2%29.json)
+## 🔧Configuration: [swagger](swagger.json)
 ## 🚀Setup
 ### 1. Install Docker & Maven 
 - [Download Docker Desktop](https://www.docker.com/products/docker-desktop/) and follow the installation instructions.
