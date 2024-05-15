@@ -12,11 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReleaseUpdateDto {
+public class ReleaseCollectionDto {
     private int id;
     private String title;
     private UserReleaseDto author;
     private List<CoverReleaseDto> covers;
     private LocalDateTime createdAt;
-
 }

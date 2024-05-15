@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.config.security.JwtService;
 import main_service.constants.Constants;
+import main_service.cover.entity.Cover;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
+import main_service.logs.client.TelegramLogsClient;
 import main_service.playlist.dto.PlaylistArchiveDto;
+import main_service.playlist.dto.PlaylistGetDto;
 import main_service.playlist.dto.PlaylistMyCollectionDto;
 import main_service.playlist.dto.PlaylistUserCollectionDto;
 import main_service.playlist.entity.Playlist;
@@ -14,7 +17,6 @@ import main_service.playlist.mapper.PlaylistMapper;
 import main_service.playlist.storage.PlaylistRepository;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ public class PlaylistServiceImpl {
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
     private final JwtService jwtService;
+    private final TelegramLogsClient logsClient;
 
     private final PlaylistMapper playlistMapper;
 
@@ -37,12 +40,11 @@ public class PlaylistServiceImpl {
                                                         int page,
                                                         int size,
                                                         Constants.Filters filters) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUserFromToken(userToken);
         List<Playlist> liked = user.getLikes();
 
         List<Playlist> collection = playlistRepository
-                .findByAuthor(user, PageRequest.of(page, size))
+                .findByAuthor(user)
                 .stream()
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .toList();
@@ -56,16 +58,15 @@ public class PlaylistServiceImpl {
         for (Playlist playlist : collection) {
             PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
 
-            if (liked.contains(playlist)) {
-                dto.setIsLiked(true);
-            } else {
-                dto.setIsLiked(false);
-            }
+            dto.setIsLiked(liked.contains(playlist));
 
             collectionDto.add(dto);
         }
 
-        return collectionDto;
+        int start = page * size;
+        int end = Math.min((page + 1) * size, collectionDto.size());
+
+        return collectionDto.subList(start, end);
     }
 
     public List<PlaylistArchiveDto> getArchive(int page,
@@ -73,7 +74,7 @@ public class PlaylistServiceImpl {
                                                Constants.Filters filters,
                                                String userToken) {
         List<Playlist> archive = playlistRepository
-                .findAll(PageRequest.of(page, size))
+                .findAll()
                 .stream()
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .filter(playlist -> playlist.getIsPrivate().equals(false))
@@ -83,35 +84,33 @@ public class PlaylistServiceImpl {
             archive = sort(filters, archive);
         }
 
+        List<PlaylistArchiveDto> playlistArchiveDtos;
+
         if (userToken != null) {
-            List<PlaylistArchiveDto> collectionDto = new ArrayList<>();
-            String requesterToken = userToken.substring(7);
-            User requester = getUserById(jwtService.extractUserId(requesterToken));
+            User requester = extractUserFromToken(userToken);
             List<Playlist> likedByRequester = requester.getLikes();
+
+            playlistArchiveDtos = new ArrayList<>();
 
             for (Playlist playlist : archive) {
                 PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);
-
-                if (likedByRequester.contains(playlist)) {
-                    dto.setIsLiked(true);
-                } else {
-                    dto.setIsLiked(false);
-                }
-
-                collectionDto.add(dto);
+                dto.setIsLiked(likedByRequester.contains(playlist));
+                playlistArchiveDtos.add(dto);
             }
-
-            return collectionDto;
         } else {
-            return archive.stream()
+            playlistArchiveDtos = archive.stream()
                     .map(playlistMapper::toPlaylistArchiveDto)
                     .collect(Collectors.toList());
         }
+
+        int start = page * size;
+        int end = Math.min((page + 1) * size, playlistArchiveDtos.size());
+
+        return playlistArchiveDtos.subList(start, end);
     }
 
     public void like(String userToken, int playlistId) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUserFromToken(userToken);
         Playlist playlist = getPlaylistById(playlistId);
 
         if (user.getLikes().contains(playlist)) {
@@ -127,8 +126,7 @@ public class PlaylistServiceImpl {
     }
 
     public void unlikePlaylist(String userToken, int playlistId) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUserFromToken(userToken);
         Playlist playlist = getPlaylistById(playlistId);
 
         if (!user.getLikes().contains(playlist)) {
@@ -147,14 +145,13 @@ public class PlaylistServiceImpl {
                                                             int page,
                                                             int size,
                                                             Constants.Filters filters) {
-        String requesterToken = userToken.substring(7);
-        User requester = getUserById(jwtService.extractUserId(requesterToken));
+        User requester = extractUserFromToken(userToken);
         User user = getUserById(userId);
 
         List<Playlist> likedByRequester = requester.getLikes();
 
         List<Playlist> userCollection = playlistRepository
-                .findByAuthor(user, PageRequest.of(page, size))
+                .findByAuthor(user)
                 .stream()
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .filter(playlist -> playlist.getIsPrivate().equals(false))
@@ -168,17 +165,40 @@ public class PlaylistServiceImpl {
 
         for (Playlist playlist : userCollection) {
             PlaylistUserCollectionDto dto = playlistMapper.toPlaylistUserCollectionDto(playlist);
-
-            if (likedByRequester.contains(playlist)) {
-                dto.setIsLiked(true);
-            } else {
-                dto.setIsLiked(false);
-            }
+            dto.setIsLiked(likedByRequester.contains(playlist));
 
             collectionDto.add(dto);
         }
 
-        return collectionDto;
+        int start = page * size;
+        int end = Math.min((page + 1) * size, collectionDto.size());
+
+        return collectionDto.subList(start, end);
+    }
+
+    private List<Playlist> sort(Constants.Filters filter, List<Playlist> archive) {
+        return archive.stream()
+                .filter(playlist -> {
+                    if (filter.equals(Constants.Filters.ABSTRACT)) {
+                        return playlist.getCovers().stream().anyMatch(Cover::getIsAbstract);
+                    } else if (filter.equals(Constants.Filters.NOT_ABSTRACT)) {
+                        return playlist.getCovers().stream().anyMatch(cover -> !cover.getIsAbstract());
+                    } else if (filter.equals(Constants.Filters.HI_FI)) {
+                        return playlist.getCovers().stream().anyMatch(cover -> !cover.getIsLoFi());
+                    } else if (filter.equals(Constants.Filters.LO_FI)) {
+                        return playlist.getCovers().stream().anyMatch(Cover::getIsAbstract);
+                    } else {
+                        Constants.Vibe vibe = playlist.getVibe();
+                        return vibe != null && vibe.toString().equals(filter.toString());
+                    }
+                })
+                .sorted(Comparator.comparing(Playlist::getSavedAt).reversed())
+                .toList();
+    }
+
+    private User extractUserFromToken(String userToken) {
+        userToken = userToken.substring(7);
+        return getUserById(jwtService.extractUserId(userToken));
     }
 
     private User getUserById(int id) {
@@ -192,23 +212,7 @@ public class PlaylistServiceImpl {
                 .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
     }
 
-    private List<Playlist> sort(Constants.Filters filter, List<Playlist> archive) {
-        return archive.stream()
-                .filter(playlist -> {
-                    if (filter.equals(Constants.Filters.ABSTRACT)) {
-                        return playlist.getCover().getIsAbstract();
-                    } else if (filter.equals(Constants.Filters.NOT_ABSTRACT)) {
-                        return !playlist.getCover().getIsAbstract();
-                    } else if (filter.equals(Constants.Filters.HI_FI)) {
-                        return !playlist.getCover().getIsLoFi();
-                    } else if (filter.equals(Constants.Filters.LO_FI)) {
-                        return playlist.getCover().getIsLoFi();
-                    } else {
-                        Constants.Vibe vibe = playlist.getVibe();
-                        return vibe != null && vibe.toString().equals(filter.toString());
-                    }
-                })
-                .sorted(Comparator.comparing(Playlist::getSavedAt).reversed())
-                .toList();
+    public PlaylistGetDto getPlaylist(int playlistId) {
+        return playlistMapper.toPlaylistGetDto(getPlaylistById(playlistId));
     }
 }

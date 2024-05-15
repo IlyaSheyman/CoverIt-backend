@@ -12,11 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReleaseUpdateDto {
+public class ReleaseSaveDto {
     private int id;
     private String title;
     private UserReleaseDto author;
     private List<CoverReleaseDto> covers;
-    private LocalDateTime createdAt;
-
+    private boolean saved;
+    private LocalDateTime savedAt;
 }

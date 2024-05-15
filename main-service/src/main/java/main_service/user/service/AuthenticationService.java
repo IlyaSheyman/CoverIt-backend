@@ -11,6 +11,7 @@ import main_service.user.dto.SignInRequest;
 import main_service.user.dto.SignUpRequest;
 import main_service.user.entity.User;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,15 +30,18 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JavaMailSender mailSender;
+    @Value("${email.verify.base.url}")
+    private String siteURL;
+    @Value("${spring.mail.username}")
+    private String email;
+
 
     /**
      * User registration
      *
      * @param request user's data
-     * @param siteURL
-     * @return token
      */
-    public void signUp(SignUpRequest request, String siteURL)
+    public void signUp(SignUpRequest request)
             throws MessagingException, UnsupportedEncodingException {
         String verificationCode = RandomStringUtils.random(64);
 
@@ -52,14 +56,14 @@ public class AuthenticationService {
 
         userService.create(user);
 
-        sendVerificationEmail(user, siteURL);
+        sendVerificationEmail(user);
     }
 
-    private void sendVerificationEmail(User user, String siteURL)
+    private void sendVerificationEmail(User user)
             throws MessagingException, UnsupportedEncodingException {
 
         String toAddress = user.getEmail();
-        String fromAddress = "coverit024@gmail.com"; //TODO make variable
+        String fromAddress = email;
         String senderName = "CoverIt";
         String subject = "Please verify your registration";
         String content = "Dear [[name]],<br>"
@@ -76,7 +80,7 @@ public class AuthenticationService {
         helper.setSubject(subject);
 
         content = content.replace("[[name]]", user.getUsername());
-        String verifyURL = siteURL + "/auth/verify?code=" + user.getVerificationCode();
+        String verifyURL = siteURL + "/verify?code=" + user.getVerificationCode();
 
         content = content.replace("[[URL]]", verifyURL);
 

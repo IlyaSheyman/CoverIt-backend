@@ -1,5 +1,6 @@
 package main_service.playlist.dto;
 
+
 import lombok.*;
 import main_service.constants.Constants;
 import main_service.cover.dto.CoverPlaylistDto;
@@ -12,12 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlaylistMyCollectionDto {
+public class PlaylistGetDto {
     private int id;
     private String title;
     private String url;
-    private Constants.Vibe vibe;
-    private Boolean isPrivate;
     private List<TrackInPlaylistDto> tracks;
     private List<CoverPlaylistDto> covers;
     private Boolean isLiked;

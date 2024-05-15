@@ -16,8 +16,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import static org.springframework.http.HttpMethod.DELETE;
-
 @Service
 @Slf4j
 public class CoverClient extends HttpClient {

@@ -13,11 +13,13 @@ import main_service.user.mapper.UserMapper;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -179,6 +181,8 @@ public class UserService {
     }
 
     @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    @Async
     public void updateGenerationsCountForAllUsers() {
         List<User> users = repository.findAll();
         for (User user : users) {
@@ -198,6 +202,8 @@ public class UserService {
     }
 
     @Scheduled(cron = "0 0 23 * * *")
+    @Transactional //TODO test on server
+    @Async
     public void verifySubscribersList() {
         List<String> dbPatronsNames = repository.findBySubscribedTrue().stream()
                 .map(User::getPatronName)

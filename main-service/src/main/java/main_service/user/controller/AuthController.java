@@ -3,7 +3,6 @@ package main_service.user.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +31,10 @@ public class AuthController {
     @PostMapping("/sign-up")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
-    public void signUp(@RequestBody @Valid SignUpRequest userDto, HttpServletRequest request)
+    public void signUp(@RequestBody @Valid SignUpRequest userDto)
             throws MessagingException, UnsupportedEncodingException {
         log.info("[AUTH_CONTROLLER] sign-up user with username " + userDto.getUsername());
-        authenticationService.signUp(userDto, getSiteURL(request));
+        authenticationService.signUp(userDto);
     }
     @Operation(summary = "User's email verification. Used as a link sent to email")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -52,8 +51,4 @@ public class AuthController {
         return authenticationService.signIn(request);
     }
 
-    private String getSiteURL(HttpServletRequest request) {
-        String siteURL = request.getRequestURL().toString();
-        return siteURL.replace(request.getServletPath(), "");
-    }
 }

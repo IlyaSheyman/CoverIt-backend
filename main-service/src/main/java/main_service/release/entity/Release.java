@@ -8,6 +8,7 @@ import main_service.cover.entity.Cover;
 import main_service.user.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static main_service.constants.Constants.*;
 
@@ -30,11 +31,22 @@ public class Release {
     @JoinColumn(name = "user_id")
     private User author;
 
-    @OneToOne
-    @JoinColumn(name = "cover_id")
-    private Cover cover;
+    @ManyToMany
+    @JoinTable(
+            name = "release_cover",
+            joinColumns = @JoinColumn(name = "release_id"),
+            inverseJoinColumns = @JoinColumn(name = "cover_id")
+    )
+    private List<Cover> covers;
 
     @Column(name = "created_at")
     @JsonFormat(pattern = DATE_FORMAT)
     private LocalDateTime createdAt;
+
+    @Column(name = "is_saved")
+    private boolean saved;
+
+    @Column(name = "saved_at")
+    @JsonFormat(pattern = DATE_FORMAT)
+    private LocalDateTime savedAt;
 }

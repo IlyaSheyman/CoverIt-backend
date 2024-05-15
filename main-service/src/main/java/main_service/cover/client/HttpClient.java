@@ -9,7 +9,6 @@ import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import retrofit2.http.Url;
 
 import java.util.HashMap;
 import java.util.List;

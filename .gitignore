@@ -1,8 +1,11 @@
 HELP.md
 target/
+
 **/.env
 **/.env_idea
 **/.env_dev
+
+scripts/
 
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

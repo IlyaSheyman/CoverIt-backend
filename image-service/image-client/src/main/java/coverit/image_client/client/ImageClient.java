@@ -14,8 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutionException;
 
-import static coverit.image_client.constants.Constants.GPT_ENDLESS_JOY;
-import static coverit.image_client.constants.Constants.GPT_SETTINGS_AVOID;
+import static coverit.image_client.constants.Constants.*;
 
 @Slf4j
 @Component
@@ -23,6 +22,8 @@ import static coverit.image_client.constants.Constants.GPT_SETTINGS_AVOID;
 public class ImageClient {
 
     private final SpotifyClientStraight spotifyClient;
+    private final AppleMusicClient appleMusicClient;
+
     private final AiClient aiClient;
     private final DalleClient dalleClient;
 
@@ -69,8 +70,11 @@ public class ImageClient {
     }
 
     public PlaylistDto getPlayListByUrl(String url) throws ExecutionException, InterruptedException {
-        //на долгий срок: TODO добавить получение плейлиста из Яндекс Музыки, отдельный клиент
-        if (url.matches(Constants.SPOTIFY_REGEX)) {
+        if (url.matches(APPLE_MUSIC_REGEX)) {
+            PlaylistDto playlistDto = appleMusicClient.getPlaylistByUrl(url);
+            log.info(playlistDto.toString());
+            return playlistDto;
+        } else if (url.matches(Constants.SPOTIFY_REGEX)) {
             PlaylistDto playlistDto = spotifyClient.getPlaylistByUrlAsync(url).get();
             log.info(playlistDto.toString());
             return playlistDto;
@@ -92,7 +96,7 @@ public class ImageClient {
         request.append("\n");
 
         for (TrackDto track: playlistDto.getTracks()) {
-            request.append(extractTitle(track.getTitle()) + "; ");
+            request.append(extractTitle(track.getTitle())).append("; ");
         }
 
         request.append("\n");

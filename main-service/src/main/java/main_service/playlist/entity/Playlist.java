@@ -55,9 +55,13 @@ public class Playlist {
     )
     private List<Track> tracks;
 
-    @OneToOne
-    @JoinColumn(name = "cover_id")
-    private Cover cover;
+    @ManyToMany
+    @JoinTable(
+            name = "playlist_cover",
+            joinColumns = @JoinColumn(name = "playlist_id"),
+            inverseJoinColumns = @JoinColumn(name = "cover_id")
+    )
+    private List<Cover> covers;
 
     @Column(name = "saved_at")
     @JsonFormat(pattern = DATE_FORMAT)

@@ -36,7 +36,7 @@ public class SecurityConfiguration {
                 // Turning off CORS (requests from all domens approval)
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfiguration = new CorsConfiguration();
-                    corsConfiguration.setAllowedOrigins(List.of("*"));
+                    corsConfiguration.addAllowedOrigin("http://localhost:3000"); //TODO change to frontend
                     corsConfiguration.setAllowedOriginPatterns(List.of("*"));
                     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfiguration.setAllowedHeaders(List.of("*"));
@@ -44,8 +44,8 @@ public class SecurityConfiguration {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**","/cover/playlist/generate", "/cover/playlist/regenerate",
-                                "/playlist/archive", "/user/verify/subscription").permitAll()
+                        .requestMatchers("/auth/**", "/cover/playlist/generate", "/cover/playlist/regenerate",
+                                "/playlist/archive", "/playlist/get", "/user/verify/subscription").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**", "/swagger-ui.html", "/api-docs").permitAll()
                         .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())

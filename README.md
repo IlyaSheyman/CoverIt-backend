@@ -1,6 +1,6 @@
 # **CoverIt**
 ### Web application for AI-based generation of covers for playlists and music releases (tracks/albums).
-![index card open.jpg](images%2Findex%20card%20open.jpg)
+
 ## 👋Overview
 You can generate a cover for a playlist based on several parameters: abstraction, image quality (Lo-fi / Hi-fi), and vibe - an alternative to the genre that determines the mood of the music. The algorithm analyzes track titles using ChatGPT and formulates a request to Dalle based on this.
 ![generate for playlist.jpg](images%2Fgenerate%20for%20playlist.jpg)
@@ -11,10 +11,10 @@ Result:
 <br>
 <br>
 You can also share playlists, sort them by different parameters, add them to your collection, and more.
-![my playlists.jpg](images%2Fmy%20playlists.jpg)
+![archive.png](images%2Farchive.png)
 <br>
 <br>
-In addition, the application provides the ability to generate a cover for a track: using a special constructor, which is converted by an internal algorithm into a prompt.
+The application also provides the ability to generate a cover for a track: using a special constructor, which is converted by an internal algorithm into a prompt.
 ![generate for track.jpg](images%2Fgenerate%20for%20track.jpg)
 <br>
 <br>
@@ -22,7 +22,7 @@ Result:
 ![result for track.jpg](images%2Fresult%20for%20track.jpg)
 <br>
 <br>
-## 🔧Configuration: [swagger](swagger%20%28v.2%29.json)
+## 🔧Configuration: [swagger](swagger.json)
 ## 🚀Setup
 ### 1. Install Docker & Maven 
 - [Download Docker Desktop](https://www.docker.com/products/docker-desktop/) and follow the installation instructions.
