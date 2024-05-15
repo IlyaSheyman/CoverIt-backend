@@ -9,6 +9,7 @@ import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.logs.client.TelegramLogsClient;
 import main_service.playlist.dto.PlaylistArchiveDto;
+import main_service.playlist.dto.PlaylistGetDto;
 import main_service.playlist.dto.PlaylistMyCollectionDto;
 import main_service.playlist.dto.PlaylistUserCollectionDto;
 import main_service.playlist.entity.Playlist;
@@ -39,8 +40,7 @@ public class PlaylistServiceImpl {
                                                         int page,
                                                         int size,
                                                         Constants.Filters filters) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUserFromToken(userToken);
         List<Playlist> liked = user.getLikes();
 
         List<Playlist> collection = playlistRepository
@@ -87,8 +87,7 @@ public class PlaylistServiceImpl {
         List<PlaylistArchiveDto> playlistArchiveDtos;
 
         if (userToken != null) {
-            String requesterToken = userToken.substring(7);
-            User requester = getUserById(jwtService.extractUserId(requesterToken));
+            User requester = extractUserFromToken(userToken);
             List<Playlist> likedByRequester = requester.getLikes();
 
             playlistArchiveDtos = new ArrayList<>();
@@ -111,8 +110,7 @@ public class PlaylistServiceImpl {
     }
 
     public void like(String userToken, int playlistId) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUserFromToken(userToken);
         Playlist playlist = getPlaylistById(playlistId);
 
         if (user.getLikes().contains(playlist)) {
@@ -128,8 +126,7 @@ public class PlaylistServiceImpl {
     }
 
     public void unlikePlaylist(String userToken, int playlistId) {
-        userToken = userToken.substring(7);
-        User user = getUserById(jwtService.extractUserId(userToken));
+        User user = extractUserFromToken(userToken);
         Playlist playlist = getPlaylistById(playlistId);
 
         if (!user.getLikes().contains(playlist)) {
@@ -148,8 +145,7 @@ public class PlaylistServiceImpl {
                                                             int page,
                                                             int size,
                                                             Constants.Filters filters) {
-        String requesterToken = userToken.substring(7);
-        User requester = getUserById(jwtService.extractUserId(requesterToken));
+        User requester = extractUserFromToken(userToken);
         User user = getUserById(userId);
 
         List<Playlist> likedByRequester = requester.getLikes();
@@ -180,17 +176,6 @@ public class PlaylistServiceImpl {
         return collectionDto.subList(start, end);
     }
 
-    private User getUserById(int id) {
-        return userRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
-    }
-
-    private Playlist getPlaylistById(int playlistId) {
-        return playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
-    }
-
     private List<Playlist> sort(Constants.Filters filter, List<Playlist> archive) {
         return archive.stream()
                 .filter(playlist -> {
@@ -209,5 +194,25 @@ public class PlaylistServiceImpl {
                 })
                 .sorted(Comparator.comparing(Playlist::getSavedAt).reversed())
                 .toList();
+    }
+
+    private User extractUserFromToken(String userToken) {
+        userToken = userToken.substring(7);
+        return getUserById(jwtService.extractUserId(userToken));
+    }
+
+    private User getUserById(int id) {
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
+    }
+
+    private Playlist getPlaylistById(int playlistId) {
+        return playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
+    }
+
+    public PlaylistGetDto getPlaylist(int playlistId) {
+        return playlistMapper.toPlaylistGetDto(getPlaylistById(playlistId));
     }
 }

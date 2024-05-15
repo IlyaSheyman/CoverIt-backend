@@ -1,5 +1,6 @@
 package main_service.release.mapper;
 
+import main_service.release.dto.ReleaseCollectionDto;
 import main_service.release.dto.ReleaseNewDto;
 import main_service.release.dto.ReleaseSaveDto;
 import main_service.release.dto.ReleaseUpdateDto;
@@ -15,4 +16,6 @@ public interface ReleaseMapper {
     ReleaseUpdateDto toReleaseUpdateDto(Release release);
 
     ReleaseSaveDto toReleaseSaveDto(Release release);
+
+    ReleaseCollectionDto toReleaseCollectionDto(Release release);
 }

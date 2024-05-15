@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.constants.Constants;
 import main_service.playlist.dto.PlaylistArchiveDto;
+import main_service.playlist.dto.PlaylistGetDto;
 import main_service.playlist.service.PlaylistServiceImpl;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,15 @@ public class PlaylistController {
         log.info("[MAIN_SERVER] get playlists archive");
 
         return service.getArchive(page, size, filters, userToken);
+    }
+
+    @Operation(summary = "get playlist")
+    @GetMapping("/get")
+    public PlaylistGetDto getPlaylist(@RequestHeader(name = "Authorization", required = false) String userToken,
+                                      @RequestParam(name = "id") int playlistId) {
+        log.info("[MAIN_SERVER] get playlist");
+
+        return service.getPlaylist(playlistId);
     }
 
 }
