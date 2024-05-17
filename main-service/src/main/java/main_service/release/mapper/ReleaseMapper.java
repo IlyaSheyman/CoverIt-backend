@@ -1,9 +1,6 @@
 package main_service.release.mapper;
 
-import main_service.release.dto.ReleaseCollectionDto;
-import main_service.release.dto.ReleaseNewDto;
-import main_service.release.dto.ReleaseSaveDto;
-import main_service.release.dto.ReleaseUpdateDto;
+import main_service.release.dto.*;
 import main_service.release.entity.Release;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
@@ -18,4 +15,6 @@ public interface ReleaseMapper {
     ReleaseSaveDto toReleaseSaveDto(Release release);
 
     ReleaseCollectionDto toReleaseCollectionDto(Release release);
+
+    ReleaseLogsDto toReleaseLogsDto(Release release);
 }

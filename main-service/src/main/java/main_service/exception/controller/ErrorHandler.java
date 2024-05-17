@@ -1,5 +1,6 @@
 package main_service.exception.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
@@ -18,6 +19,7 @@ import static main_service.constants.Constants.DATE_FORMAT;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class ErrorHandler {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);

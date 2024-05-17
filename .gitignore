@@ -1,7 +1,7 @@
 HELP.md
 target/
 
-**/.env
+**.env
 **/.env_idea
 **/.env_dev
 

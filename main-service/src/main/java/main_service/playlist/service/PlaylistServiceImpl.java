@@ -7,7 +7,7 @@ import main_service.constants.Constants;
 import main_service.cover.entity.Cover;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
-import main_service.logs.client.TelegramLogsClient;
+import main_service.logs.service.TelegramLogsService;
 import main_service.playlist.dto.PlaylistArchiveDto;
 import main_service.playlist.dto.PlaylistGetDto;
 import main_service.playlist.dto.PlaylistMyCollectionDto;
@@ -32,7 +32,7 @@ public class PlaylistServiceImpl {
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
     private final JwtService jwtService;
-    private final TelegramLogsClient logsClient;
+    private final TelegramLogsService logsClient;
 
     private final PlaylistMapper playlistMapper;
 
@@ -130,7 +130,6 @@ public class PlaylistServiceImpl {
         Playlist playlist = getPlaylistById(playlistId);
 
         if (!user.getLikes().contains(playlist)) {
-            log.debug("Playlist with id " + playlistId + " is not liked by user with username " + user.getUsername());
             throw new BadRequestException("Playlist is not liked by user");
         }
 

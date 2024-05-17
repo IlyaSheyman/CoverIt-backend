@@ -6,6 +6,7 @@ import main_service.config.security.JwtService;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
+import main_service.logs.service.TelegramLogsService;
 import main_service.user.client.PatreonClient;
 import main_service.user.dto.*;
 import main_service.user.entity.User;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static main_service.constants.Constants.SUBSCRIPTION_GENERATIONS_LIMIT;
 
@@ -37,16 +39,22 @@ public class UserService {
     private final UserMapper mapper;
     private final JwtService jwtService;
     private final PatreonClient patreonClient;
+    private final TelegramLogsService logsService;
 
     public void updateUsername(String userToken, UserUpdateDto dto) {
         User user = extractUserFromToken(userToken);
 
         String newUsername = dto.getUsername();
-        
+
         if (repository.getByUsername(newUsername) == null) {
             user.setUsername(newUsername);
-            repository.save(user);
-            log.info("[USERSERVICE] Username of user with id " + user.getId() + " updated successfully. New username: " + user.getUsername());
+            user = repository.save(user);
+
+            logsService.info("User updated username",
+                    String.format("User with id %d has updated username. New username: <b>%s</b>", user.getId(),
+                            user.getUsername()),
+                    mapper.toUserLogsDto(user),
+                    null);
         } else {
             throw new ConflictRequestException(String.format("User with username %s already exists", newUsername));
         }
@@ -70,11 +78,9 @@ public class UserService {
         String username = user.getUsername();
         String email = user.getEmail();
         if (repository.existsByUsernameIgnoreCaseAndEnabled(username, true)) {
-            log.debug("User with username " + username + " already exists");
             throw new BadRequestException("User with this username already exists");
         }
         if (repository.existsByEmailIgnoreCaseAndEnabled(email, true)) {
-            log.debug("User with email " + email + " already exists");
             throw new BadRequestException("User with this email already exists");
         }
         return save(user);
@@ -102,7 +108,7 @@ public class UserService {
     public User getUserById(int userId) {
         return repository
                 .findById(userId)
-                .orElseThrow(()-> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     /**
@@ -113,14 +119,13 @@ public class UserService {
      * @return пользователь
      */
     public UserDetailsService userDetailsService() {
-        UserDetailsService userDetailsService = new UserDetailsService() {
+
+        return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
                 return getByEmail(username);
             }
         };
-
-        return userDetailsService;
     }
 
     public List<UserSmallDto> search(String search, int page, int size) {
@@ -143,6 +148,10 @@ public class UserService {
             repository.save(user);
 
             log.info("User with id " + user.getId() + " is verified");
+            logsService.info("New user",
+                    String.format("User with id %d is created and verified", user.getId()),
+                    mapper.toUserLogsDto(user),
+                    null);
         }
     }
 
@@ -197,16 +206,21 @@ public class UserService {
                 }
             }
         }
-
-        log.info("hi-fi and lo-fi generations updated for all users");
+        logsService.info("Generations updated",
+                String.format("Generations counters were updated for %d users", users.size()),
+                null,
+                null);
     }
 
     @Scheduled(cron = "0 0 23 * * *")
-    @Transactional //TODO test on server
+    @Transactional
     @Async
     public void verifySubscribersList() {
+        log.info("starting to verify subscribers list");
+
         List<String> dbPatronsNames = repository.findBySubscribedTrue().stream()
                 .map(User::getPatronName)
+                .filter(Objects::nonNull)
                 .toList();
 
         List<String> patreonPatronsNames = patreonClient.getPatronsNames();
@@ -223,11 +237,17 @@ public class UserService {
                 unsubscribed.setPatronName(null);
 
                 repository.save(unsubscribed);
-                log.info("user with email " + unsubscribed.getEmail() + " is unsubscribed now");
+                logsService.info("Subscriber removed",
+                        String.format("User <b>@%s</b> is not subscriber any more :(", unsubscribed.getUsername()),
+                        null,
+                        null);
             }
-        } else {
-            log.info("no changes in subscribers list");
         }
+
+        logsService.info("Subscribers list is verified",
+                String.format("Current number of subscribers: <b>%d</b>", patreonPatronsNames.size()),
+                patreonPatronsNames,
+                null);
     }
 
     public void verifySubscription(String code) {

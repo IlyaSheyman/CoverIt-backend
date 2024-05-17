@@ -2,6 +2,7 @@ package main_service.cover.client;
 
 import main_service.constants.Constants;
 import main_service.cover.service.UrlDto;
+import main_service.logs.model.LogMessage;
 import main_service.playlist.dto.CoverResponse;
 import main_service.playlist.dto.PlaylistDto;
 import main_service.release.dto.ReleaseRequestDto;

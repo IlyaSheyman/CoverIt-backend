@@ -29,7 +29,7 @@ public class CoverClient extends HttpClient {
     }
 
     public CoverResponse createReleaseCover(ReleaseRequestDto releaseRequestDto) {
-        log.debug("[COVER CLIENT] sending request to generate cover for release to Image-Service");
+        log.info("[COVER CLIENT] sending request to generate cover for release to Image-Service");
 
         ResponseEntity<CoverResponse> res = this.coverRelease(releaseRequestDto, new CoverResponse());
 
@@ -37,9 +37,8 @@ public class CoverClient extends HttpClient {
     }
 
     public CoverResponse createPlaylistCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
-        log.debug("[COVER CLIENT] sending request to generate cover for playlist {} to Image-Service",
+        log.info("[COVER CLIENT] sending request to generate cover for playlist {} to Image-Service",
                 urlDto.getLink());
-
 
         ResponseEntity<CoverResponse> res = this.coverPlaylist(urlDto, vibe, isAbstract, isLoFi, new CoverResponse());
 

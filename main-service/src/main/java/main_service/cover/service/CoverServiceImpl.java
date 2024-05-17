@@ -9,6 +9,7 @@ import main_service.cover.storage.CoverRepository;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.NotFoundException;
+import main_service.logs.service.TelegramLogsService;
 import main_service.playlist.dto.*;
 import main_service.playlist.entity.Playlist;
 import main_service.playlist.mapper.PlaylistMapper;
@@ -54,6 +55,8 @@ public class CoverServiceImpl implements CoverService {
     private final ReleaseMapper releaseMapper;
     private final ReleaseRequestMapper requestMapper;
 
+    private final TelegramLogsService logsService;
+
     @Override
     public ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request) {
         User user = extractUser(userToken);
@@ -88,6 +91,11 @@ public class CoverServiceImpl implements CoverService {
         coverRepository.save(newCover);
         releaseRepository.save(newRelease);
 
+        logsService.info("New release",
+                String.format("User <b>@%s</b> created new release <b>%s</b>", user.getUsername(), newRelease.getTitle()),
+                releaseMapper.toReleaseLogsDto(newRelease),
+                newCover.getLink());
+
         return releaseMapper.toReleaseNewDto(newRelease);
     }
 
@@ -117,6 +125,11 @@ public class CoverServiceImpl implements CoverService {
         coverRepository.save(newCover);
         releaseRepository.save(release);
 
+        logsService.info("Update release",
+                String.format("User <b>@%s</b> generated new cover for release <b>%s</b>", user.getUsername(), release.getTitle()),
+                releaseMapper.toReleaseSaveDto(release),
+                newCover.getLink());
+
         return releaseMapper.toReleaseUpdateDto(release);
     }
 
@@ -141,6 +154,14 @@ public class CoverServiceImpl implements CoverService {
         coverRepository.save(cover);
         releaseRepository.save(release);
 
+        logsService.info("Save release",
+                String.format("User <b>@%s</b> saved release <b>%s</b> with cover %d (id)",
+                        user.getUsername(),
+                        release.getTitle(),
+                        cover.getId()),
+                releaseMapper.toReleaseSaveDto(release),
+                cover.getLink());
+
         return releaseMapper.toReleaseSaveDto(release);
     }
 
@@ -164,7 +185,6 @@ public class CoverServiceImpl implements CoverService {
             int hiFiLeft = HIFI_LIMIT_RELEASE - user.getHiFiReleaseGenerations();
             int loFiLeft = LOFI_LIMIT_RELEASE - user.getLoFiReleaseGenerations();
 
-            log.debug("User with id " + user.getId() + " has reached generations limit.");
             throw new ConflictRequestException("You have reached generations limit. " +
                     "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
         }
@@ -213,8 +233,11 @@ public class CoverServiceImpl implements CoverService {
         ArrayList<Track> tracks = getTracksFromDto(dto);
         newPlaylist.setTracks(tracks);
 
+
+        User user = null;
+
         if (userToken != null) {
-            User user = extractUser(userToken);
+            user = extractUser(userToken);
 
             setCounter(isLoFi, user);
             newPlaylist.setAuthor(user);
@@ -242,6 +265,16 @@ public class CoverServiceImpl implements CoverService {
         List<Cover> covers = new ArrayList<>();
         covers.add(cover);
         newPlaylist.setCovers(covers);
+
+        String logMessage = (user == null) ?
+                String.format("New playlist <b>%s</b> by unauthorized user", newPlaylist.getTitle()) :
+                String.format("User <b>%s</b> created new playlist <b>%s</b>", user.getUsername(), newPlaylist.getTitle());
+
+        logsService.info("New playlist",
+                logMessage,
+                playlistMapper.toPlaylistLogsDto(newPlaylist),
+                cover.getLink());
+
 
         return playlistMapper.toPlaylistNewDto(playlistRepository.save(newPlaylist));
     }
@@ -288,6 +321,7 @@ public class CoverServiceImpl implements CoverService {
             }
             return updateForNonSubscribedOrNonAuth(playlist, urlDto, loFiLeft, hiFiLeft, vibe, isLoFi, isAbstract);
         }
+
     }
 
     private PlaylistUpdateDto updateForSubscribed(User author,
@@ -358,6 +392,12 @@ public class CoverServiceImpl implements CoverService {
         List<Cover> covers = playlist.getCovers();
         covers.add(cover);
 
+
+        logsService.info("Playlist cover updated",
+                String.format("New cover for playlist with id %d", playlist.getId()),
+                playlistMapper.toPlaylistLogsDto(playlist),
+                cover.getLink());
+
         return playlistMapper.toPlaylistUpdateDto(playlistRepository.save(playlist));
     }
 
@@ -388,6 +428,14 @@ public class CoverServiceImpl implements CoverService {
         playlist.setSavedAt(LocalDateTime.now());
 
         playlistRepository.save(playlist);
+
+        logsService.info("Playlist saved",
+                String.format("Playlist with id %d is saved by <b>%s</b>. Chosen cover id: %d",
+                        playlist.getId(),
+                        user.getUsername(),
+                        chosen.getId()),
+                playlistMapper.toPlaylistLogsDto(playlist),
+                chosen.getLink());
 
         return playlistMapper.toPlaylistSaveDto(playlist);
     }
@@ -494,17 +542,20 @@ public class CoverServiceImpl implements CoverService {
     @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     @Async
-    protected void deleteUnusedCovers() {
+    public void deleteUnusedCovers() {
         LocalDateTime expiration = LocalDateTime.now().minusWeeks(SHELF_LIFE);
         List<Release> expiredReleases = releaseRepository.findAllBySavedFalseAndCreatedAtBefore(expiration);
         List<Playlist> expiredPlaylists = playlistRepository.findAllByIsSavedFalseAndCreatedAtBefore(expiration);
         List<Cover> expiredCovers = coverRepository.findAllByIsSavedFalseAndCreatedBefore(expiration);
+
+        List<Integer> deleted = new ArrayList<>();
 
         if (expiredReleases != null && !expiredReleases.isEmpty()) {
             for (Release release : expiredReleases) {
                 List<Cover> covers = release.getCovers();
                 for (Cover cover : covers) {
                     deleteCover(cover);
+                    deleted.add(cover.getId());
                 }
             }
         }
@@ -514,6 +565,7 @@ public class CoverServiceImpl implements CoverService {
                 List<Cover> covers = playlist.getCovers();
                 for (Cover cover : covers) {
                     deleteCover(cover);
+                    deleted.add(cover.getId());
                 }
             }
         }
@@ -521,10 +573,14 @@ public class CoverServiceImpl implements CoverService {
         if (expiredCovers != null && !expiredCovers.isEmpty()) {
             for (Cover cover : expiredCovers) {
                 deleteCover(cover);
+                deleted.add(cover.getId());
             }
         }
 
-        log.info("unused covers were deleted successfully");
+        logsService.info("Unused covers deleted",
+                String.format("Automatically deleted <b>%d</b> covers", deleted.size()),
+                deleted,
+                null);
     }
 
     @Override

@@ -49,4 +49,5 @@ public class ReleaseRequest {
     @Schema(description = "List of adjectives / short phrases that describe cover's style",
             example = "Blurred, 3D")
     private List<String> coverDescription;
+//TODO исправить примеры в сваггере
 }

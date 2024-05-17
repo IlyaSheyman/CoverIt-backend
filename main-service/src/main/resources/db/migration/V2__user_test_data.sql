@@ -10,5 +10,12 @@ VALUES ('john.doe@example.com', 'subscriber1', 'Password1!', true, true, 0, 0, 0
        ('emma.martinez@example.com', 'emma.martinez', 'Password8*', true, false, 0, 0, 0, 0, CURRENT_TIMESTAMP),
        ('william.anderson@example.com', 'william.anderson', 'Password9(', true, false, 0, 0, 0, 0, CURRENT_TIMESTAMP),
        ('sophia.garcia@example.com', 'sophia.garcia', 'Password10)', true, false, 0, 0, 0, 0, CURRENT_TIMESTAMP),
-       ('admin.email@yandex.ru', 'admin', '$2a$10$JylUCNUTG9I.x/cqxc8yO.qapj0Dm1GYj1.qedM6fbBrjCWkt5nuW', true, false, 0, 0, 0, 0, CURRENT_TIMESTAMP),
-       ('admin.subscriber.email@yandex.ru', 'admin.subscriber', '$2a$10$JylUCNUTG9I.x/cqxc8yO.qapj0Dm1GYj1.qedM6fbBrjCWkt5nuW', true, true, 0, 0, 0, 0, CURRENT_TIMESTAMP);
+       ('admin.email@yandex.ru', 'admin', '$2a$10$JylUCNUTG9I.x/cqxc8yO.qapj0Dm1GYj1.qedM6fbBrjCWkt5nuW', true, false,
+        0, 0, 0, 0, CURRENT_TIMESTAMP);
+
+INSERT INTO users (email, username, password, is_enabled, is_subscribed, hifi_release_generations,
+                   lofi_release_generations, hifi_playlist_generations, lofi_playlist_generations, enabled_at,
+                   subscribed_at)
+VALUES ('admin.subscriber.email@yandex.ru', 'admin.subscriber',
+        '$2a$10$JylUCNUTG9I.x/cqxc8yO.qapj0Dm1GYj1.qedM6fbBrjCWkt5nuW', true, true, 0, 0, 0, 0, CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP);
