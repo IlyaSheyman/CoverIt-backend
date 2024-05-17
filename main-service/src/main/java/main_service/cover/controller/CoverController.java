@@ -22,7 +22,6 @@ public class CoverController {
 
     private final CoverService service;
 
-
     @PostMapping("/playlist/generate")
     @Transactional
     @Operation(summary = "Request to generate cover for playlist")
@@ -48,4 +47,5 @@ public class CoverController {
 
         return service.updatePlaylistCover(vibe, isAbstract, playlistId, userToken, isLoFi);
     }
+
 }

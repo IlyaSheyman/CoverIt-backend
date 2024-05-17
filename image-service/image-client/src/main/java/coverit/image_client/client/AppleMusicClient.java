@@ -43,7 +43,6 @@ public class AppleMusicClient {
         try {
             return Jsoup.connect(url).get();
         } catch (IOException e) {
-            log.debug("Error retrieving document from URL: {}", url, e);
             throw new RuntimeException("Failed to retrieve document from URL: " + url, e);
         }
     }

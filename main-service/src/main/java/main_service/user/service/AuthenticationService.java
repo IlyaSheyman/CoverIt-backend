@@ -7,9 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import main_service.config.security.JwtAuthenticationResponse;
 import main_service.config.security.JwtService;
 import main_service.exception.model.BadRequestException;
+import main_service.logs.service.TelegramLogsService;
 import main_service.user.dto.SignInRequest;
 import main_service.user.dto.SignUpRequest;
 import main_service.user.entity.User;
+import main_service.user.mapper.UserMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -34,6 +36,8 @@ public class AuthenticationService {
     private String siteURL;
     @Value("${spring.mail.username}")
     private String email;
+    private final TelegramLogsService logsService;
+    private final UserMapper mapper;
 
 
     /**
@@ -107,10 +111,14 @@ public class AuthenticationService {
 
         if (user.isEnabled()) {
             var jwt = jwtService.generateToken(user);
-            log.info("User with id " + user.getId() + " has been signed in successfully");
+
+            logsService.info("User logged in",
+                    String.format("User with id %d logged in", user.getId()),
+                    mapper.toUserProfileDto(user),
+                    null);
+
             return new JwtAuthenticationResponse(jwt);
         } else {
-            log.debug("User with id " + user.getId() + "is not enabled");
             throw new BadRequestException("User is not enabled");
         }
     }

@@ -28,4 +28,5 @@ public interface CoverService {
     List<String> getMusicData(String dataType);
 
     void deleteCover(Cover cover);
+
 }

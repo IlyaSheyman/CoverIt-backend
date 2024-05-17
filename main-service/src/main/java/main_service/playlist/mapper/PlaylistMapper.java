@@ -15,4 +15,5 @@ public interface PlaylistMapper {
     PlaylistUserCollectionDto toPlaylistUserCollectionDto(Playlist playlist);
     PlaylistArchiveDto toPlaylistArchiveDto(Playlist playlist);
     PlaylistGetDto toPlaylistGetDto(Playlist playlistById);
+    PlaylistLogsDto toPlaylistLogsDto(Playlist newPlaylist);
 }
