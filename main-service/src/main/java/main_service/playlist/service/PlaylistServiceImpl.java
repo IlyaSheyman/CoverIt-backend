@@ -8,10 +8,7 @@ import main_service.cover.entity.Cover;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.logs.service.TelegramLogsService;
-import main_service.playlist.dto.PlaylistArchiveDto;
-import main_service.playlist.dto.PlaylistGetDto;
-import main_service.playlist.dto.PlaylistMyCollectionDto;
-import main_service.playlist.dto.PlaylistUserCollectionDto;
+import main_service.playlist.dto.*;
 import main_service.playlist.entity.Playlist;
 import main_service.playlist.mapper.PlaylistMapper;
 import main_service.playlist.storage.PlaylistRepository;
@@ -211,7 +208,11 @@ public class PlaylistServiceImpl {
                 .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
     }
 
-    public PlaylistGetDto getPlaylist(int playlistId) {
+    public PlaylistGetDto getPlaylistSharing(int playlistId) {
         return playlistMapper.toPlaylistGetDto(getPlaylistById(playlistId));
+    }
+
+    public PlaylistNewDto getPlaylist(int playlistId) {
+        return playlistMapper.toPlaylistNewDto(getPlaylistById(playlistId));
     }
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.release.dto.ReleaseCollectionDto;
+import main_service.release.dto.ReleaseNewDto;
 import main_service.release.service.ReleaseServiceImpl;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,4 +30,12 @@ public class ReleasePrivateController {
         return service.getMyReleases(userToken, page, size);
     }
 
+    @GetMapping("/get")
+    @Operation(summary = "technical endpoint for returning to already generated release")
+    public ReleaseNewDto getReleaseById(@RequestHeader(name = "Authorization") String userToken,
+                                         @RequestParam(name = "id") int releaseId) {
+        log.info("[MAIN_SERVER] get release by id");
+
+        return service.getReleaseById(userToken, releaseId);
+    }
 }
