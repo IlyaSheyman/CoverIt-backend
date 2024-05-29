@@ -3,8 +3,10 @@ package main_service.release.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.config.security.JwtService;
+import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.release.dto.ReleaseCollectionDto;
+import main_service.release.dto.ReleaseNewDto;
 import main_service.release.entity.Release;
 import main_service.release.mapper.ReleaseMapper;
 import main_service.release.storage.ReleaseRepository;
@@ -51,4 +53,17 @@ public class ReleaseServiceImpl {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
     }
+
+    public ReleaseNewDto getReleaseById(String userToken, int releaseId) {
+        Release release = releaseRepository.findById(releaseId)
+                .orElseThrow(() -> new NotFoundException(String.format("Release with id %d not found", releaseId)));
+        User user = extractUserFromToken(userToken);
+
+        if (release.getAuthor().getId() == user.getId()) {
+            return mapper.toReleaseNewDto(release);
+        } else {
+            throw new BadRequestException("You should be author of release to get it");
+        }
+    }
+
 }
