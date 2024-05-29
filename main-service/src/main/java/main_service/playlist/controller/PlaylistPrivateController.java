@@ -9,6 +9,7 @@ import main_service.playlist.dto.PlaylistMyCollectionDto;
 import main_service.playlist.dto.PlaylistUserCollectionDto;
 import main_service.playlist.service.PlaylistServiceImpl;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,6 +62,17 @@ public class PlaylistPrivateController {
         log.info("[MAIN_SERVER] get user's playlists for user with id " + userId);
 
         return service.getUserPlaylists(userToken, userId,  page, size, filters);
+    }
+
+    @Operation(summary = "delete playlist")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @DeleteMapping("/delete")
+    @Transactional
+    public void deletePlaylist(@RequestHeader(name = "Authorization") String userToken,
+                               @RequestParam(name = "id") int playistId) {
+        log.info("[MAIN_SERVER] delete playlist");
+
+        service.deletePlaylist(userToken, playistId);
     }
 
 }

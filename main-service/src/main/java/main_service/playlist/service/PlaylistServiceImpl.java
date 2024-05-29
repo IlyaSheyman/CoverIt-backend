@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.config.security.JwtService;
 import main_service.constants.Constants;
+import main_service.cover.client.CoverClient;
 import main_service.cover.entity.Cover;
+import main_service.cover.service.UrlDto;
+import main_service.cover.storage.CoverRepository;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.NotFoundException;
 import main_service.logs.service.TelegramLogsService;
@@ -29,7 +32,9 @@ public class PlaylistServiceImpl {
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
     private final JwtService jwtService;
-    private final TelegramLogsService logsClient;
+    private final TelegramLogsService logsService;
+    private final CoverRepository coverRepository;
+    private final CoverClient client;
 
     private final PlaylistMapper playlistMapper;
 
@@ -203,16 +208,54 @@ public class PlaylistServiceImpl {
                 .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
     }
 
-    private Playlist getPlaylistById(int playlistId) {
-        return playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
-    }
-
     public PlaylistGetDto getPlaylistSharing(int playlistId) {
-        return playlistMapper.toPlaylistGetDto(getPlaylistById(playlistId));
+        Playlist playlist = getPlaylistById(playlistId);
+        if (playlist.getIsSaved() && !playlist.getIsPrivate()) {
+            return playlistMapper.toPlaylistGetDto(playlist);
+        } else {
+            throw new BadRequestException("This playlist is not saved or private");
+        }
     }
 
     public PlaylistNewDto getPlaylist(int playlistId) {
         return playlistMapper.toPlaylistNewDto(getPlaylistById(playlistId));
+    }
+
+    public void deletePlaylist(String userToken, int playistId) {
+        User user = extractUserFromToken(userToken);
+        Playlist playlist = getPlaylistById(playistId);
+        List<Cover> covers = playlist.getCovers();
+
+        if (playlist.getAuthor().getId() == user.getId()) {
+            for (Cover cover : covers) {
+                deleteCover(cover);
+            }
+
+            playlistRepository.delete(playlist);
+        } else {
+            throw new BadRequestException("You should be author of playlist to delete it");
+        }
+
+        logsService.info("Playlist deleted",
+                String.format("User %s deleted playlist with id %d with %d covers",
+                        user.getUsername(),
+                        playlist.getId(),
+                        covers.size()),
+                playlistMapper.toPlaylistLogsDto(playlist),
+                null
+        );
+    }
+
+    public void deleteCover(Cover cover) {
+        coverRepository.delete(cover);
+        client.deleteCover(UrlDto
+                .builder()
+                .link(cover.getLink())
+                .build());
+    }
+
+    private Playlist getPlaylistById(int playlistId) {
+        return playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
     }
 }

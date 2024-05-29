@@ -32,6 +32,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -185,10 +186,26 @@ public class CoverServiceImpl implements CoverService {
             int hiFiLeft = HIFI_LIMIT_RELEASE - user.getHiFiReleaseGenerations();
             int loFiLeft = LOFI_LIMIT_RELEASE - user.getLoFiReleaseGenerations();
 
-            throw new ConflictRequestException("You have reached generations limit. " +
-                    "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
+            handleGenerationLimitExceeded(hiFiLeft, loFiLeft);
         }
         userRepository.save(user);
+    }
+
+    private void handleGenerationLimitExceeded(int hiFiLeft, int loFiLeft) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime midnight = now.toLocalDate().atStartOfDay().plusDays(1);
+
+        Duration duration = Duration.between(now, midnight);
+
+        int renewInHours = (int) duration.toHours();
+        int renewInMinutes = (int) (duration.toMinutes() % 60);
+
+        String errorMessage = String.format(
+                "You have reached generations limit. Hi-Fi left: %d. Lo-Fi left: %d. Limits will renew in %d hours and %d minutes.",
+                hiFiLeft, loFiLeft, renewInHours, renewInMinutes
+        );
+
+        throw new ConflictRequestException(errorMessage);
     }
 
     private void updateGenerationsForSubscribedUser(ReleaseRequest request, User user) {
@@ -355,16 +372,16 @@ public class CoverServiceImpl implements CoverService {
                 playlist.setLoFiGenerationsLeft(loFiLeft - 1);
                 return getPlaylistUpdateDto(vibe, isAbstract, true, playlist, urlDto);
             } else {
-                throw new ConflictRequestException("You have reached generations limit. " +
-                        "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
+                handleGenerationLimitExceeded(hiFiLeft, loFiLeft);
+                return null;
             }
         } else {
             if (hiFiLeft > 0) {
                 playlist.setHiFiGenerationsLeft(hiFiLeft - 1);
                 return getPlaylistUpdateDto(vibe, isAbstract, false, playlist, urlDto);
             } else {
-                throw new ConflictRequestException("You have reached generations limit. " +
-                        "Hi-Fi left: " + hiFiLeft + ". Lo-Fi left: " + loFiLeft);
+                handleGenerationLimitExceeded(hiFiLeft, loFiLeft);
+                return null;
             }
         }
     }
