@@ -20,19 +20,21 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ReleaseServiceImpl {
+public class ReleaseServiceImpl implements ReleaseService {
     private final ReleaseRepository releaseRepository;
     private final UserRepository userRepository;
     private final ReleaseMapper mapper;
     private final JwtService jwtService;
 
-    public List<ReleaseCollectionDto> getMyReleases(String userToken, int page, int size) {
+    @Override
+    public List<ReleaseCollectionDto> getMyReleases(String userToken, int page, int size, String search) {
         User user = extractUserFromToken(userToken);
 
         List<ReleaseCollectionDto> collection = releaseRepository
                 .findAllByAuthor(user)
                 .stream()
                 .filter(Release::isSaved)
+                .filter(release -> search == null || release.getTitle().contains(search))
                 .map(mapper::toReleaseCollectionDto)
                 .sorted(Comparator.comparing(ReleaseCollectionDto::getCreatedAt))
                 .toList();
@@ -54,6 +56,7 @@ public class ReleaseServiceImpl {
                 .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
     }
 
+    @Override
     public ReleaseNewDto getReleaseById(String userToken, int releaseId) {
         Release release = releaseRepository.findById(releaseId)
                 .orElseThrow(() -> new NotFoundException(String.format("Release with id %d not found", releaseId)));

@@ -6,7 +6,6 @@ import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.UrlDto;
 import coverit.image_client.response.CoverResponse;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public interface ImageService {

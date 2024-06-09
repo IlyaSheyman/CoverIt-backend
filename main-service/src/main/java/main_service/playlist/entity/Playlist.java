@@ -47,7 +47,7 @@ public class Playlist {
     @JoinColumn(name = "user_id")
     private User author;
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(
             name = "playlist_track",
             joinColumns = @JoinColumn(name = "playlist_id"),

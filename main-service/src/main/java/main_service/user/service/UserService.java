@@ -194,20 +194,23 @@ public class UserService {
     @Async
     public void updateGenerationsCountForAllUsers() {
         List<User> users = repository.findAll();
+        int counter = 0;
+
         for (User user : users) {
             if (!user.isSubscribed()) {
                 user.setLoFiReleaseGenerations(0);
                 user.setHiFiReleaseGenerations(0);
-
+                counter++;
                 repository.save(user);
             } else {
                 if (LocalDateTime.now().getDayOfMonth() == user.getSubscribedAt().getDayOfMonth()) {
                     renewCountersForSubscribed(user);
+                    counter++;
                 }
             }
         }
         logsService.info("Generations updated",
-                String.format("Generations counters were updated for %d users", users.size()),
+                String.format("Generations counters were renewed for %d users", counter),
                 null,
                 null);
     }

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.constants.Constants;
 import main_service.playlist.dto.PlaylistArchiveDto;
-import main_service.playlist.dto.PlaylistGetDto;
+import main_service.playlist.dto.PlaylistShareDto;
 import main_service.playlist.dto.PlaylistNewDto;
 import main_service.playlist.service.PlaylistServiceImpl;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +35,8 @@ public class PlaylistController {
 
     @Operation(summary = "get playlist for sharing")
     @GetMapping("/share")
-    public PlaylistGetDto getPlaylistSharing(@RequestHeader(name = "Authorization", required = false) String userToken,
-                                             @RequestParam(name = "id") int playlistId) {
+    public PlaylistShareDto getPlaylistSharing(@RequestHeader(name = "Authorization", required = false) String userToken,
+                                               @RequestParam(name = "id") int playlistId) {
         log.info("[MAIN_SERVER] get playlist for sharing");
 
         return service.getPlaylistSharing(playlistId);
@@ -47,6 +47,6 @@ public class PlaylistController {
     public PlaylistNewDto getPlaylistById(@RequestHeader(name = "Authorization", required = false) String userToken,
                                           @RequestParam(name = "id") int playlistId) {
         log.info("[MAIN_SERVER] get playlist by id");
-        return service.getPlaylist(playlistId);
+        return service.getPlaylist(playlistId, userToken);
     }
 }

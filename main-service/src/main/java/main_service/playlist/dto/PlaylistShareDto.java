@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlaylistGetDto {
+public class PlaylistShareDto {
     private int id;
     private String title;
     private String url;

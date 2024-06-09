@@ -1,7 +1,5 @@
 package main_service.logs.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.logs.client.TelegramLogsClient;
