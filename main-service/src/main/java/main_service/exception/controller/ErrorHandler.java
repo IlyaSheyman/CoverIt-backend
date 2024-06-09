@@ -2,10 +2,7 @@ package main_service.exception.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import main_service.exception.model.BadRequestException;
-import main_service.exception.model.ConflictRequestException;
-import main_service.exception.model.ErrorResponse;
-import main_service.exception.model.NotFoundException;
+import main_service.exception.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +20,17 @@ import static main_service.constants.Constants.DATE_FORMAT;
 public class ErrorHandler {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
+    public ErrorResponse handleLimitReachedException(final LimitReachedException e) {
+        log.warn("402 {}", e.getMessage(), e);
+        return new ErrorResponse("Limit reached",
+                e.getMessage(),
+                "Limit reached",
+                HttpStatus.PAYMENT_REQUIRED.toString(),
+                LocalDateTime.now().format(formatter));
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)

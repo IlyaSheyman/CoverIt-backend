@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import main_service.constants.Constants;
 import main_service.playlist.dto.PlaylistMyCollectionDto;
 import main_service.playlist.dto.PlaylistUserCollectionDto;
-import main_service.playlist.service.PlaylistServiceImpl;
+import main_service.playlist.service.PlaylistService;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ import java.util.List;
 @Tag(name = "Private playlist controller", description = "For getting playlist from different sources")
 public class PlaylistPrivateController {
 
-    private final PlaylistServiceImpl service;
+    private final PlaylistService service;
 
     @Operation(summary = "like playlist")
     @PatchMapping("/like")

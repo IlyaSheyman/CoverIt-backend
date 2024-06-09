@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PlaylistServiceImpl {
+public class PlaylistServiceImpl implements PlaylistService {
 
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
@@ -38,6 +38,7 @@ public class PlaylistServiceImpl {
 
     private final PlaylistMapper playlistMapper;
 
+    @Override
     public List<PlaylistMyCollectionDto> getMyPlaylists(String userToken,
                                                         int page,
                                                         int size,
@@ -71,6 +72,7 @@ public class PlaylistServiceImpl {
         return collectionDto.subList(start, end);
     }
 
+    @Override
     public List<PlaylistArchiveDto> getArchive(int page,
                                                int size,
                                                Constants.Filters filters,
@@ -111,6 +113,7 @@ public class PlaylistServiceImpl {
         return playlistArchiveDtos.subList(start, end);
     }
 
+    @Override
     public void like(String userToken, int playlistId) {
         User user = extractUserFromToken(userToken);
         Playlist playlist = getPlaylistById(playlistId);
@@ -127,6 +130,7 @@ public class PlaylistServiceImpl {
         log.info("playlist with id " + playlistId + " is liked by user with username " + user.getUsername());
     }
 
+    @Override
     public void unlikePlaylist(String userToken, int playlistId) {
         User user = extractUserFromToken(userToken);
         Playlist playlist = getPlaylistById(playlistId);
@@ -141,6 +145,7 @@ public class PlaylistServiceImpl {
         log.info("playlist with id " + playlistId + " is unliked by user with username " + user.getUsername());
     }
 
+    @Override
     public List<PlaylistUserCollectionDto> getUserPlaylists(String userToken,
                                                             int userId,
                                                             int page,
@@ -208,7 +213,8 @@ public class PlaylistServiceImpl {
                 .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found", id)));
     }
 
-    public PlaylistGetDto getPlaylistSharing(int playlistId) {
+    @Override
+    public PlaylistShareDto getPlaylistSharing(int playlistId) {
         Playlist playlist = getPlaylistById(playlistId);
         if (playlist.getIsSaved() && !playlist.getIsPrivate()) {
             return playlistMapper.toPlaylistGetDto(playlist);
@@ -217,10 +223,19 @@ public class PlaylistServiceImpl {
         }
     }
 
-    public PlaylistNewDto getPlaylist(int playlistId) {
-        return playlistMapper.toPlaylistNewDto(getPlaylistById(playlistId));
+    @Override
+    public PlaylistNewDto getPlaylist(int playlistId, String userToken) {
+        Playlist playlist = getPlaylistById(playlistId);
+        if (userToken != null) {
+            User author = extractUserFromToken(userToken);
+            if (author.getId() != playlist.getAuthor().getId()) {
+                throw new BadRequestException("You are not the author of this playlist");
+            }
+        }
+        return playlistMapper.toPlaylistNewDto(playlist);
     }
 
+    @Override
     public void deletePlaylist(String userToken, int playistId) {
         User user = extractUserFromToken(userToken);
         Playlist playlist = getPlaylistById(playistId);

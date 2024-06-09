@@ -25,5 +25,4 @@ public class Track {
     private String title;
 
     private String authors;
-
 }

@@ -100,3 +100,17 @@ CREATE TABLE IF NOT EXISTS release_cover
     FOREIGN KEY (release_id) REFERENCES release (id),
     FOREIGN KEY (cover_id) REFERENCES cover (id)
 );
+
+CREATE TABLE IF NOT EXISTS release_mood
+(
+    release_id BIGINT,
+    mood       TEXT,
+    FOREIGN KEY (release_id) REFERENCES release (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS release_cover_description
+(
+    release_id        BIGINT,
+    cover_description TEXT,
+    FOREIGN KEY (release_id) REFERENCES release (id) ON DELETE CASCADE
+);

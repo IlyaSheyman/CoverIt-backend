@@ -49,4 +49,20 @@ public class Release {
     @Column(name = "saved_at")
     @JsonFormat(pattern = DATE_FORMAT)
     private LocalDateTime savedAt;
+
+    @ElementCollection
+    @CollectionTable(name = "release_mood", joinColumns = @JoinColumn(name = "release_id"))
+    @Column(name = "mood")
+    private List<String> mood;
+
+    @Column(name = "object")
+    private String object;
+
+    @Column(name = "surrounding")
+    private String surrounding;
+
+    @ElementCollection
+    @CollectionTable(name = "release_cover_description", joinColumns = @JoinColumn(name = "release_id"))
+    @Column(name = "cover_description")
+    private List<String> coverDescription;
 }
