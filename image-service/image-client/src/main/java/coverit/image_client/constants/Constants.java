@@ -3,8 +3,8 @@ package coverit.image_client.constants;
 public interface Constants {
     String SPOTIFY_REGEX = "^(https?://)?(www\\.)?(open\\.spotify\\.com/playlist/)[a-zA-Z0-9]+.*$";
     String APPLE_MUSIC_REGEX = "^(https?://)?(music\\.apple\\.com/[a-z]{2}/playlist/)[^\\s]+$";
+    String YANDEX_MUSIC_REGEX = "^https:\\/\\/music\\.yandex\\.ru\\/users\\/[^\\/]+\\/playlists\\/\\d+$";
 
-    String YANDEX_MUSIC_REGEX = "^(https?://)?(music\\.yandex\\.ru/album/)[0-9]+.*$";
 
     int MIN_PLAYLIST_TITLE_LENGTH = 1;
     int MAX_PLAYLIST_TITLE_LENGTH = 50;

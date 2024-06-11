@@ -1,4 +1,4 @@
-package coverit.image_client.client;
+package coverit.image_client.client.music;
 
 import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.TrackDto;

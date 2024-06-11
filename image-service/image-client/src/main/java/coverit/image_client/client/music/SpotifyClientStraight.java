@@ -1,4 +1,4 @@
-package coverit.image_client.client;
+package coverit.image_client.client.music;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
