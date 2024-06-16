@@ -9,6 +9,9 @@ import main_service.release.dto.ReleaseNewDto;
 import main_service.release.dto.ReleaseSaveDto;
 import main_service.release.dto.ReleaseUpdateDto;
 import main_service.release.request.ReleaseRequest;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +29,11 @@ public interface CoverService {
     ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request);
 
     List<String> getMusicData(String dataType);
+
+    @Scheduled(cron = "0 0 1 * * *")
+    @Transactional
+    @Async
+    void deleteCache();
 
     void deleteCover(Cover cover);
 

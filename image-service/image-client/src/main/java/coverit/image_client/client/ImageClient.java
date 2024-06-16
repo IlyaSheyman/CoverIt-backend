@@ -1,11 +1,14 @@
 package coverit.image_client.client;
 
+import coverit.image_client.client.AI.DalleClient;
+import coverit.image_client.client.music.AppleMusicParser;
+import coverit.image_client.client.music.SpotifyClientStraight;
+import coverit.image_client.client.music.YandexMusicParser;
 import coverit.image_client.constants.Constants;
 import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.ReleaseRequestDto;
 import coverit.image_client.dto.TrackDto;
 import coverit.image_client.exception.BadRequestException;
-import coverit.image_client.exception.UnsupportedRequestException;
 import coverit.image_client.response.CoverResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +25,8 @@ import static coverit.image_client.constants.Constants.*;
 public class ImageClient {
 
     private final SpotifyClientStraight spotifyClient;
-    private final AppleMusicClient appleMusicClient;
+    private final AppleMusicParser appleMusicParser;
+    private final YandexMusicParser yandexMusicParser;
 
     private final AiClient aiClient;
     private final DalleClient dalleClient;
@@ -58,7 +62,7 @@ public class ImageClient {
 
     private String chatGptReleasePromptBuild(ReleaseRequestDto dto, StringBuilder requestToDalle) {
         StringBuilder requestToGpt = new StringBuilder();
-        requestToGpt.append("Add to the visual AI prompt details (3-5 words) that reflect the mood: ")
+        requestToGpt.append("Add to the visual AI prompt details (3-5 words) that reflect the mood (these can be adjectives, objects or actions): ")
                 .append(dto.getMood().toString())
                 .append(". Prompt: ")
                 .append(requestToDalle)
@@ -70,16 +74,18 @@ public class ImageClient {
     }
 
     public PlaylistDto getPlayListByUrl(String url) throws ExecutionException, InterruptedException {
-        if (url.matches(APPLE_MUSIC_REGEX)) {
-            PlaylistDto playlistDto = appleMusicClient.getPlaylistByUrl(url);
+        if (url.matches(YANDEX_MUSIC_REGEX)) {
+            PlaylistDto playlistDto = yandexMusicParser.getPlaylistByUrl(url);
+            log.info(playlistDto.toString());
+            return playlistDto;
+        } else if (url.matches(APPLE_MUSIC_REGEX)) {
+            PlaylistDto playlistDto = appleMusicParser.getPlaylistByUrl(url);
             log.info(playlistDto.toString());
             return playlistDto;
         } else if (url.matches(Constants.SPOTIFY_REGEX)) {
             PlaylistDto playlistDto = spotifyClient.getPlaylistByUrlAsync(url).get();
             log.info(playlistDto.toString());
             return playlistDto;
-        } else if (url.matches(Constants.YANDEX_MUSIC_REGEX)) {
-            throw new UnsupportedRequestException("yandex music playlist is not supported yet");
         } else {
             throw new BadRequestException("incorrect url");
         }

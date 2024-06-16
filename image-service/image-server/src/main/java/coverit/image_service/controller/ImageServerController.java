@@ -63,7 +63,7 @@ public class ImageServerController {
     }
 
     /**
-     * Endpoint for getting playlist by spotify url
+     * Endpoint for getting playlist by url
      *
      * @param urlDto playlist's url
      * @return playlist with title and tracklist

@@ -3,7 +3,7 @@ package main_service.constants;
 public interface Constants {
 
     String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    int SHELF_LIFE = 2;
+    int SHELF_LIFE = 0;
 
     //USER PROPERTIES
     int MIN_USERNAME_LENGTH = 2;

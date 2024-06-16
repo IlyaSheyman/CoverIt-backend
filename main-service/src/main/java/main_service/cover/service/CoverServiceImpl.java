@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.config.security.JwtService;
 import main_service.cover.client.CoverClient;
+import main_service.cover.dto.DeletedCacheDto;
 import main_service.cover.entity.Cover;
 import main_service.cover.storage.CoverRepository;
+import main_service.exception.dto.LimitExceptionMessage;
 import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.LimitReachedException;
@@ -197,23 +199,28 @@ public class CoverServiceImpl implements CoverService {
     }
 
     private void handleGenerationLimitExceeded(int hiFiLeft, int loFiLeft, String type) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime midnight = now.toLocalDate().atStartOfDay().plusDays(1);
-
-        Duration duration = Duration.between(now, midnight);
-
-        int renewInHours = (int) duration.toHours();
-        int renewInMinutes = (int) (duration.toMinutes() % 60);
-
-        String errorMessage;
+        LimitExceptionMessage errorMessage;
         if (type.equals("release")) {
-            errorMessage = String.format(
-                    "You have reached generations limit. Hi-Fi left: %d. Lo-Fi left: %d. Limits will renew in %d hours and %d minutes.",
-                    hiFiLeft, loFiLeft, renewInHours, renewInMinutes);
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime midnight = now.toLocalDate().atStartOfDay().plusDays(1);
+
+            Duration duration = Duration.between(now, midnight);
+
+            int renewInHours = (int) duration.toHours();
+            int renewInMinutes = (int) (duration.toMinutes() % 60);
+
+            errorMessage = LimitExceptionMessage.builder()
+                    .hiFiLeft(hiFiLeft)
+                    .loFiLeft(loFiLeft)
+                    .hoursLeft(renewInHours)
+                    .minutesLeft(renewInMinutes)
+                    .build();
+
         } else {
-            errorMessage = String.format(
-                    "You have reached generations limit. Hi-Fi left: %d. Lo-Fi left: %d.",
-                    hiFiLeft, loFiLeft);
+            errorMessage = LimitExceptionMessage.builder()
+                    .hiFiLeft(hiFiLeft)
+                    .loFiLeft(loFiLeft)
+                    .build();
         }
 
         throw new LimitReachedException(errorMessage);
@@ -573,55 +580,109 @@ public class CoverServiceImpl implements CoverService {
     }
 
     @Scheduled(cron = "0 0 1 * * *")
+    @Override
     @Transactional
     @Async
-    public void deleteUnusedCovers() {
-        LocalDateTime expiration = LocalDateTime.now().minusWeeks(SHELF_LIFE);
+    public void deleteCache() {
+        LocalDateTime expiration = LocalDateTime.now().minusDays(SHELF_LIFE);
+
+        // Find all expired releases, playlists, and covers
         List<Release> expiredReleases = releaseRepository.findAllBySavedFalseAndCreatedAtBefore(expiration);
         List<Playlist> expiredPlaylists = playlistRepository.findAllByIsSavedFalseAndCreatedAtBefore(expiration);
         List<Cover> expiredCovers = coverRepository.findAllByIsSavedFalseAndCreatedBefore(expiration);
 
-        List<Integer> deleted = new ArrayList<>();
+        // Collect IDs and titles of deleted entities for logging
+        List<Integer> deletedCovers = new ArrayList<>();
+        HashMap<Integer, String> deletedReleases = new HashMap<>();
+        HashMap<Integer, String> deletedPlaylists = new HashMap<>();
 
-        if (expiredReleases != null && !expiredReleases.isEmpty()) {
-            for (Release release : expiredReleases) {
-                List<Cover> covers = release.getCovers();
-                for (Cover cover : covers) {
-                    deleteCover(cover);
-                    deleted.add(cover.getId());
-                }
-            }
+        // Process expired releases
+        for (Release release : expiredReleases) {
+            deleteRelease(release, deletedCovers, deletedReleases);
         }
 
-        if (expiredPlaylists != null && !expiredPlaylists.isEmpty()) {
-            for (Playlist playlist : expiredPlaylists) {
-                List<Cover> covers = playlist.getCovers();
-                for (Cover cover : covers) {
-                    deleteCover(cover);
-                    deleted.add(cover.getId());
-                }
-            }
+        // Process expired playlists
+        for (Playlist playlist : expiredPlaylists) {
+            deletePlaylist(playlist, deletedCovers, deletedPlaylists);
         }
 
-        if (expiredCovers != null && !expiredCovers.isEmpty()) {
-            for (Cover cover : expiredCovers) {
-                deleteCover(cover);
-                deleted.add(cover.getId());
-            }
+        // Process expired covers
+        for (Cover cover : expiredCovers) {
+            deleteCoverAndDetachFromRelatedEntities(cover, deletedCovers);
         }
 
+        // Create DTO for logging
+        DeletedCacheDto dto = DeletedCacheDto.builder()
+                .covers(deletedCovers)
+                .releases(deletedReleases)
+                .playlists(deletedPlaylists)
+                .build();
+
+        // Log deletion details
         logsService.info("Unused covers deleted",
-                String.format("Automatically deleted <b>%d</b> covers", deleted.size()),
-                deleted,
+                "Cache deleted automatically",
+                dto,
                 null);
+    }
+
+    private void deleteRelease(Release release, List<Integer> deletedCovers, Map<Integer, String> deletedReleases) {
+        List<Cover> covers = new ArrayList<>(release.getCovers()); // Create a copy to avoid concurrent modification issues
+
+        // Clear covers from release
+        release.getCovers().clear();
+        releaseRepository.save(release);
+
+        // Delete each cover and collect IDs
+        for (Cover cover : covers) {
+            deleteCover(cover);
+            deletedCovers.add(cover.getId());
+        }
+
+        // Delete the release itself
+        releaseRepository.delete(release);
+        deletedReleases.put(release.getId(), release.getTitle());
+    }
+
+    private void deletePlaylist(Playlist playlist, List<Integer> deletedCovers, Map<Integer, String> deletedPlaylists) {
+        List<Cover> covers = new ArrayList<>(playlist.getCovers()); // Create a copy to avoid concurrent modification issues
+
+        // Clear covers from playlist
+        playlist.getCovers().clear();
+        playlistRepository.save(playlist);
+
+        // Delete each cover and collect IDs
+        for (Cover cover : covers) {
+            deleteCover(cover);
+            deletedCovers.add(cover.getId());
+        }
+
+        // Delete the playlist itself
+        playlistRepository.delete(playlist);
+        deletedPlaylists.put(playlist.getId(), playlist.getTitle());
+    }
+
+    private void deleteCoverAndDetachFromRelatedEntities(Cover cover, List<Integer> deletedCovers) {
+        // Find and detach cover from related entities (Release or Playlist)
+        Playlist playlistSource = playlistRepository.findByCoversContains(cover);
+        Release releaseSource = releaseRepository.findByCoversContains(cover);
+
+        if (playlistSource != null) {
+            playlistSource.getCovers().remove(cover);
+            playlistRepository.save(playlistSource);
+        } else if (releaseSource != null) {
+            releaseSource.getCovers().remove(cover);
+            releaseRepository.save(releaseSource);
+        }
+
+        // Delete the cover itself
+        deleteCover(cover);
+        deletedCovers.add(cover.getId());
     }
 
     @Override
     public void deleteCover(Cover cover) {
         coverRepository.delete(cover);
-        client.deleteCover(UrlDto
-                .builder()
-                .link(cover.getLink())
-                .build());
+        client.deleteCover(UrlDto.builder().link(cover.getLink()).build());
     }
+
 }

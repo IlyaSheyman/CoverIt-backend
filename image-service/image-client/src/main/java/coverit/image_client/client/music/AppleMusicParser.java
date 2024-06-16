@@ -1,4 +1,4 @@
-package coverit.image_client.client;
+package coverit.image_client.client.music;
 
 import coverit.image_client.dto.PlaylistDto;
 import coverit.image_client.dto.TrackDto;
@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AppleMusicClient {
+public class AppleMusicParser {
 
     public PlaylistDto getPlaylistByUrl(String url) {
         Document doc = retrieveDocument(url);
@@ -37,14 +38,6 @@ public class AppleMusicClient {
                 .getJSONObject("seoData");
 
         return buildPlaylistDto(playlistData);
-    }
-
-    private Document retrieveDocument(String url) {
-        try {
-            return Jsoup.connect(url).get();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to retrieve document from URL: " + url, e);
-        }
     }
 
     private PlaylistDto buildPlaylistDto(JSONObject data) {
@@ -69,9 +62,18 @@ public class AppleMusicClient {
                     .authors(authors)
                     .title(trackTitle)
                     .build();
+
             tracksDto.add(trackDto);
         }
         return tracksDto;
+    }
+
+    protected Document retrieveDocument(String url) {
+        try {
+            return Jsoup.connect(url).get();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to retrieve document from URL: " + url, e);
+        }
     }
 
     private List<String> extractTracksAuthors(JSONObject track) {
