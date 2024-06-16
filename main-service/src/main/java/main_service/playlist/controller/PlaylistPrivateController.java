@@ -74,5 +74,4 @@ public class PlaylistPrivateController {
 
         service.deletePlaylist(userToken, playistId);
     }
-
 }

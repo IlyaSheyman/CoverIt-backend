@@ -2,6 +2,8 @@ package main_service.exception.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main_service.exception.dto.ErrorResponse;
+import main_service.exception.dto.LimitExceptionMessage;
 import main_service.exception.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,13 +25,15 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
-    public ErrorResponse handleLimitReachedException(final LimitReachedException e) {
+    public LimitExceptionMessage handleLimitReachedException(final LimitReachedException e) {
         log.warn("402 {}", e.getMessage(), e);
-        return new ErrorResponse("Limit reached",
-                e.getMessage(),
-                "Limit reached",
-                HttpStatus.PAYMENT_REQUIRED.toString(),
-                LocalDateTime.now().format(formatter));
+        LimitExceptionMessage message = e.getResponse();
+
+        message.setHeader("Limit reached");
+        message.setStatus(HttpStatus.PAYMENT_REQUIRED.toString());
+        message.setTimestamp(LocalDateTime.now().format(formatter));
+
+        return message;
     }
 
     @ExceptionHandler

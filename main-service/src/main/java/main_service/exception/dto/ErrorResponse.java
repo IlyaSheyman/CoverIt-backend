@@ -1,4 +1,4 @@
-package main_service.exception.model;
+package main_service.exception.dto;
 
 import lombok.Builder;
 import lombok.Getter;

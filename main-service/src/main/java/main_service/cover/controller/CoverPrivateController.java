@@ -12,6 +12,7 @@ import main_service.release.dto.ReleaseNewDto;
 import main_service.release.dto.ReleaseSaveDto;
 import main_service.release.dto.ReleaseUpdateDto;
 import main_service.release.request.ReleaseRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,6 +83,15 @@ public class CoverPrivateController {
     public List<String> getCoverStyles(@RequestHeader(name = "Authorization") String userToken) {
         log.info("[COVERCONTROLLER] get music styles for release cover");
         return service.getMusicData("styles");
+    }
+
+    @Operation(summary = "technical endpoint for deleting cache")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @DeleteMapping("/delete/cache")
+    @Transactional
+    public void deletePlaylist() {
+        log.info("[MAIN_SERVER] delete playlist");
+        service.deleteCache();
     }
 
 }
