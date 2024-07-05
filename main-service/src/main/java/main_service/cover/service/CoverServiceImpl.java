@@ -2,6 +2,7 @@ package main_service.cover.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main_service.kafka.producer.KafkaProducerService;
 import main_service.config.security.JwtService;
 import main_service.cover.client.CoverClient;
 import main_service.cover.dto.DeletedCacheDto;
@@ -30,6 +31,7 @@ import main_service.release.request.ReleaseRequest;
 import main_service.release.storage.ReleaseRepository;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -60,6 +62,9 @@ public class CoverServiceImpl implements CoverService {
     private final ReleaseRequestMapper requestMapper;
 
     private final TelegramLogsService logsService;
+
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
 
     @Override
     public ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request) {
@@ -103,6 +108,9 @@ public class CoverServiceImpl implements CoverService {
                 String.format("User <b>@%s</b> created new release <b>%s</b>", user.getUsername(), newRelease.getTitle()),
                 releaseMapper.toReleaseLogsDto(newRelease),
                 newCover.getLink());
+
+        String message = String.format("Check cover saved status for cover ID %d in 1 day", newCover.getId());
+        kafkaProducerService.sendCheckCoverMessage(message);
 
         return releaseMapper.toReleaseNewDto(newRelease);
     }
