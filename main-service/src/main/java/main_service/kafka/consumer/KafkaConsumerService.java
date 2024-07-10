@@ -6,6 +6,7 @@ import main_service.cover.client.CoverClient;
 import main_service.cover.entity.Cover;
 import main_service.cover.service.UrlDto;
 import main_service.cover.storage.CoverRepository;
+import main_service.cover.storage.ReleaseCoverRepository;
 import main_service.exception.model.NotFoundException;
 import main_service.logs.service.TelegramLogsService;
 import main_service.playlist.entity.Playlist;
@@ -23,6 +24,7 @@ public class KafkaConsumerService {
 
     private final PlaylistRepository playlistRepository;
     private final CoverRepository coverRepository;
+    private final ReleaseCoverRepository releaseCoverRepository;
     private final ReleaseRepository releaseRepository;
 
     private final TelegramLogsService logsService;

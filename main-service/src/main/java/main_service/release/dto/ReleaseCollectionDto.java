@@ -18,8 +18,4 @@ public class ReleaseCollectionDto {
     private UserReleaseDto author;
     private List<CoverReleaseDto> covers;
     private LocalDateTime createdAt;
-    private List<String> mood;
-    private String object;
-    private String surrounding;
-    private List<String> coverDescription;
 }

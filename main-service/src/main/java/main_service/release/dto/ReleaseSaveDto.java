@@ -19,8 +19,4 @@ public class ReleaseSaveDto {
     private List<CoverReleaseDto> covers;
     private boolean saved;
     private LocalDateTime savedAt;
-    private List<String> mood;
-    private String object;
-    private String surrounding;
-    private List<String> coverDescription;
 }

@@ -40,7 +40,6 @@ public class CoverPrivateController {
 
     @ResponseBody
     @PostMapping("/release/generate")
-    @Transactional
     @Operation(summary = "Request to generate cover for release")
     public ReleaseNewDto createReleaseCover(@RequestBody @Valid ReleaseRequest request,
                                             @RequestHeader(name = "Authorization") String userToken) {

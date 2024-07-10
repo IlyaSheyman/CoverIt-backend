@@ -13,10 +13,11 @@ import static main_service.constants.Constants.*;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @ToString
+@Inheritance
+@DiscriminatorColumn(name = "cover_type")
+@DiscriminatorValue("PLAYLIST_COVER")
 public class Cover {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,4 +44,22 @@ public class Cover {
     @Enumerated(EnumType.STRING)
     @Column(name = "vibe")
     private Constants.Vibe vibe;
+
+    @Builder
+    public Cover(int id,
+                 LocalDateTime created,
+                 String link, String prompt,
+                 Boolean isAbstract,
+                 Boolean isLoFi,
+                 Boolean isSaved,
+                 Vibe vibe) {
+        this.id = id;
+        this.created = created;
+        this.link = link;
+        this.prompt = prompt;
+        this.isAbstract = isAbstract;
+        this.isLoFi = isLoFi;
+        this.isSaved = isSaved;
+        this.vibe = vibe;
+    }
 }

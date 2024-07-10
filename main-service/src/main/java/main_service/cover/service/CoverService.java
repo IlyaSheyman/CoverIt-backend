@@ -26,6 +26,7 @@ public interface CoverService {
 
     PlaylistUpdateDto updatePlaylistCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken, Boolean isLoFi);
 
+    @Transactional
     ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request);
 
     List<String> getMusicData(String dataType);

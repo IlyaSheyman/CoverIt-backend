@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import main_service.cover.entity.Cover;
+import main_service.cover.entity.ReleaseCover;
 import main_service.user.entity.User;
 
 import java.time.LocalDateTime;
@@ -37,7 +37,7 @@ public class Release {
             joinColumns = @JoinColumn(name = "release_id"),
             inverseJoinColumns = @JoinColumn(name = "cover_id")
     )
-    private List<Cover> covers;
+    private List<ReleaseCover> covers;
 
     @Column(name = "created_at")
     @JsonFormat(pattern = DATE_FORMAT)
@@ -49,20 +49,4 @@ public class Release {
     @Column(name = "saved_at")
     @JsonFormat(pattern = DATE_FORMAT)
     private LocalDateTime savedAt;
-
-    @ElementCollection
-    @CollectionTable(name = "release_mood", joinColumns = @JoinColumn(name = "release_id"))
-    @Column(name = "mood")
-    private List<String> mood;
-
-    @Column(name = "object")
-    private String object;
-
-    @Column(name = "surrounding")
-    private String surrounding;
-
-    @ElementCollection
-    @CollectionTable(name = "release_cover_description", joinColumns = @JoinColumn(name = "release_id"))
-    @Column(name = "cover_description")
-    private List<String> coverDescription;
 }

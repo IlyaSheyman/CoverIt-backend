@@ -7,6 +7,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CoverRepository extends JpaRepository<Cover, Integer> {
-    Cover findByLink(String link);
     List<Cover> findAllByIsSavedFalseAndCreatedBefore(LocalDateTime expiration);
 }
