@@ -15,9 +15,10 @@ import java.util.List;
 public class PlaylistArchiveDto {
     private int id;
     private String title;
+    private String author;
     private String url;
     private Constants.Vibe vibe;
     private List<TrackInPlaylistDto> tracks;
-    private CoverPlaylistDto cover;
+    private List<CoverPlaylistDto> covers;
     private Boolean isLiked;
 }

@@ -88,9 +88,10 @@ public class CoverPrivateController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping("/delete/cache")
     @Transactional
-    public void deletePlaylist() {
+    public void deletePlaylist(@RequestHeader(name = "Authorization") String userToken,
+                               @RequestHeader(name = "Password") String password) {
         log.info("[MAIN_SERVER] delete playlist");
-        service.deleteCache();
+        service.deleteCache(userToken, password);
     }
 
 }

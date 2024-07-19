@@ -3,6 +3,8 @@ package main_service.constants;
 public interface Constants {
 
     String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    String ADMIN_EMAIL = "admin.email@yandex.ru";
     int SHELF_LIFE = 0;
 
     //USER PROPERTIES

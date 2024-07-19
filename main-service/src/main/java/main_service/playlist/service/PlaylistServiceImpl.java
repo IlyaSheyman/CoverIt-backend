@@ -19,10 +19,7 @@ import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +57,6 @@ public class PlaylistServiceImpl implements PlaylistService {
 
         for (Playlist playlist : collection) {
             PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
-
             dto.setIsLiked(liked.contains(playlist));
 
             collectionDto.add(dto);
@@ -88,27 +84,33 @@ public class PlaylistServiceImpl implements PlaylistService {
             archive = sort(filters, archive);
         }
 
-        List<PlaylistArchiveDto> playlistArchiveDtos;
+        List<PlaylistArchiveDto> playlistArchiveDtos = new ArrayList<>();
+
 
         if (userToken != null) {
             User requester = extractUserFromToken(userToken);
             List<Playlist> likedByRequester = requester.getLikes();
 
-            playlistArchiveDtos = new ArrayList<>();
-
             for (Playlist playlist : archive) {
                 PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);
                 dto.setIsLiked(likedByRequester.contains(playlist));
+                dto.setAuthor(playlist.getAuthor().getUsername());
                 playlistArchiveDtos.add(dto);
             }
         } else {
-            playlistArchiveDtos = archive.stream()
-                    .map(playlistMapper::toPlaylistArchiveDto)
-                    .collect(Collectors.toList());
+            for (Playlist playlist : archive) {
+                PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);
+                dto.setAuthor(playlist.getAuthor().getUsername());
+                playlistArchiveDtos.add(dto);
+            }
         }
 
         int start = page * size;
         int end = Math.min((page + 1) * size, playlistArchiveDtos.size());
+
+        if (start >= playlistArchiveDtos.size()) {
+            return Collections.emptyList();
+        }
 
         return playlistArchiveDtos.subList(start, end);
     }

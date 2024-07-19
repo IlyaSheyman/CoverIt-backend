@@ -35,7 +35,6 @@ import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,7 +104,7 @@ public class CoverServiceImpl implements CoverService {
                 newCover.getLink());
 
         String message = String.format("Check cover saved status for cover ID %d in 1 day", newCover.getId());
-//        kafkaProducerService.sendCheckCoverMessage(message);
+        kafkaProducerService.sendCheckCoverMessage(message);
 
         return releaseMapper.toReleaseNewDto(newRelease);
     }
@@ -460,9 +459,7 @@ public class CoverServiceImpl implements CoverService {
 
         User user = extractUser(userToken);
 
-        if (playlistRepository.existsByUrlAndIsSavedTrue(playlist.getUrl())) {
-            throw new ConflictRequestException("This playlist is already covered by other user");
-        } else if (user.getId() != author.getId()) {
+        if (user.getId() != author.getId()) {
             throw new ConflictRequestException("Only author of playlist can save it");
         } else if (playlist.getIsSaved()) {
             throw new ConflictRequestException("This playlist is already saved");
@@ -598,11 +595,14 @@ public class CoverServiceImpl implements CoverService {
         }
     }
 
-    @Scheduled(cron = "0 0 1 * * *")
     @Override
     @Transactional
     @Async
-    public void deleteCache() {
+    public void deleteCache(String userToken, String password) {
+        User user = extractUser(userToken);
+        if (user.getEmail().equals(ADMIN_EMAIL)) {
+            
+        }
         LocalDateTime expiration = LocalDateTime.now().minusDays(SHELF_LIFE);
 
         // Find all expired releases, playlists, and covers

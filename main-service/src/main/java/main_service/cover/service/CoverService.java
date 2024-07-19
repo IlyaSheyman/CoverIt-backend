@@ -31,10 +31,9 @@ public interface CoverService {
 
     List<String> getMusicData(String dataType);
 
-    @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     @Async
-    void deleteCache();
+    void deleteCache(String userToken, String password);
 
     void deleteCover(Cover cover);
 
