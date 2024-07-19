@@ -52,6 +52,17 @@ public class PlaylistPrivateController {
         return service.getMyPlaylists(userToken, page, size, filters);
     }
 
+    @Operation(summary = "get user's liked playlists")
+    @GetMapping("/liked")
+    public List<PlaylistMyCollectionDto> getLikedPlaylists(@RequestHeader(name = "Authorization") String userToken,
+                                                           @RequestParam(name = "page", defaultValue = "0") int page,
+                                                           @RequestParam(name = "size", defaultValue = "10") int size,
+                                                           @RequestParam(name = "filter", required = false) Constants.Filters filters)  {
+        log.info("[MAIN_SERVER] get liked playlists request accepted");
+
+        return service.getLikedPlaylists(userToken, page, size, filters);
+    }
+
     @Operation(summary = "get user's playlists by searching his name in 'find users'")
     @GetMapping("/user_collection")
     public List<PlaylistUserCollectionDto> getUserPlaylists(@RequestHeader(name = "Authorization") String userToken,

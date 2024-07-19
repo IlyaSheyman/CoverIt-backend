@@ -282,7 +282,6 @@ public class CoverServiceImpl implements CoverService {
         ArrayList<Track> tracks = getTracksFromDto(dto);
         newPlaylist.setTracks(tracks);
 
-
         User user = null;
 
         if (userToken != null) {

@@ -35,6 +35,8 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     private final PlaylistMapper playlistMapper;
 
+
+    //TODO refactor to get only my collection
     @Override
     public List<PlaylistMyCollectionDto> getMyPlaylists(String userToken,
                                                         int page,
@@ -58,6 +60,7 @@ public class PlaylistServiceImpl implements PlaylistService {
         for (Playlist playlist : collection) {
             PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
             dto.setIsLiked(liked.contains(playlist));
+            dto.setAuthor(playlist.getAuthor().getUsername());
 
             collectionDto.add(dto);
         }
@@ -65,7 +68,17 @@ public class PlaylistServiceImpl implements PlaylistService {
         int start = page * size;
         int end = Math.min((page + 1) * size, collectionDto.size());
 
+        if (start >= collectionDto.size()) {
+            return Collections.emptyList();
+        }
+
         return collectionDto.subList(start, end);
+    }
+
+    //TODO refactor to get my playlists
+    @Override
+    public List<PlaylistMyCollectionDto> getLikedPlaylists(String userToken, int page, int size, Constants.Filters filters) {
+        return List.of();
     }
 
     @Override

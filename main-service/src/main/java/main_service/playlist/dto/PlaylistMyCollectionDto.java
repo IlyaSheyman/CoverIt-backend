@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 public class PlaylistMyCollectionDto {
     private int id;
+    private String author;
     private String title;
     private String url;
     private Constants.Vibe vibe;
