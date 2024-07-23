@@ -36,14 +36,13 @@ public class PlaylistServiceImpl implements PlaylistService {
     private final PlaylistMapper playlistMapper;
 
 
-    //TODO refactor to get only my collection
+    //TODO test refactored
     @Override
     public List<PlaylistMyCollectionDto> getMyPlaylists(String userToken,
                                                         int page,
                                                         int size,
                                                         Constants.Filters filters) {
         User user = extractUserFromToken(userToken);
-        List<Playlist> liked = user.getLikes();
 
         List<Playlist> collection = playlistRepository
                 .findByAuthor(user)
@@ -59,7 +58,42 @@ public class PlaylistServiceImpl implements PlaylistService {
 
         for (Playlist playlist : collection) {
             PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
-            dto.setIsLiked(liked.contains(playlist));
+            collectionDto.add(dto);
+        }
+
+        int start = page * size;
+        int end = Math.min((page + 1) * size, collectionDto.size());
+
+        if (start >= collectionDto.size()) {
+            return Collections.emptyList();
+        }
+
+        return collectionDto.subList(start, end);
+    }
+
+    //TODO test refactored
+    @Override
+    public List<PlaylistMyCollectionDto> getLikedPlaylists(String userToken, int page, int size, Constants.Filters filters) {
+        User user = extractUserFromToken(userToken);
+        List<Playlist> liked = user.getLikes();
+
+        List<Playlist> collection = playlistRepository
+                .findAll()
+                .stream()
+                .filter(playlist -> playlist.getIsSaved().equals(true))
+                .filter(liked::contains)
+                .toList();
+        //TODO понять, стоит ли добавить проверку на автор != user
+
+        if (filters != null) {
+            collection = sort(filters, collection);
+        }
+
+        List<PlaylistMyCollectionDto> collectionDto = new ArrayList<>();
+
+        for (Playlist playlist : collection) {
+            PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
+            dto.setIsLiked(true);
             dto.setAuthor(playlist.getAuthor().getUsername());
 
             collectionDto.add(dto);
@@ -75,12 +109,7 @@ public class PlaylistServiceImpl implements PlaylistService {
         return collectionDto.subList(start, end);
     }
 
-    //TODO refactor to get my playlists
-    @Override
-    public List<PlaylistMyCollectionDto> getLikedPlaylists(String userToken, int page, int size, Constants.Filters filters) {
-        return List.of();
-    }
-
+    //TODO test refactored
     @Override
     public List<PlaylistArchiveDto> getArchive(int page,
                                                int size,
