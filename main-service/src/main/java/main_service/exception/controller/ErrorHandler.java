@@ -6,6 +6,7 @@ import main_service.exception.dto.ErrorResponse;
 import main_service.exception.dto.LimitExceptionMessage;
 import main_service.exception.model.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

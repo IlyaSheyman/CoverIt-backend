@@ -14,7 +14,6 @@ import main_service.exception.model.BadRequestException;
 import main_service.exception.model.ConflictRequestException;
 import main_service.exception.model.LimitReachedException;
 import main_service.exception.model.NotFoundException;
-import main_service.kafka.producer.KafkaProducerService;
 import main_service.logs.service.TelegramLogsService;
 import main_service.playlist.dto.*;
 import main_service.playlist.entity.Playlist;
@@ -33,6 +32,8 @@ import main_service.release.request.ReleaseRequest;
 import main_service.release.storage.ReleaseRepository;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -65,8 +66,7 @@ public class CoverServiceImpl implements CoverService {
 
     private final TelegramLogsService logsService;
 
-    @Autowired
-    private KafkaProducerService kafkaProducerService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     @Transactional
@@ -104,7 +104,15 @@ public class CoverServiceImpl implements CoverService {
                 newCover.getLink());
 
         String message = String.format("Check cover saved status for cover ID %d in 1 day", newCover.getId());
-        kafkaProducerService.sendCheckCoverMessage(message);
+
+        rabbitTemplate.convertAndSend
+                ("cover.exchange",
+                "cover.check.queue",
+                MessageBuilder
+                        .withBody(message.getBytes())
+                        .setHeader("x-delay", DELETE_COVER_DELAY)
+                        .build()
+        );
 
         return releaseMapper.toReleaseNewDto(newRelease);
     }

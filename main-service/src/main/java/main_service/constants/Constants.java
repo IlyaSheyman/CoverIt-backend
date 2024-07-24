@@ -50,6 +50,7 @@ public interface Constants {
     int HIFI_LIMIT_PLAYLIST = 1;
     int LOFI_LIMIT_PLAYLIST = 3;
 
+    int DELETE_COVER_DELAY = 30000;
     enum Vibe {
         DANCING_FLOOR,
         NATURE_DOES_NOT_CARE,
