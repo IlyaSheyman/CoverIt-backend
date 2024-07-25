@@ -83,7 +83,6 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .filter(playlist -> playlist.getIsSaved().equals(true))
                 .filter(liked::contains)
                 .toList();
-        //TODO понять, стоит ли добавить проверку на автор != user
 
         if (filters != null) {
             collection = sort(filters, collection);
@@ -132,6 +131,10 @@ public class PlaylistServiceImpl implements PlaylistService {
         if (userToken != null) {
             User requester = extractUserFromToken(userToken);
             List<Playlist> likedByRequester = requester.getLikes();
+
+            if (likedByRequester != null) {
+
+            }
 
             for (Playlist playlist : archive) {
                 PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);

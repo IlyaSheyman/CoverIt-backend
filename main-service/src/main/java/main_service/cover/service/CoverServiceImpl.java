@@ -10,10 +10,7 @@ import main_service.cover.entity.ReleaseCover;
 import main_service.cover.storage.CoverRepository;
 import main_service.cover.storage.ReleaseCoverRepository;
 import main_service.exception.dto.LimitExceptionMessage;
-import main_service.exception.model.BadRequestException;
-import main_service.exception.model.ConflictRequestException;
-import main_service.exception.model.LimitReachedException;
-import main_service.exception.model.NotFoundException;
+import main_service.exception.model.*;
 import main_service.logs.service.TelegramLogsService;
 import main_service.playlist.dto.*;
 import main_service.playlist.entity.Playlist;
@@ -34,7 +31,7 @@ import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +64,11 @@ public class CoverServiceImpl implements CoverService {
     private final TelegramLogsService logsService;
 
     private final RabbitTemplate rabbitTemplate;
+
+    @Value("${admin-email}")
+    private String adminEmail;
+    @Value("${admin-password}")
+    private String adminPassword;
 
     @Override
     @Transactional
@@ -604,12 +606,18 @@ public class CoverServiceImpl implements CoverService {
 
     @Override
     @Transactional
-    @Async
-    public void deleteCache(String userToken, String password) {
+    public void deleteCache(String userToken,
+                            String password) {
         User user = extractUser(userToken);
-        if (user.getEmail().equals(ADMIN_EMAIL)) {
-            
+
+        if (!user.getEmail().equals(adminEmail)) {
+            throw new ForbiddenException("You are not allowed to delete cache");
         }
+
+        if (password.equals(adminPassword)) {
+            throw new ForbiddenException("Invalid password");
+        }
+
         LocalDateTime expiration = LocalDateTime.now().minusDays(SHELF_LIFE);
 
         // Find all expired releases, playlists, and covers

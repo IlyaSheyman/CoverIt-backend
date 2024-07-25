@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import main_service.exception.dto.ErrorResponse;
 import main_service.exception.dto.LimitExceptionMessage;
 import main_service.exception.model.*;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -101,6 +102,17 @@ public class ErrorHandler {
                 e.getMessage(),
                 "Internal server error",
                 HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+                LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(final ForbiddenException e) {
+        log.warn("403 {}", e.getMessage(), e);
+        return new ErrorResponse("Access denied",
+                e.getMessage(),
+                "Access denied exception",
+                HttpStatus.FORBIDDEN.toString(),
                 LocalDateTime.now().format(formatter));
     }
 }

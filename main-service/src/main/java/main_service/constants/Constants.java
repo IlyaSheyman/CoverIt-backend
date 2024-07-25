@@ -4,7 +4,6 @@ public interface Constants {
 
     String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    String ADMIN_EMAIL = "admin.email@yandex.ru";
     int SHELF_LIFE = 0;
 
     //USER PROPERTIES
@@ -50,7 +49,8 @@ public interface Constants {
     int HIFI_LIMIT_PLAYLIST = 1;
     int LOFI_LIMIT_PLAYLIST = 3;
 
-    int DELETE_COVER_DELAY = 30000;
+    int DELETE_COVER_DELAY = 43200000;
+
     enum Vibe {
         DANCING_FLOOR,
         NATURE_DOES_NOT_CARE,
