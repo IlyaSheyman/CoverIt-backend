@@ -19,10 +19,7 @@ import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,13 +35,14 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     private final PlaylistMapper playlistMapper;
 
+
+    //TODO test refactored
     @Override
     public List<PlaylistMyCollectionDto> getMyPlaylists(String userToken,
                                                         int page,
                                                         int size,
                                                         Constants.Filters filters) {
         User user = extractUserFromToken(userToken);
-        List<Playlist> liked = user.getLikes();
 
         List<Playlist> collection = playlistRepository
                 .findByAuthor(user)
@@ -60,8 +58,42 @@ public class PlaylistServiceImpl implements PlaylistService {
 
         for (Playlist playlist : collection) {
             PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
+            collectionDto.add(dto);
+        }
 
-            dto.setIsLiked(liked.contains(playlist));
+        int start = page * size;
+        int end = Math.min((page + 1) * size, collectionDto.size());
+
+        if (start >= collectionDto.size()) {
+            return Collections.emptyList();
+        }
+
+        return collectionDto.subList(start, end);
+    }
+
+    //TODO test refactored
+    @Override
+    public List<PlaylistMyCollectionDto> getLikedPlaylists(String userToken, int page, int size, Constants.Filters filters) {
+        User user = extractUserFromToken(userToken);
+        List<Playlist> liked = user.getLikes();
+
+        List<Playlist> collection = playlistRepository
+                .findAll()
+                .stream()
+                .filter(playlist -> playlist.getIsSaved().equals(true))
+                .filter(liked::contains)
+                .toList();
+
+        if (filters != null) {
+            collection = sort(filters, collection);
+        }
+
+        List<PlaylistMyCollectionDto> collectionDto = new ArrayList<>();
+
+        for (Playlist playlist : collection) {
+            PlaylistMyCollectionDto dto = playlistMapper.toPlaylistMyCollectionDto(playlist);
+            dto.setIsLiked(true);
+            dto.setAuthor(playlist.getAuthor().getUsername());
 
             collectionDto.add(dto);
         }
@@ -69,9 +101,14 @@ public class PlaylistServiceImpl implements PlaylistService {
         int start = page * size;
         int end = Math.min((page + 1) * size, collectionDto.size());
 
+        if (start >= collectionDto.size()) {
+            return Collections.emptyList();
+        }
+
         return collectionDto.subList(start, end);
     }
 
+    //TODO test refactored
     @Override
     public List<PlaylistArchiveDto> getArchive(int page,
                                                int size,
@@ -88,27 +125,37 @@ public class PlaylistServiceImpl implements PlaylistService {
             archive = sort(filters, archive);
         }
 
-        List<PlaylistArchiveDto> playlistArchiveDtos;
+        List<PlaylistArchiveDto> playlistArchiveDtos = new ArrayList<>();
+
 
         if (userToken != null) {
             User requester = extractUserFromToken(userToken);
             List<Playlist> likedByRequester = requester.getLikes();
 
-            playlistArchiveDtos = new ArrayList<>();
+            if (likedByRequester != null) {
+
+            }
 
             for (Playlist playlist : archive) {
                 PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);
                 dto.setIsLiked(likedByRequester.contains(playlist));
+                dto.setAuthor(playlist.getAuthor().getUsername());
                 playlistArchiveDtos.add(dto);
             }
         } else {
-            playlistArchiveDtos = archive.stream()
-                    .map(playlistMapper::toPlaylistArchiveDto)
-                    .collect(Collectors.toList());
+            for (Playlist playlist : archive) {
+                PlaylistArchiveDto dto = playlistMapper.toPlaylistArchiveDto(playlist);
+                dto.setAuthor(playlist.getAuthor().getUsername());
+                playlistArchiveDtos.add(dto);
+            }
         }
 
         int start = page * size;
         int end = Math.min((page + 1) * size, playlistArchiveDtos.size());
+
+        if (start >= playlistArchiveDtos.size()) {
+            return Collections.emptyList();
+        }
 
         return playlistArchiveDtos.subList(start, end);
     }

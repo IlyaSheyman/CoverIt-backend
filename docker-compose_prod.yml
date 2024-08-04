@@ -68,3 +68,16 @@ services:
       - POSTGRES_DB=coverit
       - POSTGRES_USER=${SPRING_DATASOURCE_USER}
       - POSTGRES_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+
+  rabbitmq:
+    image: heidiks/rabbitmq-delayed-message-exchange:latest
+    container_name: rabbitmq
+    env_file:
+      - .env
+    environment:
+      TZ: Europe/Berlin
+      RABBITMQ_DEFAULT_USER: ${SPRING_RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${SPRING_RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"

@@ -16,6 +16,11 @@ public interface PlaylistService {
                                         Constants.Filters filters,
                                         String userToken);
 
+    List<PlaylistMyCollectionDto> getLikedPlaylists(String userToken,
+                                                    int page,
+                                                    int size,
+                                                    Constants.Filters filters);
+
     void like(String userToken, int playlistId);
 
     void unlikePlaylist(String userToken, int playlistId);

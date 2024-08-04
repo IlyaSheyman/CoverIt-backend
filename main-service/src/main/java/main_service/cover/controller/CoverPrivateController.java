@@ -40,7 +40,6 @@ public class CoverPrivateController {
 
     @ResponseBody
     @PostMapping("/release/generate")
-    @Transactional
     @Operation(summary = "Request to generate cover for release")
     public ReleaseNewDto createReleaseCover(@RequestBody @Valid ReleaseRequest request,
                                             @RequestHeader(name = "Authorization") String userToken) {
@@ -89,9 +88,10 @@ public class CoverPrivateController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping("/delete/cache")
     @Transactional
-    public void deletePlaylist() {
+    public void deletePlaylist(@RequestHeader(name = "Authorization") String userToken,
+                               @RequestHeader(name = "Password") String password) {
         log.info("[MAIN_SERVER] delete playlist");
-        service.deleteCache();
+        service.deleteCache(userToken, password);
     }
 
 }

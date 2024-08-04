@@ -9,8 +9,8 @@ import main_service.release.dto.ReleaseNewDto;
 import main_service.release.dto.ReleaseSaveDto;
 import main_service.release.dto.ReleaseUpdateDto;
 import main_service.release.request.ReleaseRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -26,14 +26,14 @@ public interface CoverService {
 
     PlaylistUpdateDto updatePlaylistCover(Constants.Vibe vibe, Boolean isAbstract, int playlistId, String userToken, Boolean isLoFi);
 
+    @Transactional
     ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request);
 
     List<String> getMusicData(String dataType);
 
-    @Scheduled(cron = "0 0 1 * * *")
     @Transactional
-    @Async
-    void deleteCache();
+    void deleteCache(String userToken,
+                     String password);
 
     void deleteCover(Cover cover);
 

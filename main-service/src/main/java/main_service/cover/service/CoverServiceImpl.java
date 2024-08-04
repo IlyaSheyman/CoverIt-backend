@@ -2,17 +2,15 @@ package main_service.cover.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import main_service.kafka.producer.KafkaProducerService;
 import main_service.config.security.JwtService;
 import main_service.cover.client.CoverClient;
 import main_service.cover.dto.DeletedCacheDto;
 import main_service.cover.entity.Cover;
+import main_service.cover.entity.ReleaseCover;
 import main_service.cover.storage.CoverRepository;
+import main_service.cover.storage.ReleaseCoverRepository;
 import main_service.exception.dto.LimitExceptionMessage;
-import main_service.exception.model.BadRequestException;
-import main_service.exception.model.ConflictRequestException;
-import main_service.exception.model.LimitReachedException;
-import main_service.exception.model.NotFoundException;
+import main_service.exception.model.*;
 import main_service.logs.service.TelegramLogsService;
 import main_service.playlist.dto.*;
 import main_service.playlist.entity.Playlist;
@@ -31,9 +29,10 @@ import main_service.release.request.ReleaseRequest;
 import main_service.release.storage.ReleaseRepository;
 import main_service.user.entity.User;
 import main_service.user.storage.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +51,7 @@ public class CoverServiceImpl implements CoverService {
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
     private final CoverRepository coverRepository;
+    private final ReleaseCoverRepository releaseCoverRepository;
     private final TrackRepository trackRepository;
     private final ReleaseRepository releaseRepository;
 
@@ -63,10 +63,15 @@ public class CoverServiceImpl implements CoverService {
 
     private final TelegramLogsService logsService;
 
-    @Autowired
-    private KafkaProducerService kafkaProducerService;
+    private final RabbitTemplate rabbitTemplate;
+
+    @Value("${admin-email}")
+    private String adminEmail;
+    @Value("${admin-password}")
+    private String adminPassword;
 
     @Override
+    @Transactional
     public ReleaseNewDto createReleaseCover(String userToken, ReleaseRequest request) {
         User user = extractUser(userToken);
 
@@ -77,31 +82,22 @@ public class CoverServiceImpl implements CoverService {
 
         releaseGenerationsUpdate(request, user);
 
-        CoverResponse coverResponse = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
-        List<Cover> covers = new ArrayList<>();
-
-        Cover newCover = Cover.builder()
-                .created(LocalDateTime.now())
-                .isLoFi(request.getIsLoFi())
-                .link(coverResponse.getUrl())
-                .prompt(coverResponse.getPrompt())
-                .isSaved(false)
-                .build();
-
-        covers.add(newCover);
-
         Release newRelease = Release.builder()
                 .title(request.getTitle())
                 .createdAt(LocalDateTime.now())
-                .covers(covers)
                 .author(user)
-                .surrounding(request.getSurrounding())
-                .coverDescription(request.getCoverDescription())
-                .mood(request.getMood())
-                .object(request.getObject())
                 .build();
 
-        coverRepository.save(newCover);
+        newRelease = releaseRepository.save(newRelease);
+
+        CoverResponse coverResponse = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
+
+        ReleaseCover newCover = buildAndSaveReleaseCover(request, coverResponse);
+
+        List<ReleaseCover> covers = new ArrayList<>();
+        covers.add(newCover);
+        newRelease.setCovers(covers);
+
         newRelease = releaseRepository.save(newRelease);
 
         logsService.info("New release",
@@ -110,7 +106,15 @@ public class CoverServiceImpl implements CoverService {
                 newCover.getLink());
 
         String message = String.format("Check cover saved status for cover ID %d in 1 day", newCover.getId());
-        kafkaProducerService.sendCheckCoverMessage(message);
+
+        rabbitTemplate.convertAndSend
+                ("cover.exchange",
+                "cover.check.queue",
+                MessageBuilder
+                        .withBody(message.getBytes())
+                        .setHeader("x-delay", DELETE_COVER_DELAY)
+                        .build()
+        );
 
         return releaseMapper.toReleaseNewDto(newRelease);
     }
@@ -128,17 +132,10 @@ public class CoverServiceImpl implements CoverService {
 
         CoverResponse coverResponse = client.createReleaseCover(requestMapper.toReleaseRequestDto(request));
 
-        Cover newCover = Cover.builder()
-                .created(LocalDateTime.now())
-                .isLoFi(request.getIsLoFi())
-                .link(coverResponse.getUrl())
-                .prompt(coverResponse.getPrompt())
-                .isSaved(false)
-                .build();
-
+        ReleaseCover newCover = buildAndSaveReleaseCover(request, coverResponse);
         release.getCovers().add(newCover);
 
-        coverRepository.save(newCover);
+        releaseCoverRepository.save(newCover);
         release = releaseRepository.save(release);
 
         logsService.info("Update release",
@@ -149,11 +146,30 @@ public class CoverServiceImpl implements CoverService {
         return releaseMapper.toReleaseUpdateDto(release);
     }
 
+    private ReleaseCover buildAndSaveReleaseCover(ReleaseRequest request, CoverResponse coverResponse) {
+        ReleaseCover newCover = ReleaseCover.releaseCoverBuilder()
+                .surrounding(request.getSurrounding())
+                .object(request.getObject())
+                .created(LocalDateTime.now())
+                .isLoFi(request.getIsLoFi())
+                .link(coverResponse.getUrl())
+                .prompt(coverResponse.getPrompt())
+                .isSaved(false)
+                .build();
+
+        newCover = releaseCoverRepository.save(newCover);
+
+        newCover.setMood(request.getMood());
+        newCover.setCoverDescription(request.getCoverDescription());
+
+        return releaseCoverRepository.save(newCover);
+    }
+
     @Override
     public ReleaseSaveDto saveRelease(String userToken, int releaseId, int coverId) {
         User user = extractUser(userToken);
         Release release = getReleaseById(releaseId);
-        Cover cover = getCoverById(coverId);
+        ReleaseCover cover = getReleaseCoverById(coverId);
 
         if (release.getAuthor().getId() != user.getId()) {
             throw new BadRequestException("You should be author of release to save it");
@@ -167,7 +183,7 @@ public class CoverServiceImpl implements CoverService {
         release.setSaved(true);
         release.setSavedAt(LocalDateTime.now());
 
-        coverRepository.save(cover);
+        releaseCoverRepository.save(cover);
         release = releaseRepository.save(release);
 
         logsService.info("Save release",
@@ -275,7 +291,6 @@ public class CoverServiceImpl implements CoverService {
 
         ArrayList<Track> tracks = getTracksFromDto(dto);
         newPlaylist.setTracks(tracks);
-
 
         User user = null;
 
@@ -453,9 +468,7 @@ public class CoverServiceImpl implements CoverService {
 
         User user = extractUser(userToken);
 
-        if (playlistRepository.existsByUrlAndIsSavedTrue(playlist.getUrl())) {
-            throw new ConflictRequestException("This playlist is already covered by other user");
-        } else if (user.getId() != author.getId()) {
+        if (user.getId() != author.getId()) {
             throw new ConflictRequestException("Only author of playlist can save it");
         } else if (playlist.getIsSaved()) {
             throw new ConflictRequestException("This playlist is already saved");
@@ -571,6 +584,10 @@ public class CoverServiceImpl implements CoverService {
                 .orElseThrow(() -> new NotFoundException("Playlist with id " + playlistId + " not found"));
     }
 
+    private ReleaseCover getReleaseCoverById(int coverId) {
+        return releaseCoverRepository.findById(coverId)
+                .orElseThrow(() -> new NotFoundException("Release cover with id " + coverId + " not found"));
+    }
     private Cover getCoverById(int coverId) {
         return coverRepository.findById(coverId)
                 .orElseThrow(() -> new NotFoundException("Cover with id " + coverId + " not found"));
@@ -587,11 +604,20 @@ public class CoverServiceImpl implements CoverService {
         }
     }
 
-    @Scheduled(cron = "0 0 1 * * *")
     @Override
     @Transactional
-    @Async
-    public void deleteCache() {
+    public void deleteCache(String userToken,
+                            String password) {
+        User user = extractUser(userToken);
+
+        if (!user.getEmail().equals(adminEmail)) {
+            throw new ForbiddenException("You are not allowed to delete cache");
+        }
+
+        if (password.equals(adminPassword)) {
+            throw new ForbiddenException("Invalid password");
+        }
+
         LocalDateTime expiration = LocalDateTime.now().minusDays(SHELF_LIFE);
 
         // Find all expired releases, playlists, and covers
@@ -634,7 +660,7 @@ public class CoverServiceImpl implements CoverService {
     }
 
     private void deleteRelease(Release release, List<Integer> deletedCovers, Map<Integer, String> deletedReleases) {
-        List<Cover> covers = new ArrayList<>(release.getCovers()); // Create a copy to avoid concurrent modification issues
+        List<Cover> covers = new ArrayList<>(release.getCovers());
 
         // Clear covers from release
         release.getCovers().clear();
@@ -652,8 +678,7 @@ public class CoverServiceImpl implements CoverService {
     }
 
     private void deletePlaylist(Playlist playlist, List<Integer> deletedCovers, Map<Integer, String> deletedPlaylists) {
-        List<Cover> covers = new ArrayList<>(playlist.getCovers()); // Create a copy to avoid concurrent modification issues
-
+        List<Cover> covers = new ArrayList<>(playlist.getCovers());
         // Clear covers from playlist
         playlist.getCovers().clear();
         playlistRepository.save(playlist);
