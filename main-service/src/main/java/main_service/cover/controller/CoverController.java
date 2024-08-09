@@ -6,12 +6,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import main_service.constants.Constants;
+import main_service.cover.dto.RandomCoversDto;
+import main_service.cover.entity.Cover;
 import main_service.cover.service.CoverService;
 import main_service.cover.service.UrlDto;
 import main_service.playlist.dto.PlaylistNewDto;
 import main_service.playlist.dto.PlaylistUpdateDto;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -47,5 +51,4 @@ public class CoverController {
 
         return service.updatePlaylistCover(vibe, isAbstract, playlistId, userToken, isLoFi);
     }
-
 }

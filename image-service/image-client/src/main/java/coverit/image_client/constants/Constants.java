@@ -39,7 +39,7 @@ public interface Constants {
     String NATURE_INSTRUCTION = "The picture should include natural landscape, be organic, fantasy";
 
     //Breaking down vibe settings
-    String GPT_BREAKING_DOWN = "You must describe sad and nostalgic landscape: [what is shown in 2-3 words], [description of gloomy surrounding in 3-5 words]. The final description should be dreary, melancholic. Do not use interrogative sentences, provide only a description. ";
+    String GPT_BREAKING_DOWN = "You must describe sad landscape: [what is shown in 2-3 words], [description of gloomy surrounding in 3-5 words]. The final description should be dreary, melancholic. Do not use interrogative sentences, provide only a description. ";
     String BREAKING_DOWN_INSTRUCTION = "The picture should be 3D render, foggy, blurred, minimalistic. ";
 
     //Campfire calmness vibe settings
