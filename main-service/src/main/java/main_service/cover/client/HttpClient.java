@@ -4,6 +4,7 @@ import main_service.constants.Constants;
 import main_service.cover.service.UrlDto;
 import main_service.playlist.dto.CoverResponse;
 import main_service.playlist.dto.PlaylistDto;
+import main_service.playlist.request.PlaylistRequest;
 import main_service.release.dto.ReleaseRequestDto;
 import org.springframework.http.*;
 import org.springframework.lang.Nullable;
@@ -36,25 +37,13 @@ public class HttpClient {
         );
     }
 
-    protected ResponseEntity<CoverResponse> coverPlaylist(UrlDto body,
-                                                          Constants.Vibe vibe,
-                                                          Boolean isAbstract,
-                                                          Boolean isLoFi,
+    protected ResponseEntity<CoverResponse> coverPlaylist(PlaylistRequest request,
                                                           CoverResponse response) {
-
-        Map<String, Object> params = new HashMap<>(Map.of("is_abstract", isAbstract, "is_lofi", isLoFi));
-
-        if (vibe != null) {
-            params.put("vibe", vibe);
-        } else {
-            params.put("vibe", "none");
-        }
-
         return makeAndSendRequest(
                 POST,
-                "/cover_playlist?vibe={vibe}&is_abstract={is_abstract}&is_lofi={is_lofi}",
-                params,
-                body,
+                "/cover_playlist",
+                null,
+                request,
                 response
         );
     }

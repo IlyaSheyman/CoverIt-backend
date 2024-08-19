@@ -1,12 +1,15 @@
 package main_service.cover.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import main_service.config.converter.StringListConverter;
 import main_service.constants.Constants;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static main_service.constants.Constants.*;
 
@@ -45,14 +48,34 @@ public class Cover {
     @Column(name = "vibe")
     private Constants.Vibe vibe;
 
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "mood")
+    private List<String> mood;
+
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "cover_description")
+    private List<String> coverDescription;
+
+    @Column(name = "object")
+    @Nullable
+    private String object;
+
+    @Column(name = "surrounding")
+    private String surrounding;
+
     @Builder
     public Cover(int id,
                  LocalDateTime created,
-                 String link, String prompt,
+                 String link,
+                 String prompt,
                  Boolean isAbstract,
                  Boolean isLoFi,
                  Boolean isSaved,
-                 Vibe vibe) {
+                 Vibe vibe,
+                 List<String> mood,
+                 List<String> coverDescription,
+                 @Nullable String object,
+                 String surrounding) {
         this.id = id;
         this.created = created;
         this.link = link;
@@ -61,5 +84,9 @@ public class Cover {
         this.isLoFi = isLoFi;
         this.isSaved = isSaved;
         this.vibe = vibe;
+        this.mood = mood;
+        this.coverDescription = coverDescription;
+        this.object = object;
+        this.surrounding = surrounding;
     }
 }
