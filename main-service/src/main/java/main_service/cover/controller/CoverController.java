@@ -12,6 +12,7 @@ import main_service.cover.service.CoverService;
 import main_service.cover.service.UrlDto;
 import main_service.playlist.dto.PlaylistNewDto;
 import main_service.playlist.dto.PlaylistUpdateDto;
+import main_service.playlist.request.PlaylistRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,14 +30,11 @@ public class CoverController {
     @PostMapping("/playlist/generate")
     @Transactional
     @Operation(summary = "Request to generate cover for playlist")
-    public PlaylistNewDto createPlaylistWithCover(@RequestBody @Valid UrlDto url,
-                                                  @RequestParam(name = "vibe", required = false) Constants.Vibe vibe,
-                                                  @RequestParam(name = "is_abstract", defaultValue = "false") Boolean isAbstract,
-                                                  @RequestParam(name = "is_lofi", defaultValue = "true") Boolean isLoFi,
+    public PlaylistNewDto createPlaylistWithCover(@RequestBody @Valid PlaylistRequest request,
                                                   @RequestHeader(name = "Authorization", required = false) String userToken) {
-        log.info("[COVERCONTROLLER] get cover by playlist URL {}", url.getLink());
+        log.info("[COVERCONTROLLER] get cover by playlist URL {}", request.getUrlDto().getLink());
 
-        return service.createPlaylistCover(userToken, url, vibe, isAbstract, isLoFi);
+        return service.createPlaylistCover(userToken, request);
     }
 
     @PatchMapping("/playlist/regenerate")

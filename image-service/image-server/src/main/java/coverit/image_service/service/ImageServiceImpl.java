@@ -37,6 +37,23 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public CoverResponse getPlaylistCoverUrl(String url, Vibe vibe, Boolean isAbstract, Boolean isLoFi) throws ExecutionException, InterruptedException {
+//        if (mood == null
+//                && coverDescription == null
+//                && object == null
+//                && surrounding == null) {
+//            response = client.createPlaylist(urlDto, vibe, isAbstract, isLoFi);
+//        } else if (mood != null
+//                && coverDescription != null
+//                && object == null
+//                && surrounding == null) {
+//            response = client.createPlaylistMiddle(urlDto, mood, coverDescription, isLoFi);
+//        } else if (mood != null
+//                && coverDescription != null
+//                && object != null
+//                && surrounding != null) {
+//            response = client.createPlaylistAdvanced(urlDto, mood, coverDescription, object, surrounding, isLoFi);
+//        }
+        //TODO сделать эту логику
         PlaylistDto playlistDto = getPlayListByUrl(url);
         log.info("playlist name: " + playlistDto.getTitle());
 

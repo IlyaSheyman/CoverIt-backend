@@ -1,10 +1,10 @@
 package main_service.cover.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import main_service.config.converter.StringListConverter;
 import main_service.constants.Constants;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,22 +18,6 @@ import java.util.List;
 @DiscriminatorValue("RELEASE_COVER")
 public class ReleaseCover extends Cover {
 
-    @Convert(converter = StringListConverter.class)
-    @Column(name = "mood")
-    private List<String> mood;
-
-    @Convert(converter = StringListConverter.class)
-    @Column(name = "cover_description")
-    private List<String> coverDescription;
-
-    @Column(name = "object")
-    @Nullable
-    private String object;
-
-    @Column(name = "surrounding")
-    private String surrounding;
-
-
     @Builder(builderMethodName = "releaseCoverBuilder")
     public ReleaseCover(int id,
                         LocalDateTime created,
@@ -44,13 +28,20 @@ public class ReleaseCover extends Cover {
                         Boolean isSaved,
                         Constants.Vibe vibe,
                         List<String> mood,
-                        String object,
-                        String surrounding,
-                        List<String> coverDescription) {
-        super(id, created, link, prompt, isAbstract, isLoFi, isSaved, vibe);
-        this.mood = mood;
-        this.object = object;
-        this.surrounding = surrounding;
-        this.coverDescription = coverDescription;
+                        List<String> coverDescription,
+                        @Nullable String object,
+                        String surrounding) {
+        super(id,
+                created,
+                link,
+                prompt,
+                isAbstract,
+                isLoFi,
+                isSaved,
+                vibe,
+                mood,
+                coverDescription,
+                object,
+                surrounding);
     }
 }

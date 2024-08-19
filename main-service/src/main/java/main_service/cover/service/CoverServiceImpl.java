@@ -15,6 +15,7 @@ import main_service.logs.service.TelegramLogsService;
 import main_service.playlist.dto.*;
 import main_service.playlist.entity.Playlist;
 import main_service.playlist.mapper.PlaylistMapper;
+import main_service.playlist.request.PlaylistRequest;
 import main_service.playlist.storage.PlaylistRepository;
 import main_service.playlist.track.dto.TrackDto;
 import main_service.playlist.track.entity.Track;
@@ -108,12 +109,12 @@ public class CoverServiceImpl implements CoverService {
 
         rabbitTemplate.convertAndSend
                 ("cover.exchange",
-                "cover.check.queue",
-                MessageBuilder
-                        .withBody(message.getBytes())
-                        .setHeader("x-delay", DELETE_COVER_DELAY)
-                        .build()
-        );
+                        "cover.check.queue",
+                        MessageBuilder
+                                .withBody(message.getBytes())
+                                .setHeader("x-delay", DELETE_COVER_DELAY)
+                                .build()
+                );
 
         return releaseMapper.toReleaseNewDto(newRelease);
     }
@@ -267,17 +268,22 @@ public class CoverServiceImpl implements CoverService {
 
     @Override
     public PlaylistNewDto createPlaylistCover(String userToken,
-                                              UrlDto urlDto,
-                                              Vibe vibe,
-                                              Boolean isAbstract,
-                                              Boolean isLoFi) {
-        String url = urlDto.getLink();
+                                              PlaylistRequest request) {
+        String url = request.getUrlDto().getLink();
         validateAlreadySaved(url);
+
+        Boolean isLoFi = request.getIsLoFi();
+
+        List<String> mood = request.getMood();
+        List<String> coverDescription = request.getCoverDescription();
+        String object = request.getObject();
+        String surrounding = request.getSurrounding();
+        Vibe vibe = request.getVibe();
 
         PlaylistDto dto = client.getPlaylist(url);
 
         if (dto == null) {
-            throw new RuntimeException("Incorrect response from image generator");
+            throw new RuntimeException("Incorrect response from playlist configurator");
         }
 
         Playlist newPlaylist = Playlist.builder()
@@ -298,23 +304,30 @@ public class CoverServiceImpl implements CoverService {
 
             setCounter(isLoFi, user);
             newPlaylist.setAuthor(user);
-
         }
 
         if (newPlaylist.getAuthor() == null || !newPlaylist.getAuthor().isSubscribed()) {
             setGenerationsLeft(isLoFi, newPlaylist);
         }
 
-        CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, isLoFi);
+        CoverResponse response = client.createPlaylist(request);
+
+        if (response == null) {
+            throw new RuntimeException("Something went wrong while generating cover");
+        }
 
         Cover cover = Cover.builder()
                 .created(LocalDateTime.now())
-                .isAbstract(isAbstract)
+                .isAbstract(request.getIsAbstract())
                 .isLoFi(isLoFi)
                 .vibe(vibe)
                 .isSaved(false)
                 .prompt(response.getPrompt())
                 .link(response.getUrl())
+                .mood(mood)
+                .coverDescription(coverDescription)
+                .object(object)
+                .surrounding(surrounding)
                 .build();
 
         coverRepository.save(cover);
@@ -432,7 +445,7 @@ public class CoverServiceImpl implements CoverService {
                                                    Boolean isLofi,
                                                    Playlist playlist,
                                                    UrlDto urlDto) {
-        CoverResponse response = client.createPlaylistCover(urlDto, vibe, isAbstract, isLofi);
+        CoverResponse response = client.createPlaylist(urlDto, vibe, isAbstract, isLofi);
 
         Cover cover = Cover.builder()
                 .created(LocalDateTime.now())
@@ -587,6 +600,7 @@ public class CoverServiceImpl implements CoverService {
         return releaseCoverRepository.findById(coverId)
                 .orElseThrow(() -> new NotFoundException("Release cover with id " + coverId + " not found"));
     }
+
     private Cover getCoverById(int coverId) {
         return coverRepository.findById(coverId)
                 .orElseThrow(() -> new NotFoundException("Cover with id " + coverId + " not found"));

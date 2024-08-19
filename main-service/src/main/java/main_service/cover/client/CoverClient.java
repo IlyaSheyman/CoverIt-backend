@@ -3,10 +3,10 @@ package main_service.cover.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import main_service.constants.Constants;
 import main_service.cover.service.UrlDto;
 import main_service.playlist.dto.CoverResponse;
 import main_service.playlist.dto.PlaylistDto;
+import main_service.playlist.request.PlaylistRequest;
 import main_service.release.dto.ReleaseRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,11 +36,11 @@ public class CoverClient extends HttpClient {
         return getCoverResponse(res);
     }
 
-    public CoverResponse createPlaylistCover(UrlDto urlDto, Constants.Vibe vibe, Boolean isAbstract, Boolean isLoFi) {
+    public CoverResponse createPlaylist(PlaylistRequest request) {
         log.info("[COVER CLIENT] sending request to generate cover for playlist {} to Image-Service",
-                urlDto.getLink());
+                request.getUrlDto().getLink());
 
-        ResponseEntity<CoverResponse> res = this.coverPlaylist(urlDto, vibe, isAbstract, isLoFi, new CoverResponse());
+        ResponseEntity<CoverResponse> res = this.coverPlaylist(request, new CoverResponse());
 
         return getCoverResponse(res);
     }
